@@ -1,0 +1,27 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Class="RPGProofOfConcept.MapSelect"
+	x:Name="Window"
+	Title="MapSelect" ResizeMode="NoResize" Width="768" Height="535">
+
+	<Grid x:Name="LayoutRoot">
+		<Image Margin="51,53,65,101" Source="Skyrim.jpg" OpacityMask="#FF000C4D" HorizontalAlignment="Center"/>
+		<Path Data="M140.66667,198" Fill="#FF00003D" HorizontalAlignment="Left" Height="1" Margin="140.667,198,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="1"/>
+		<Label Content="Choose your destination" Height="34" Margin="204.666,0,206,53.333" VerticalAlignment="Bottom" FontSize="18.667" HorizontalAlignment="Center"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Right" Height="18.667" Margin="0,229.333,345.334,0" VerticalAlignment="Top" Width="16.666" ToolTip="Cerulean City"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Right" Height="12.667" Margin="0,105.333,254.239,0" VerticalAlignment="Top" Width="12"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Left" Height="16" Margin="168.666,219.333,0,0" VerticalAlignment="Top" Width="15.333"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Right" Height="14.666" Margin="0,0,174.667,148.667" VerticalAlignment="Bottom" Width="12.666"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Left" Height="16" Margin="331.094,0,0,162.333" VerticalAlignment="Bottom" Width="12.667"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Left" Height="15.333" Margin="326.094,155.333,0,0" VerticalAlignment="Top" Width="14"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Left" Height="15.334" Margin="289.667,102.666,0,0" VerticalAlignment="Top" Width="12" ToolTip="Valley of the Lost"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Left" Height="15.334" Margin="244.666,132.333,0,0" VerticalAlignment="Top" Width="14.668"/>
+		<RadioButton Content="RadioButton" HorizontalAlignment="Right" Height="16.667" Margin="0,182.333,225.666,0" VerticalAlignment="Top" Width="13.334"/>
+		<Button Content="Go!" Height="41.333" Margin="236,0,240,12" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="154.667">
+			<Button.Effect>
+				<DropShadowEffect/>
+			</Button.Effect>
+		</Button>
+	</Grid>
+</Window>
