@@ -43,6 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\NetworkPackets\NetworkPacket.cs">
+      <Link>NetworkPackets\NetworkPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NetworkPackets\PacketHandler.cs">
+      <Link>NetworkPackets\PacketHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NetworkPackets\StatePacket.cs">
+      <Link>NetworkPackets\StatePacket.cs</Link>
+    </Compile>
+    <Compile Include="Game.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

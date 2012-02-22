@@ -23,6 +23,8 @@ using System.Net;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using BMORPG.NetworkPackets;
 
 namespace BMORPG_Server
 {
@@ -83,7 +85,6 @@ namespace BMORPG_Server
         {
             if (port == 0)
             {
-                // prompt user for port number (This is here to test local-vs-remote-AI using only this server meaning two different port numbers are needed)
                 Console.WriteLine("Port Number:");
                 port = Convert.ToInt32(Console.ReadLine());
             }
@@ -226,6 +227,14 @@ namespace BMORPG_Server
                         Console.WriteLine("READ:\t{0}", content);
 
                         // Decide what to do with the input here...
+
+                        if (true)
+                        {
+                            // Example of how to start a game thread
+                            Game game = new Game("player1", "player2");
+                            Thread thread = new Thread(game.Start);
+                            thread.Start();
+                        }
 
                     }
                     else

@@ -11,10 +11,13 @@ SET		debugDir=%CD%\%serverDir%\Debug
 SET		serverExe=BMORPG_SERVER.exe
 SET		serverPort=10000
 
-echo	Updating the SVN...
-TortoiseProc /command:update /path:"%CD%" /closeonend:1
+ECHO	Updating the SVN at %CD%...
+REM		First, undo any local changes
+TortoiseProc /command:revert /path:"%CD%" /closeonend:1
+REM		Then, get any new files
+TortoiseProc /command:update /path:"%CD%" /closeonend:1 
 
-echo	Restarting the server...
+ECHO	Restarting the server...
 
 REM		NOTE: This script uses the Release version of the executable if it can
 IF EXIST	%releaseDir%\%serverExe% (
