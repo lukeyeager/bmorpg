@@ -1,5 +1,0 @@
-Z:\431\Server\BMORPG_Server\bin\Debug\BMORPG_Server.exe
-Z:\431\Server\BMORPG_Server\bin\Debug\BMORPG_Server.pdb
-Z:\431\Server\BMORPG_Server\obj\x86\Debug\ResolveAssemblyReference.cache
-Z:\431\Server\BMORPG_Server\obj\x86\Debug\BMORPG_Server.exe
-Z:\431\Server\BMORPG_Server\obj\x86\Debug\BMORPG_Server.pdb
