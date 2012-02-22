@@ -5,6 +5,8 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using System.Diagnostics;
+using System.IO;
 
 namespace BMORPG_Server
 {
@@ -29,16 +31,47 @@ namespace BMORPG_Server
 
         static void Main(string[] args)
         {
+            if (args.Length > 0)
+            {
+                try
+                {
+                    int port = Convert.ToInt32(args[0]);
+                    Console.WriteLine("Using port: " + port);
+                    Start(port);
+                    return;
+                }
+                catch(Exception)
+                {
+                    Console.WriteLine("Failed to convert " + args[0] + " to a port#.");
+                }
+            }
             Start();
+        }
+
+        // In the future, we may use this function to update SVN, then restart the server
+        public static void Restart()
+        {
+            Process proc = new Process();
+            proc.StartInfo.FileName = "RestartServer.bat";
+
+            // Get this directory's parent's parent (../..)
+            string dir = new FileInfo(Directory.GetCurrentDirectory()).Directory.Parent.Parent.FullName;
+            Console.WriteLine("Dir: " + dir);
+            proc.StartInfo.WorkingDirectory = dir;
+            proc.Start();
         }
 
         // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
         // Listens for clients to connect.
-        public static void Start()
+        public static void Start(int port=0)
         {
-            // prompt user for port number (This is here to test local-vs-remote-AI using only this server meaning two different port numbers are needed)
-            Console.WriteLine("Port Number:");
-            int port = Convert.ToInt32(Console.ReadLine());
+            if (port == 0)
+            {
+                // prompt user for port number (This is here to test local-vs-remote-AI using only this server meaning two different port numbers are needed)
+                Console.WriteLine("Port Number:");
+                port = Convert.ToInt32(Console.ReadLine());
+            }
+
             // Establish the local endpoint for the socket.
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
 
