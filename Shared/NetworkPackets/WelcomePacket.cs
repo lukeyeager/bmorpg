@@ -15,25 +15,20 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Runtime.Serialization;
 
 namespace BMORPG.NetworkPackets
 {
     [Serializable]
-    class StatePacket : NetworkPacket
+    class WelcomePacket : NetworkPacket
     {
         [NonSerialized]
-        public const String Identifier = "STATE";
+        public const String Identifier = "WELCOME";
 
-        public int p1Health = 0;
-        public int p2Health = 0;
-        public List<String> modifiers = new List<String>();
+        public String version = "";
 
-        public StatePacket()
+        public WelcomePacket()
         {
             PacketType = Identifier;
         }

@@ -15,26 +15,23 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BMORPG.NetworkPackets;
+using System.IO;
+using System.Runtime.Serialization;
 
 namespace BMORPG.NetworkPackets
 {
-    static class PacketHandler
+    [Serializable]
+    class LoginPacket : NetworkPacket
     {
-        //TODO
-        static int sendPacket(NetworkPacket packet)
-        {
-            return 0;
-        }
+        [NonSerialized]
+        public const String Identifier = "LOGIN";
 
-        //TODO
-        // May need to change input param to be a sequence of bytes or something
-        static NetworkPacket receivePacket()
+        public String username = "";
+        public String password = "";
+
+        public LoginPacket()
         {
-            return new StatePacket();
+            PacketType = Identifier;
         }
     }
 }

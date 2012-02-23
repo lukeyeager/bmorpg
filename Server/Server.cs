@@ -15,15 +15,12 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using BMORPG.NetworkPackets;
 
 namespace BMORPG_Server
@@ -44,26 +41,34 @@ namespace BMORPG_Server
 
     class Server
     {
+        public const string ServerVersion = "1.0";
+        
         // Thread signal.
         public static ManualResetEvent allDone = new ManualResetEvent(false);
 
+        // Program entry point
         static void Main(string[] args)
         {
+            int port = 0;
             if (args.Length > 0)
             {
                 try
                 {
-                    int port = Convert.ToInt32(args[0]);
+                    port = Convert.ToInt32(args[0]);
                     Console.WriteLine("Using port: " + port);
-                    Start(port);
-                    return;
                 }
                 catch(Exception)
                 {
                     Console.WriteLine("Failed to convert " + args[0] + " to a port#.");
                 }
             }
-            Start();
+            while (port == 0)
+            {
+                Console.WriteLine("Port Number:");
+                port = Convert.ToInt32(Console.ReadLine());
+            }
+
+            GetConnections(port);
         }
 
         // In the future, we may use this function to update SVN, then restart the server
@@ -81,20 +86,15 @@ namespace BMORPG_Server
 
         // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
         // Listens for clients to connect.
-        public static void Start(int port=0)
+        // TODO: Use SSL sockets
+        public static void GetConnections(int port)
         {
-            if (port == 0)
-            {
-                Console.WriteLine("Port Number:");
-                port = Convert.ToInt32(Console.ReadLine());
-            }
-
             // Establish the local endpoint for the socket.
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
 
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
+                
             // Bind the socket to the local endpoint and listen for incoming connections.
             try
             {
@@ -108,7 +108,7 @@ namespace BMORPG_Server
 
                     // Start an asynchronous socket to listen for connections.
                     Console.WriteLine("Waiting for a connection...");
-                    listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+                    listener.BeginAccept(new AsyncCallback(AcceptConnection), listener);
 
                     // Wait until a connection is made before continuing.
                     allDone.WaitOne();
@@ -126,7 +126,7 @@ namespace BMORPG_Server
 
         // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
         // Welcomes a new client and listens.
-        public static void AcceptCallback(IAsyncResult ar)
+        public static void AcceptConnection(IAsyncResult ar)
         {
             // Signal the main thread to continue.
             allDone.Set();
@@ -137,28 +137,29 @@ namespace BMORPG_Server
 
             // WELCOME
             Console.WriteLine("Welcoming new client...");
-            Send(handler, "WELCOME\n\r");
+            WelcomePacket sendPacket = new WelcomePacket();
+            sendPacket.version = ServerVersion;
+            sendPacket.socket = handler;
+            //packet.Send(handler);
+            Send(sendPacket);
 
             // Create the state object.
-            StateObject state = new StateObject();
-            state.workSocket = handler;
+            NetworkPacket receivePacket = new NetworkPacket();
+            receivePacket.socket = handler;
 
             // Receive game type from client.
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+            handler.BeginReceive(receivePacket.buffer, 0, receivePacket.buffer.Length, 0, new AsyncCallback(GetPlayerLogin), receivePacket);
         }
 
         // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
         // Sends a string from the server to a client using the given socket.
-        private static void Send(Socket handler, String data)
+        private static void Send(NetworkPacket packet)
         {
-            Console.WriteLine("SENT:\t{0}", data);
-            // Convert the string data to byte data using ASCII encoding.
-            Byte[] byteData = System.Text.Encoding.ASCII.GetBytes(data);
-
             try
             {
+                byte[] data = packet.Serialize();
                 // Begin sending the data to the remote device.
-                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
+                packet.socket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallback), packet);
             }
             catch (SocketException ex)
             {
@@ -173,12 +174,12 @@ namespace BMORPG_Server
             try
             {
                 // Retrieve the socket from the state object.
-                Socket handler = (Socket)ar.AsyncState;
+                NetworkPacket packet = (NetworkPacket)ar.AsyncState;
 
-                if (handler.Connected)
+                if (packet.socket.Connected)
                 {
                     // Complete sending the data to the remote device.
-                    int bytesSent = handler.EndSend(ar);
+                    int bytesSent = packet.socket.EndSend(ar);
                     //Console.WriteLine("Sent {0} bytes to client.", bytesSent);
                 }
                 else
@@ -193,14 +194,14 @@ namespace BMORPG_Server
         }
 
         // Format Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
-        // Receive game type from client.
-        public static void ReadCallback(IAsyncResult ar)
+        // Receive Player information from the Client
+        public static void GetPlayerLogin(IAsyncResult ar)
         {
             String content = String.Empty;
 
             // Retrieve the state object and the handler socket from the asynchronous state object.
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
+            NetworkPacket packet = (NetworkPacket)ar.AsyncState;
+            Socket handler = packet.socket;
 
             try
             {
@@ -212,35 +213,39 @@ namespace BMORPG_Server
 
                     if (bytesRead > 0)
                     {
-                        // data.ToString()
-                        state.sb.Clear();
-                        state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
-                        content = state.sb.ToString();
-
-                        // ignore newline and the initial read
-                        if (content == "\r\n" || content == "???? ????'??????")
+                        for (int i = 0; i < bytesRead; i++)
                         {
-                            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-                            return;
+                            packet.TransmissionBuffer.Add(packet.buffer[i]);
                         }
 
-                        Console.WriteLine("READ:\t{0}", content);
-
-                        // Decide what to do with the input here...
-
-                        if (true)
+                        //we need to read again if this is true
+                        if (bytesRead == packet.buffer.Length)
                         {
-                            // Example of how to start a game thread
-                            Game game = new Game("player1", "player2");
+                            packet.socket.BeginReceive(packet.buffer, 0, packet.buffer.Length, SocketFlags.None, GetPlayerLogin, packet);
+                            Console.Out.WriteLine("Receiving more of the LoginPacket");
+                            return;
+                        }
+                    }
+                    NetworkPacket receivePacket = packet.Deserialize();
+                    if (receivePacket != null && receivePacket is LoginPacket)
+                    {
+                        LoginPacket loginPacket = (LoginPacket)receivePacket;
+                
+                        Console.WriteLine("Attempted login with username=" + loginPacket.username + ", password=" + loginPacket.password);
+                        
+                        //TODO: Check login against database
+
+                        // Example of how to start a game thread
+                        if (false)
+                        {
+                            Game game = new Game(loginPacket.username, "player2");
                             Thread thread = new Thread(game.Start);
                             thread.Start();
                         }
-
                     }
                     else
                     {
-                        // ILLEGAL
-                        Send(handler, "ILLEGAL\n\r");
+                        Console.WriteLine("Received unknown packet");
                     }
                 }
             }

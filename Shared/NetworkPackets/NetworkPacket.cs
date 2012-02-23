@@ -18,10 +18,88 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
+using System.Net.Sockets;
+using System.Reflection;
 
 namespace BMORPG.NetworkPackets
 {
-    abstract class NetworkPacket
+    sealed class AllowAllAssemblyVersionsDeserializationBinder : System.Runtime.Serialization.SerializationBinder
     {
+        public override Type BindToType(string assemblyName, string typeName)
+        {
+            Type typeToDeserialize = null;
+ 
+            String currentAssembly = Assembly.GetExecutingAssembly().FullName;
+ 
+            // In this case we are always using the current assembly
+            assemblyName = currentAssembly;
+ 
+            // Get the type using the typeName and assemblyName
+            typeToDeserialize = Type.GetType(String.Format("{0}, {1}",
+                typeName, assemblyName));
+ 
+            return typeToDeserialize;
+        }
+    }
+
+    [Serializable]
+    class NetworkPacket
+    {
+        [NonSerialized]
+        public Socket socket;
+        [NonSerialized]
+        public List<byte> TransmissionBuffer = new List<byte>();
+        [NonSerialized]
+        public const int BufferSize = 1024;
+        [NonSerialized]
+        public byte[] buffer = new byte[BufferSize];
+        [NonSerialized]
+        protected BinaryFormatter formatter = new BinaryFormatter();
+
+        // Technically, this IS serialized, but we do it manually
+        [NonSerialized]
+        public String PacketType;
+
+        public byte[] Serialize()
+        {
+            MemoryStream mem = new MemoryStream();
+            formatter.Serialize(mem, PacketType);
+            formatter.Serialize(mem, this);
+            return mem.GetBuffer(); ;
+        }
+
+        public NetworkPacket Deserialize()
+        {
+            byte[] dataBuffer = TransmissionBuffer.ToArray();
+            MemoryStream mem = new MemoryStream();
+            mem.Write(dataBuffer, 0, dataBuffer.Length);
+            mem.Seek(0, 0);
+
+            formatter.Binder = new AllowAllAssemblyVersionsDeserializationBinder();
+
+            try
+            {
+                PacketType = (String)formatter.Deserialize(mem);
+                switch (PacketType)
+                {
+                    case WelcomePacket.Identifier:
+                        return (WelcomePacket)formatter.Deserialize(mem);
+                    case StatePacket.Identifier:
+                        return (WelcomePacket)formatter.Deserialize(mem);
+                    case LoginPacket.Identifier:
+                        return (LoginPacket)formatter.Deserialize(mem);
+                    default:
+                        return null;
+                }
+            }
+            catch (SerializationException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
     }
 }
