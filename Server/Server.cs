@@ -76,12 +76,15 @@ namespace BMORPG_Server
         {
             Process proc = new Process();
             proc.StartInfo.FileName = "RestartServer.bat";
+            proc.StartInfo.Arguments = "svn";
 
             // Get this directory's parent's parent (../..)
             string dir = new FileInfo(Directory.GetCurrentDirectory()).Directory.Parent.Parent.FullName;
             Console.WriteLine("Dir: " + dir);
             proc.StartInfo.WorkingDirectory = dir;
             proc.Start();
+
+            Environment.Exit(0);
         }
 
         // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
@@ -242,6 +245,11 @@ namespace BMORPG_Server
                             Thread thread = new Thread(game.Start);
                             thread.Start();
                         }
+                    }
+                    else if (receivePacket != null && receivePacket is RestartPacket)
+                    {
+                        Console.WriteLine("Received RESTART command");
+                        Restart();
                     }
                     else
                     {

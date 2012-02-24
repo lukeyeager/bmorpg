@@ -1,4 +1,4 @@
-echo off
+ECHO	off
 
 REM		RestartServer.bat
 REM		Feb 21, 2012
@@ -11,12 +11,18 @@ SET		debugDir=%CD%\%serverDir%\Debug
 SET		serverExe=BMORPG_SERVER.exe
 SET		serverPort=10000
 
-ECHO	Updating the SVN at %CD%...
-REM		First, undo any local changes
-TortoiseProc /command:revert /path:"%CD%" /closeonend:1
-REM		Then, get any new files
-TortoiseProc /command:update /path:"%CD%" /closeonend:1 
+:ParameterLoop
+IF		"%1"=="" GOTO ParameterLoopEnd
 
+REM		Check for SVN parameter
+IF		"%1"=="svn" (
+	ECHO	Updating the SVN at %CD%...
+	TortoiseProc /command:update /path:"%CD%" /closeonend:1 
+)
+SHIFT
+GOTO	ParameterLoop
+:ParameterLoopEnd
+	
 ECHO	Restarting the server...
 
 REM		NOTE: This script uses the Release version of the executable if it can

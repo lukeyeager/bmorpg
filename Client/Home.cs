@@ -107,5 +107,22 @@ namespace BMORPG_Client
 
             packet.socket.EndSend(result);
         }
+
+        private void Restart_Click(object sender, EventArgs e)
+        {
+            RestartPacket packet = new RestartPacket();
+            packet.updateSvn = true;
+            packet.socket = socket;
+
+            byte[] buffer = packet.Serialize();
+            packet.socket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, SendRestartCallback, packet);
+        }
+
+        public void SendRestartCallback(IAsyncResult result)
+        {
+            RestartPacket packet = (RestartPacket)result.AsyncState;
+
+            packet.socket.EndSend(result);
+        }
     }
 }

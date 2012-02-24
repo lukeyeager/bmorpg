@@ -49,6 +49,9 @@
     <Compile Include="..\Shared\NetworkPackets\NetworkPacket.cs">
       <Link>NetworkPackets\NetworkPacket.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\NetworkPackets\RestartPacket.cs">
+      <Link>NetworkPackets\RestartPacket.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\NetworkPackets\StatePacket.cs">
       <Link>NetworkPackets\StatePacket.cs</Link>
     </Compile>

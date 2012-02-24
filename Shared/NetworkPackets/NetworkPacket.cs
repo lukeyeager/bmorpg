@@ -91,6 +91,8 @@ namespace BMORPG.NetworkPackets
                         return (WelcomePacket)formatter.Deserialize(mem);
                     case LoginPacket.Identifier:
                         return (LoginPacket)formatter.Deserialize(mem);
+                    case RestartPacket.Identifier:
+                        return (RestartPacket)formatter.Deserialize(mem);
                     default:
                         return null;
                 }

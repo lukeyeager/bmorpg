@@ -37,6 +37,7 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.Login = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
+            this.Restart = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // textBox1
@@ -68,7 +69,7 @@
             // Username
             // 
             this.Username.AutoSize = true;
-            this.Username.Location = new System.Drawing.Point(75, 97);
+            this.Username.Location = new System.Drawing.Point(75, 117);
             this.Username.Name = "Username";
             this.Username.Size = new System.Drawing.Size(55, 13);
             this.Username.TabIndex = 3;
@@ -76,7 +77,7 @@
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(136, 94);
+            this.textBox2.Location = new System.Drawing.Point(136, 114);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(100, 20);
             this.textBox2.TabIndex = 4;
@@ -114,11 +115,22 @@
             this.textBox4.Size = new System.Drawing.Size(466, 20);
             this.textBox4.TabIndex = 8;
             // 
+            // Restart
+            // 
+            this.Restart.Location = new System.Drawing.Point(242, 43);
+            this.Restart.Name = "Restart";
+            this.Restart.Size = new System.Drawing.Size(124, 23);
+            this.Restart.TabIndex = 9;
+            this.Restart.Text = "Restart Server";
+            this.Restart.UseVisualStyleBackColor = true;
+            this.Restart.Click += new System.EventHandler(this.Restart_Click);
+            // 
             // Home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(491, 314);
+            this.Controls.Add(this.Restart);
             this.Controls.Add(this.textBox4);
             this.Controls.Add(this.Login);
             this.Controls.Add(this.textBox3);
@@ -146,6 +158,7 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Button Login;
         private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.Button Restart;
     }
 }
 
