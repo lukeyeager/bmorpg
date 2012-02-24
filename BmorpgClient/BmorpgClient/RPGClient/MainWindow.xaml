@@ -1,0 +1,81 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Class="RPGProofOfConcept.MainWindow"
+	x:Name="Window"
+	Title="MainWindow"
+	Width="640" Height="480">
+
+	<Grid x:Name="LayoutRoot">
+		<Button Content="Attack 1" HorizontalAlignment="Right" Height="40" Margin="0,0,40,166" VerticalAlignment="Bottom" Width="140" Foreground="Black" ToolTip="Attack: 20hp">
+			<Button.Effect>
+				<DropShadowEffect/>
+			</Button.Effect>
+			<Button.Background>
+				<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+					<GradientStop Color="#FFF3F3F3" Offset="0"/>
+					<GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+					<GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+					<GradientStop Color="#FF9398E9" Offset="1"/>
+				</LinearGradientBrush>
+			</Button.Background>
+		</Button>
+		<Button Content="Attack 2" HorizontalAlignment="Right" Height="40" Margin="0,0,40,122" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+			<Button.Effect>
+				<DropShadowEffect/>
+			</Button.Effect>
+			<Button.Background>
+				<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+					<GradientStop Color="#FFF3F3F3" Offset="0"/>
+					<GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+					<GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+					<GradientStop Color="#FF9398E9" Offset="1"/>
+				</LinearGradientBrush>
+			</Button.Background>
+		</Button>
+		<Button Content="Defend" HorizontalAlignment="Right" Height="40" Margin="0,0,40,79" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+			<Button.Effect>
+				<DropShadowEffect/>
+			</Button.Effect>
+			<Button.Background>
+				<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+					<GradientStop Color="#FFF3F3F3" Offset="0"/>
+					<GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+					<GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+					<GradientStop Color="#FF9398E9" Offset="1"/>
+				</LinearGradientBrush>
+			</Button.Background>
+		</Button>
+		<Button Content="Special" HorizontalAlignment="Right" Height="40" Margin="0,0,40,35" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+			<Button.Effect>
+				<DropShadowEffect/>
+			</Button.Effect>
+			<Button.Background>
+				<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+					<GradientStop Color="#FFF3F3F3" Offset="0"/>
+					<GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+					<GradientStop Color="#FFDDDDDD" Offset="0.5"/>
+					<GradientStop Color="#FF9398E9" Offset="1"/>
+				</LinearGradientBrush>
+			</Button.Background>
+		</Button>
+		<Image Height="148" Margin="53,0,285,58" VerticalAlignment="Bottom" Source="poke1.jpg"/>
+		<Label Content="Mana: 100" HorizontalAlignment="Left" Height="34" Margin="67,0,0,20" VerticalAlignment="Bottom" Width="93" FontFamily="Quartz MS" FontSize="14.667"/>
+		<Label Content="Health: 100" HorizontalAlignment="Left" Height="34" Margin="184,0,0,20" VerticalAlignment="Bottom" Width="109" FontFamily="Quartz MS" FontSize="14.667"/>
+		<Image Height="129" Margin="309,44,58,0" VerticalAlignment="Top" Source="Char.jpg"/>
+		<Label Content="Enemy Health: 100" HorizontalAlignment="Left" Height="39" Margin="24,26,0,0" VerticalAlignment="Top" Width="168" FontFamily="Quartz MS" FontSize="14.667"/>
+		<Label Content="Enemy Mana: 100" HorizontalAlignment="Left" Height="32" Margin="24,65,0,0" VerticalAlignment="Top" Width="168" FontFamily="Quartz MS" FontSize="14.667"/>
+		<Menu Height="22" Margin="0,0,8,0" VerticalAlignment="Top">
+			<MenuItem Header="File" Height="22" Width="71">
+				<MenuItem Header="Save"/>
+				<MenuItem Header="Load"/>
+				<MenuItem Header="Exit"/>
+			</MenuItem>
+			<MenuItem Header="Help" Height="19" Width="81">
+				<MenuItem Header="How To Play"/>
+			</MenuItem>
+		</Menu>
+		<Label Content="List of enemy attacks?" Height="114" Margin="196,44,285,0" VerticalAlignment="Top"/>
+		<Label Content="What to do with this space?" HorizontalAlignment="Left" Margin="53,162,0,0" Width="224" FontSize="16" Height="45" VerticalAlignment="Top"/>
+	</Grid>
+</Window>
