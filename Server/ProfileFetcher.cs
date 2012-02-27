@@ -14,8 +14,9 @@ namespace BMORPG_Server
         public ProfileFetcher(string name)
         {
             playerName = name;
-            SqlConnection connect = new SqlConnection("user id=username;Pwd=password;server=localhost;" +
-                "Trusted_Connection=yes;database=database;Connection Timeout=5");
+            //need to get details for UID, PWD, and Database
+            SqlConnection connect = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
+                "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
             try
             {
                 connect.Open();
@@ -29,12 +30,14 @@ namespace BMORPG_Server
                 }
 
                 connect.Close();
+                //dummy until schema developed
+                playerProfile = "";
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
+                playerProfile = "";
             }
-            playerProfile = "";
         }
 
         public string getProfile()
