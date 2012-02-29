@@ -18,27 +18,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.IO;
 
 namespace BMORPG_Server
 {
-    class Game
+    // This class should be linked to the database somehow
+    class Player
     {
-        string username1, username2;
+        /// <summary>
+        /// The socket connection related to this user
+        /// </summary>
+        public Stream netStream = null;
 
-        public Game(string _n1, string _n2)
-        {
-            username1 = _n1;
-            username2 = _n2;
-        }
-
-        public void Start()
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                Thread.Sleep(1000);
-                Console.WriteLine(username1 + " vs. " + username2);
-            }
-        }
+        //Username
+        //Player characteristics
     }
 }

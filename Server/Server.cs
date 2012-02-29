@@ -1,6 +1,6 @@
 ﻿/*  This file is part of BMORPG.
 
-    Foobar is free software: you can redistribute it and/or modify
+    BMORPG is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -15,58 +15,88 @@
 */
 
 using System;
-using System.Text;
-using System.Net.Sockets;
-using System.Net;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
-using BMORPG.NetworkPackets;
+using System.Collections.Generic;
+using BMORPG_Server.Listeners;
 
 namespace BMORPG_Server
 {
-    // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
-    // State object for reading client data asynchronously.
-    public class StateObject
-    {
-        // Client  socket.
-        public Socket workSocket = null;
-        // Size of receive buffer.
-        public const int BufferSize = 1024;
-        // Receive buffer.
-        public byte[] buffer = new byte[BufferSize];
-        // Received data string.
-        public StringBuilder sb = new StringBuilder();
-    }
-
+    /// <summary>
+    /// Main class for this Project
+    /// </summary>
     class Server
     {
         public const string ServerVersion = "1.0";
-        
-        // Thread signal.
-        public static ManualResetEvent connectionMade = new ManualResetEvent(false);
 
+        /// <summary>
+        /// This list gets appended with Streams from the TcpListener,
+        /// and Streams are removed by the Authenticator
+        /// </summary>
+        public static List<Stream> incomingConnections = new List<Stream>();
+
+        /// <summary>
+        /// This list gets appended with Players from the Authenticator,
+        /// and Players get removed by the Matchmaker
+        /// </summary>
+        public static List<Player> authenticatedPlayers = new List<Player>();
+
+        /// <summary>
+        /// The MatchMaker adds Games to this list
+        /// </summary>
+        public static List<Game> currentGames = new List<Game>();
+
+        public static Thread listenThread = null;
+        public static ConnectionListener listener = null;
+
+        public static Thread authenticatorThread = null;
+        public static Authenticator authenticator = null;
+
+        public static Thread matchMakerThread = null;
+        public static MatchMaker matchMaker = null;
+        
         // Program entry point
         static void Main(string[] args)
         {
-            int port = 0;
+            // Default
+            int port = 11000;
             if (args.Length > 0)
             {
                 try
                 {
                     port = Convert.ToInt32(args[0]);
-                    Console.WriteLine("Using port: " + port);
-                    GetConnections(port);
                 }
                 catch(Exception)
                 {
                     Console.WriteLine("Failed to convert " + args[0] + " to a port#.");
                 }
             }
-            GetConnections();
+            Console.WriteLine("Using port: " + port);
+
+            listener = new SecureListener("certificates/BmorpgCA.cer", true);
+            listenThread = new Thread(() => listener.Listen(port));
+            listenThread.IsBackground = false;
+            listenThread.Start();
+
+            authenticator = new Authenticator();
+            authenticatorThread = new Thread(authenticator.RunAuthenticator);
+            authenticatorThread.IsBackground = false;
+            authenticatorThread.Start();
+
+            matchMaker = new MatchMaker();
+            matchMakerThread = new Thread(matchMaker.RunMatchMaker);
+            matchMakerThread.IsBackground = false;
+            matchMakerThread.Start();
+
         }
 
         // In the future, we may use this function to update SVN, then restart the server
+
+        /// <summary>
+        /// uhgjyhgkh
+        /// </summary>
+        /// <param name="updateSvn"></param>
         public static void Restart( bool updateSvn = false )
         {
             Process proc = new Process();
@@ -83,45 +113,7 @@ namespace BMORPG_Server
             Environment.Exit(0);
         }
 
-        // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
-        // Listens for clients to connect.
-        // TODO: Use SSL sockets
-        public static void GetConnections(int port = 11000)
-        {
-            // Establish the local endpoint for the socket.
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
-
-            // Create a TCP/IP socket.
-            Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                
-            // Bind the socket to the local endpoint and listen for incoming connections.
-            try
-            {
-                listener.Bind(localEndPoint);
-                listener.Listen(100);
-
-                while (true)
-                {
-                    // Set the event to nonsignaled state.
-                    connectionMade.Reset();
-
-                    // Start an asynchronous socket to listen for connections.
-                    Console.WriteLine("Waiting for a connection...");
-                    listener.BeginAccept(new AsyncCallback(AcceptConnection), listener);
-
-                    // Wait until a connection is made before continuing.
-                    connectionMade.WaitOne();
-                }
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-
-            Console.WriteLine("\nPress ENTER to continue...");
-            Console.Read();
-        }
+/*
 
         // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
         // Welcomes a new client and listens.
@@ -258,6 +250,8 @@ namespace BMORPG_Server
                 Console.WriteLine(ex.Message);
             }
         }
+         
+*/
 
     }
 }

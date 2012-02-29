@@ -28,7 +28,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\Bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -58,9 +58,15 @@
     <Compile Include="..\Shared\NetworkPackets\WelcomePacket.cs">
       <Link>NetworkPackets\WelcomePacket.cs</Link>
     </Compile>
+    <Compile Include="Authenticator.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="MatchMaker.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Listeners\SecureListener.cs" />
+    <Compile Include="Listeners\ConnectionListener.cs" />
+    <Compile Include="Listeners\UnsecureListener.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

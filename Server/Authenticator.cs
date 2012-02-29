@@ -18,27 +18,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.IO;
 
 namespace BMORPG_Server
 {
-    class Game
+    /// <summary>
+    /// This class runs within its own thread. It watches Server.incomingConnections,
+    /// authenticates the Players, then adds them to Server.authenticatedPlayers
+    /// </summary>
+    public class Authenticator
     {
-        string username1, username2;
-
-        public Game(string _n1, string _n2)
+        /// <summary>
+        /// Temporary stub. This is the function that watches Server.incomingConnections
+        /// </summary>
+        public void RunAuthenticator()
         {
-            username1 = _n1;
-            username2 = _n2;
-        }
-
-        public void Start()
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                Thread.Sleep(1000);
-                Console.WriteLine(username1 + " vs. " + username2);
-            }
+            // For example
+            //Stream stream = Server.incomingConnections[0];
+            //stream.BeginRead();
         }
     }
 }
