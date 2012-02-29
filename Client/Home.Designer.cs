@@ -28,118 +28,142 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.Port = new System.Windows.Forms.Label();
-            this.Connect = new System.Windows.Forms.Button();
+            this.IPAddressBox = new System.Windows.Forms.TextBox();
+            this.IpAddress = new System.Windows.Forms.Label();
+            this.ConnectButton = new System.Windows.Forms.Button();
             this.Username = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.UsernameBox = new System.Windows.Forms.TextBox();
             this.Password = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.Login = new System.Windows.Forms.Button();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.Restart = new System.Windows.Forms.Button();
+            this.PasswordBox = new System.Windows.Forms.TextBox();
+            this.LoginButton = new System.Windows.Forms.Button();
+            this.LoginStatusBox = new System.Windows.Forms.TextBox();
+            this.RestartButton = new System.Windows.Forms.Button();
+            this.ConnectionStatusBox = new System.Windows.Forms.TextBox();
+            this.SvnCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
-            // textBox1
+            // IPAddressBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(136, 13);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 20);
-            this.textBox1.TabIndex = 0;
+            this.IPAddressBox.Location = new System.Drawing.Point(173, 57);
+            this.IPAddressBox.Name = "IPAddressBox";
+            this.IPAddressBox.Size = new System.Drawing.Size(100, 20);
+            this.IPAddressBox.TabIndex = 0;
             // 
-            // Port
+            // IpAddress
             // 
-            this.Port.AutoSize = true;
-            this.Port.Location = new System.Drawing.Point(104, 16);
-            this.Port.Name = "Port";
-            this.Port.Size = new System.Drawing.Size(26, 13);
-            this.Port.TabIndex = 1;
-            this.Port.Text = "Port";
+            this.IpAddress.AutoSize = true;
+            this.IpAddress.Location = new System.Drawing.Point(87, 57);
+            this.IpAddress.Name = "IpAddress";
+            this.IpAddress.Size = new System.Drawing.Size(54, 13);
+            this.IpAddress.TabIndex = 1;
+            this.IpAddress.Text = "IpAddress";
             // 
-            // Connect
+            // ConnectButton
             // 
-            this.Connect.Location = new System.Drawing.Point(242, 13);
-            this.Connect.Name = "Connect";
-            this.Connect.Size = new System.Drawing.Size(75, 23);
-            this.Connect.TabIndex = 2;
-            this.Connect.Text = "Connect";
-            this.Connect.UseVisualStyleBackColor = true;
-            this.Connect.Click += new System.EventHandler(this.Connect_Click);
+            this.ConnectButton.Location = new System.Drawing.Point(286, 57);
+            this.ConnectButton.Name = "ConnectButton";
+            this.ConnectButton.Size = new System.Drawing.Size(75, 23);
+            this.ConnectButton.TabIndex = 2;
+            this.ConnectButton.Text = "Connect";
+            this.ConnectButton.UseVisualStyleBackColor = true;
+            this.ConnectButton.Click += new System.EventHandler(this.Connect_Click);
             // 
             // Username
             // 
             this.Username.AutoSize = true;
-            this.Username.Location = new System.Drawing.Point(75, 117);
+            this.Username.Location = new System.Drawing.Point(87, 163);
             this.Username.Name = "Username";
             this.Username.Size = new System.Drawing.Size(55, 13);
             this.Username.TabIndex = 3;
             this.Username.Text = "Username";
             // 
-            // textBox2
+            // UsernameBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(136, 114);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 20);
-            this.textBox2.TabIndex = 4;
+            this.UsernameBox.Location = new System.Drawing.Point(173, 160);
+            this.UsernameBox.Name = "UsernameBox";
+            this.UsernameBox.Size = new System.Drawing.Size(100, 20);
+            this.UsernameBox.TabIndex = 4;
             // 
             // Password
             // 
             this.Password.AutoSize = true;
-            this.Password.Location = new System.Drawing.Point(77, 143);
+            this.Password.Location = new System.Drawing.Point(87, 196);
             this.Password.Name = "Password";
             this.Password.Size = new System.Drawing.Size(53, 13);
             this.Password.TabIndex = 5;
             this.Password.Text = "Password";
             // 
-            // textBox3
+            // PasswordBox
             // 
-            this.textBox3.Location = new System.Drawing.Point(136, 140);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(100, 20);
-            this.textBox3.TabIndex = 6;
+            this.PasswordBox.Location = new System.Drawing.Point(173, 193);
+            this.PasswordBox.Name = "PasswordBox";
+            this.PasswordBox.Size = new System.Drawing.Size(100, 20);
+            this.PasswordBox.TabIndex = 6;
             // 
-            // Login
+            // LoginButton
             // 
-            this.Login.Location = new System.Drawing.Point(243, 140);
-            this.Login.Name = "Login";
-            this.Login.Size = new System.Drawing.Size(75, 23);
-            this.Login.TabIndex = 7;
-            this.Login.Text = "Login";
-            this.Login.UseVisualStyleBackColor = true;
-            this.Login.Click += new System.EventHandler(this.Login_Click);
+            this.LoginButton.Location = new System.Drawing.Point(286, 160);
+            this.LoginButton.Name = "LoginButton";
+            this.LoginButton.Size = new System.Drawing.Size(75, 23);
+            this.LoginButton.TabIndex = 7;
+            this.LoginButton.Text = "Login";
+            this.LoginButton.UseVisualStyleBackColor = true;
+            this.LoginButton.Click += new System.EventHandler(this.Login_Click);
             // 
-            // textBox4
+            // LoginStatusBox
             // 
-            this.textBox4.Location = new System.Drawing.Point(13, 282);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(466, 20);
-            this.textBox4.TabIndex = 8;
+            this.LoginStatusBox.Location = new System.Drawing.Point(90, 219);
+            this.LoginStatusBox.Name = "LoginStatusBox";
+            this.LoginStatusBox.ReadOnly = true;
+            this.LoginStatusBox.Size = new System.Drawing.Size(183, 20);
+            this.LoginStatusBox.TabIndex = 8;
             // 
-            // Restart
+            // RestartButton
             // 
-            this.Restart.Location = new System.Drawing.Point(242, 43);
-            this.Restart.Name = "Restart";
-            this.Restart.Size = new System.Drawing.Size(124, 23);
-            this.Restart.TabIndex = 9;
-            this.Restart.Text = "Restart Server";
-            this.Restart.UseVisualStyleBackColor = true;
-            this.Restart.Click += new System.EventHandler(this.Restart_Click);
+            this.RestartButton.Location = new System.Drawing.Point(286, 84);
+            this.RestartButton.Name = "RestartButton";
+            this.RestartButton.Size = new System.Drawing.Size(124, 23);
+            this.RestartButton.TabIndex = 9;
+            this.RestartButton.Text = "Restart Server";
+            this.RestartButton.UseVisualStyleBackColor = true;
+            this.RestartButton.Click += new System.EventHandler(this.Restart_Click);
+            // 
+            // ConnectionStatusBox
+            // 
+            this.ConnectionStatusBox.Location = new System.Drawing.Point(90, 87);
+            this.ConnectionStatusBox.Name = "ConnectionStatusBox";
+            this.ConnectionStatusBox.ReadOnly = true;
+            this.ConnectionStatusBox.Size = new System.Drawing.Size(183, 20);
+            this.ConnectionStatusBox.TabIndex = 10;
+            this.ConnectionStatusBox.Text = "Not Connected";
+            // 
+            // SvnCheckBox
+            // 
+            this.SvnCheckBox.AutoSize = true;
+            this.SvnCheckBox.Location = new System.Drawing.Point(417, 89);
+            this.SvnCheckBox.Name = "SvnCheckBox";
+            this.SvnCheckBox.Size = new System.Drawing.Size(48, 17);
+            this.SvnCheckBox.TabIndex = 11;
+            this.SvnCheckBox.Text = "SVN";
+            this.SvnCheckBox.UseVisualStyleBackColor = true;
             // 
             // Home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(491, 314);
-            this.Controls.Add(this.Restart);
-            this.Controls.Add(this.textBox4);
-            this.Controls.Add(this.Login);
-            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.SvnCheckBox);
+            this.Controls.Add(this.ConnectionStatusBox);
+            this.Controls.Add(this.RestartButton);
+            this.Controls.Add(this.LoginStatusBox);
+            this.Controls.Add(this.LoginButton);
+            this.Controls.Add(this.PasswordBox);
             this.Controls.Add(this.Password);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.UsernameBox);
             this.Controls.Add(this.Username);
-            this.Controls.Add(this.Connect);
-            this.Controls.Add(this.Port);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.ConnectButton);
+            this.Controls.Add(this.IpAddress);
+            this.Controls.Add(this.IPAddressBox);
             this.Name = "Home";
             this.Text = "Connection Window";
             this.ResumeLayout(false);
@@ -149,16 +173,18 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label Port;
-        private System.Windows.Forms.Button Connect;
+        private System.Windows.Forms.TextBox IPAddressBox;
+        private System.Windows.Forms.Label IpAddress;
+        private System.Windows.Forms.Button ConnectButton;
         private System.Windows.Forms.Label Username;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox UsernameBox;
         private System.Windows.Forms.Label Password;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Button Login;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.Button Restart;
+        private System.Windows.Forms.TextBox PasswordBox;
+        private System.Windows.Forms.Button LoginButton;
+        private System.Windows.Forms.TextBox LoginStatusBox;
+        private System.Windows.Forms.Button RestartButton;
+        private System.Windows.Forms.TextBox ConnectionStatusBox;
+        private System.Windows.Forms.CheckBox SvnCheckBox;
     }
 }
 

@@ -9,7 +9,7 @@ SET		serverDir=Server\bin
 SET		releaseDir=%CD%\%serverDir%\Release
 SET		debugDir=%CD%\%serverDir%\Debug
 SET		serverExe=BMORPG_SERVER.exe
-SET		serverPort=10000
+SET		serverPort=""
 
 :ParameterLoop
 IF		"%1"=="" GOTO ParameterLoopEnd

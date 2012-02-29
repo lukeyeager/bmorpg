@@ -44,7 +44,7 @@ namespace BMORPG_Server
         public const string ServerVersion = "1.0";
         
         // Thread signal.
-        public static ManualResetEvent allDone = new ManualResetEvent(false);
+        public static ManualResetEvent connectionMade = new ManualResetEvent(false);
 
         // Program entry point
         static void Main(string[] args)
@@ -56,27 +56,23 @@ namespace BMORPG_Server
                 {
                     port = Convert.ToInt32(args[0]);
                     Console.WriteLine("Using port: " + port);
+                    GetConnections(port);
                 }
                 catch(Exception)
                 {
                     Console.WriteLine("Failed to convert " + args[0] + " to a port#.");
                 }
             }
-            while (port == 0)
-            {
-                Console.WriteLine("Port Number:");
-                port = Convert.ToInt32(Console.ReadLine());
-            }
-
-            GetConnections(port);
+            GetConnections();
         }
 
         // In the future, we may use this function to update SVN, then restart the server
-        public static void Restart()
+        public static void Restart( bool updateSvn = false )
         {
             Process proc = new Process();
             proc.StartInfo.FileName = "RestartServer.bat";
-            proc.StartInfo.Arguments = "svn";
+            if (updateSvn)
+                proc.StartInfo.Arguments = "svn";
 
             // Get this directory's parent's parent (../..)
             string dir = new FileInfo(Directory.GetCurrentDirectory()).Directory.Parent.Parent.FullName;
@@ -90,7 +86,7 @@ namespace BMORPG_Server
         // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
         // Listens for clients to connect.
         // TODO: Use SSL sockets
-        public static void GetConnections(int port)
+        public static void GetConnections(int port = 11000)
         {
             // Establish the local endpoint for the socket.
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
@@ -107,14 +103,14 @@ namespace BMORPG_Server
                 while (true)
                 {
                     // Set the event to nonsignaled state.
-                    allDone.Reset();
+                    connectionMade.Reset();
 
                     // Start an asynchronous socket to listen for connections.
                     Console.WriteLine("Waiting for a connection...");
                     listener.BeginAccept(new AsyncCallback(AcceptConnection), listener);
 
                     // Wait until a connection is made before continuing.
-                    allDone.WaitOne();
+                    connectionMade.WaitOne();
                 }
 
             }
@@ -132,7 +128,7 @@ namespace BMORPG_Server
         public static void AcceptConnection(IAsyncResult ar)
         {
             // Signal the main thread to continue.
-            allDone.Set();
+            connectionMade.Set();
 
             // Get the socket that handles the client request.
             Socket listener = (Socket)ar.AsyncState;
@@ -249,7 +245,7 @@ namespace BMORPG_Server
                     else if (receivePacket != null && receivePacket is RestartPacket)
                     {
                         Console.WriteLine("Received RESTART command");
-                        Restart();
+                        Restart(((RestartPacket)receivePacket).updateSvn);
                     }
                     else
                     {

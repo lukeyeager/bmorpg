@@ -34,95 +34,111 @@ namespace BMORPG_Client
         private void Connect_Click(object sender, EventArgs e)
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
-            IPEndPoint ipEndpoint = new IPEndPoint(ipAddress, Int32.Parse(textBox1.Text));
+            try {
+                IPAddress ipAddress;
+                if (IpAddress.Text == "")
+                    ipAddress = IPAddress.Parse("127.0.0.1");
+                else
+                    ipAddress = IPAddress.Parse(IPAddressBox.Text);
 
-            try
-            {
-                socket.BeginConnect(ipEndpoint, ConnectCallback, socket);
+                IPEndPoint ipEndpoint = new IPEndPoint(ipAddress, 11000);
+                socket.Connect(ipEndpoint);
+                ConnectionStatusBox.Text = "Connected";
+
+                NetworkPacket packet = new NetworkPacket();
+                packet.socket = socket;
+                socket.BeginReceive(packet.buffer, 0, packet.buffer.Length, SocketFlags.None, ReceiveWelcome, packet);
             }
-            catch (SocketException ex)
+            catch (Exception ex)
             {
-                textBox4.Text = ex.Message;
+                ConnectionStatusBox.Text = ex.Message;
             }
-        }
-
-        public void ConnectCallback(IAsyncResult result)
-        {
-            Socket socket = (Socket)result.AsyncState;
-            socket.EndConnect(result);
-
-            NetworkPacket packet = new NetworkPacket();
-            packet.socket = socket;
-            socket.BeginReceive(packet.buffer, 0, packet.buffer.Length, SocketFlags.None, ReceiveWelcome, packet);
         }
 
         public void ReceiveWelcome(IAsyncResult result)
         {
-            NetworkPacket packet = (NetworkPacket)result.AsyncState;
-            int read = packet.socket.EndReceive(result);
-            if (read > 0)
+            try
             {
-                for (int i = 0; i < read; i++)
+                NetworkPacket packet = (NetworkPacket)result.AsyncState;
+                int read = packet.socket.EndReceive(result);
+                if (read > 0)
                 {
-                    packet.TransmissionBuffer.Add(packet.buffer[i]);
-                }
+                    for (int i = 0; i < read; i++)
+                    {
+                        packet.TransmissionBuffer.Add(packet.buffer[i]);
+                    }
 
-                //we need to read again if this is true
-                if (read == packet.buffer.Length)
+                    //we need to read again if this is true
+                    if (read == packet.buffer.Length)
+                    {
+                        packet.socket.BeginReceive(packet.buffer, 0, packet.buffer.Length, SocketFlags.None, ReceiveWelcome, packet);
+                        Console.Out.WriteLine("Receiving more of the WelcomePacket");
+                        return;
+                    }
+                }
+                NetworkPacket receivePacket = packet.Deserialize();
+                if (receivePacket != null && receivePacket is WelcomePacket)
                 {
-                    packet.socket.BeginReceive(packet.buffer, 0, packet.buffer.Length, SocketFlags.None, ReceiveWelcome, packet);
-                    Console.Out.WriteLine("Receiving more of the WelcomePacket");
-                    return;
+                    WelcomePacket welcomePacket = (WelcomePacket)receivePacket;
+
+                    MessageBox.Show("Server version: " + welcomePacket.version);
+                }
+                else
+                {
+                    MessageBox.Show("Received unknown packet.");
                 }
             }
-            NetworkPacket receivePacket = packet.Deserialize();
-            if (receivePacket != null && receivePacket is WelcomePacket)
+            catch (Exception ex)
             {
-                WelcomePacket welcomePacket = (WelcomePacket)receivePacket;
-                
-                MessageBox.Show("Server version: " + welcomePacket.version);
-            }
-            else
-            {
-                MessageBox.Show("Received unknown packet.");
+                MessageBox.Show("Exception: {0}", ex.Message);
             }
         }
 
 
         private void Login_Click(object sender, EventArgs e)
         {
-            LoginPacket packet = new LoginPacket();
-            packet.username = textBox2.Text;
-            packet.password = textBox3.Text;
-            packet.socket = socket;
+            if (socket == null || !socket.Connected)
+                LoginStatusBox.Text = "Socket is not connected";
+            else
+            {
+                LoginPacket packet = new LoginPacket();
+                packet.username = UsernameBox.Text;
+                packet.password = PasswordBox.Text;
+                packet.socket = socket;
 
-            byte[] buffer = packet.Serialize();
-            packet.socket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, SendLoginCallback, packet);
-        }
-
-        public void SendLoginCallback(IAsyncResult result)
-        {
-            LoginPacket packet = (LoginPacket)result.AsyncState;
-
-            packet.socket.EndSend(result);
+                try
+                {
+                    byte[] buffer = packet.Serialize();
+                    socket.Send(buffer);
+                    LoginStatusBox.Text = "Sent login information.";
+                }
+                catch (Exception ex)
+                {
+                    LoginStatusBox.Text = ex.Message;
+                }
+            }
         }
 
         private void Restart_Click(object sender, EventArgs e)
         {
-            RestartPacket packet = new RestartPacket();
-            packet.updateSvn = true;
-            packet.socket = socket;
+            if (socket == null || !socket.Connected)
+                LoginStatusBox.Text = "Socket is not connected";
+            else
+            {
+                RestartPacket packet = new RestartPacket();
+                packet.updateSvn = SvnCheckBox.Checked;
 
-            byte[] buffer = packet.Serialize();
-            packet.socket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, SendRestartCallback, packet);
-        }
-
-        public void SendRestartCallback(IAsyncResult result)
-        {
-            RestartPacket packet = (RestartPacket)result.AsyncState;
-
-            packet.socket.EndSend(result);
+                try
+                {
+                    byte[] buffer = packet.Serialize();
+                    socket.Send(buffer);
+                    ConnectionStatusBox.Text = "Sent restart packet";
+                }
+                catch (Exception ex)
+                {
+                    ConnectionStatusBox.Text = ex.Message;
+                }
+            }
         }
     }
 }
