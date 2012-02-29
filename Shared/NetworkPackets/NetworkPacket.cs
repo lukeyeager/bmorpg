@@ -1,6 +1,6 @@
 ﻿/*  This file is part of BMORPG.
 
-    Foobar is free software: you can redistribute it and/or modify
+    BMORPG is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -16,8 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
@@ -26,6 +24,9 @@ using System.Reflection;
 
 namespace BMORPG.NetworkPackets
 {
+    /// <summary>
+    /// This class lets us serialize and deserialize the same objects in different applications
+    /// </summary>
     sealed class AllowAllAssemblyVersionsDeserializationBinder : System.Runtime.Serialization.SerializationBinder
     {
         public override Type BindToType(string assemblyName, string typeName)
@@ -45,8 +46,16 @@ namespace BMORPG.NetworkPackets
         }
     }
 
+    /// <summary>
+    /// Parent class for all packets sent over the network between the Server and the Client.
+    /// </summary>
+    /// <remarks>
+    /// Technically, this class is abstract, since every NetworkPacket is
+    /// really an implementation of a derived class. But due to the serialization,
+    /// it cannot be marked as abstract.
+    /// </remarks>
     [Serializable]
-    class NetworkPacket
+    public class NetworkPacket
     {
         [NonSerialized]
         public Socket socket;
@@ -63,6 +72,10 @@ namespace BMORPG.NetworkPackets
         [NonSerialized]
         public String PacketType;
 
+        /// <summary>
+        /// Convert this object into a byte array
+        /// </summary>
+        /// <returns></returns>
         public byte[] Serialize()
         {
             MemoryStream mem = new MemoryStream();
@@ -71,6 +84,11 @@ namespace BMORPG.NetworkPackets
             return mem.GetBuffer(); ;
         }
 
+        /// <summary>
+        /// Converts the byte array contained in TransmissionBuffer
+        /// into a specific Networkpacket
+        /// </summary>
+        /// <returns>null if the packet cannot be deserialized</returns>
         public NetworkPacket Deserialize()
         {
             byte[] dataBuffer = TransmissionBuffer.ToArray();

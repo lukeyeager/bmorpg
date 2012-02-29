@@ -31,14 +31,14 @@ namespace BMORPG_Server
         public const string ServerVersion = "1.0";
 
         /// <summary>
-        /// This list gets appended with Streams from the TcpListener,
-        /// and Streams are removed by the Authenticator
+        /// The ConnectionListener adds Streams to this list,
+        /// and the Authenticator removes them
         /// </summary>
         public static List<Stream> incomingConnections = new List<Stream>();
 
         /// <summary>
-        /// This list gets appended with Players from the Authenticator,
-        /// and Players get removed by the Matchmaker
+        /// The Authenticator adds Players to this list,
+        /// and the Matchmaker removes them
         /// </summary>
         public static List<Player> authenticatedPlayers = new List<Player>();
 
