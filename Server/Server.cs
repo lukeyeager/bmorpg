@@ -30,6 +30,8 @@ namespace BMORPG_Server
     {
         public const string ServerVersion = "1.0";
 
+        //the incomingConnections List instance is being moved to a class in the file Incoming Connections
+        //in order to make it multi-threaded safe.
         /// <summary>
         /// The ConnectionListener adds Streams to this list,
         /// and the Authenticator removes them

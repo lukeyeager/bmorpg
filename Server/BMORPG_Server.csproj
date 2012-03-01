@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="Authenticator.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="IncomingConnections.cs" />
     <Compile Include="MatchMaker.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Server.cs" />
