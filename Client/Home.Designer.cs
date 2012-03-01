@@ -40,6 +40,7 @@
             this.RestartButton = new System.Windows.Forms.Button();
             this.ConnectionStatusBox = new System.Windows.Forms.TextBox();
             this.SvnCheckBox = new System.Windows.Forms.CheckBox();
+            this.SecureBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // IPAddressBox
@@ -48,6 +49,7 @@
             this.IPAddressBox.Name = "IPAddressBox";
             this.IPAddressBox.Size = new System.Drawing.Size(100, 20);
             this.IPAddressBox.TabIndex = 0;
+            this.IPAddressBox.Text = "127.0.0.1";
             // 
             // IpAddress
             // 
@@ -147,11 +149,24 @@
             this.SvnCheckBox.Text = "SVN";
             this.SvnCheckBox.UseVisualStyleBackColor = true;
             // 
+            // SecureBox
+            // 
+            this.SecureBox.AutoSize = true;
+            this.SecureBox.Checked = true;
+            this.SecureBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.SecureBox.Location = new System.Drawing.Point(368, 59);
+            this.SecureBox.Name = "SecureBox";
+            this.SecureBox.Size = new System.Drawing.Size(60, 17);
+            this.SecureBox.TabIndex = 12;
+            this.SecureBox.Text = "Secure";
+            this.SecureBox.UseVisualStyleBackColor = true;
+            // 
             // Home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(491, 314);
+            this.Controls.Add(this.SecureBox);
             this.Controls.Add(this.SvnCheckBox);
             this.Controls.Add(this.ConnectionStatusBox);
             this.Controls.Add(this.RestartButton);
@@ -185,6 +200,7 @@
         private System.Windows.Forms.Button RestartButton;
         private System.Windows.Forms.TextBox ConnectionStatusBox;
         private System.Windows.Forms.CheckBox SvnCheckBox;
+        private System.Windows.Forms.CheckBox SecureBox;
     }
 }
 

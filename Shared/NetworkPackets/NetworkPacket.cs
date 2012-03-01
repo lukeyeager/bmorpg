@@ -58,7 +58,7 @@ namespace BMORPG.NetworkPackets
     public class NetworkPacket
     {
         [NonSerialized]
-        public Socket socket;
+        public Stream stream;
         [NonSerialized]
         public List<byte> TransmissionBuffer = new List<byte>();
         [NonSerialized]

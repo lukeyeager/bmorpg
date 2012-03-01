@@ -74,7 +74,8 @@ namespace BMORPG_Server
             }
             Console.WriteLine("Using port: " + port);
 
-            listener = new SecureListener("certificates/BmorpgCA.cer", true);
+            //listener = new SecureListener("certificates/BmorpgCA.cer", true);
+            listener = new UnsecureListener();
             listenThread = new Thread(() => listener.Listen(port));
             listenThread.IsBackground = false;
             listenThread.Start();
@@ -89,6 +90,7 @@ namespace BMORPG_Server
             matchMakerThread.IsBackground = false;
             matchMakerThread.Start();
 
+            Console.WriteLine("Done initializing threads.");
         }
 
         // In the future, we may use this function to update SVN, then restart the server
