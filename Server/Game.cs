@@ -20,6 +20,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
+/*To Do:
+ * Get player objects from rest of  server
+ * Decide how to link the players attacks to effect list
+ * 
+ * */
+
+
 namespace BMORPG_Server
 {
     /// <summary>
@@ -38,11 +45,27 @@ namespace BMORPG_Server
 
         public void Start()
         {
-            for (int i = 0; i < 5; i++)
+            /*for (int i = 0; i < 5; i++)
             {
                 Thread.Sleep(1000);
                 Console.WriteLine(username1 + " vs. " + username2);
+            }*/
+
+            // config player 1 to info provided.
+            // config player 2 to info provided.
+
+
+            Console.WriteLine(username1 + " vs. " + username2);
+            // Start armed combat
+
+            while ((one.current_health > 0) || (two.current_health > 0))    // fight to the death
+            {
+                // rec input from one && rec input from two
+                // after both commands rec, compute effect list
+                    //speed affects the order of populating the effect list
+                    //user provided commands(attacks/items) should be last two items in list
             }
+           
         }
 
         private void calculateEffects(Player2 first, Player2 second)
@@ -171,7 +194,21 @@ namespace BMORPG_Server
         /// </summary>
         private class Player2
         {
-            string name;
+
+            public string name;
+            public int base_max_health;
+            public int tot_max_health;
+            public int current_health;
+            public int base_attack;
+            public int tot_attack;
+            public int base_defence;
+            public int tot_defence;
+            public int base_accuracy;
+            public int tot_accuracy;
+            public int base_evasion;
+            public int tot_evasion;
+            public int base_speed;
+            public int tot_speed;
             public List<Effect> effects;
             public List<Effect> addNextTurn;
 
