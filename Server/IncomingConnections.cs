@@ -23,16 +23,29 @@ namespace BMORPG_Server
         public static void push(Stream inCon)
         {
             //need implementation
+            lock (inConLock)
+            {
+                inCons.Add(inCon);
+            }
             return;
         }
 
         /// <summary>
-        /// Removes a Stream object from the front of the List of Stream objects and returns it.
+        /// Removes a Stream object from the front of the List of Stream objects and returns it.  Returns null if the List is empty.
         /// </summary>
         /// <returns>The Stream object at the front of the List</returns>
         public static Stream pop()
         {
             //need implementation
+            Stream temp = null;
+            lock (inConLock)
+            {
+                if (inCons.Count != 0)
+                {
+                    temp = inCons[0];
+                    inCons.RemoveAt(0);
+                }
+            }
             return null;
         }
     }

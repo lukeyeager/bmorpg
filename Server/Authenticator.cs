@@ -36,6 +36,26 @@ namespace BMORPG_Server
             // For example
             //Stream stream = Server.incomingConnections[0];
             //stream.BeginRead();
+            while (true)
+            {
+                Stream incoming = IncomingConnections.pop();
+                if (incoming == null)
+                    continue;
+                //need-to-do list: figure out buffers for different streams; determine what Object to use for last parameter; get packet info from Luke.
+                IAsyncResult result = incoming.BeginRead(null, 0, 0, authenticate, null);
+            }
+        }
+
+        public void authenticate(IAsyncResult result)
+        {
+            if (!result.IsCompleted)
+            {
+                //ummm....
+            }
+            else
+            {
+                //need-to-do list: figure out how to get information from the buffer; decipher that information and make it useable; authenticate.
+            }
         }
     }
 }
