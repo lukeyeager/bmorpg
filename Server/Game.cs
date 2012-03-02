@@ -22,9 +22,13 @@ using System.Threading;
 
 namespace BMORPG_Server
 {
+    /// <summary>
+    /// 
+    /// </summary>
     class Game
     {
         string username1, username2;
+        Player one, two;
 
         public Game(string _n1, string _n2)
         {
@@ -38,6 +42,49 @@ namespace BMORPG_Server
             {
                 Thread.Sleep(1000);
                 Console.WriteLine(username1 + " vs. " + username2);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class Effect
+        {
+            EffectType type;
+            int magnitude;
+            int turnsToLive;
+            bool persistent;
+            Effect linkedEffect;
+
+            public Effect(EffectType t, int m, int ttl, bool p = false, Effect l = null)
+            {
+                type = t;
+                magnitude = m;
+                turnsToLive = ttl;
+                persistent = p;
+                linkedEffect = l;
+            }
+        }
+
+        /// <summary>
+        /// an enumeration for the different types of effects that there are.
+        /// </summary>
+        private enum EffectType
+        {
+
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class Player2
+        {
+            string name;
+            List<Effect> effects;
+
+            public Player2()
+            {
+                effects = new List<Effect>();
             }
         }
     }
