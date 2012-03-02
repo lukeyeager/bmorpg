@@ -28,7 +28,7 @@ namespace BMORPG_Server
     class Game
     {
         string username1, username2;
-        Player one, two;
+        Player2 one, two;
 
         public Game(string _n1, string _n2)
         {
@@ -42,6 +42,68 @@ namespace BMORPG_Server
             {
                 Thread.Sleep(1000);
                 Console.WriteLine(username1 + " vs. " + username2);
+            }
+        }
+
+        private void calculateEffects(Player2 first, Player2 second)
+        {
+            foreach (Effect e in first.effects)
+            {
+                //calculate actual effect on player
+                if (e.Type == EffectType.nullEffect) { }
+                else if (e.Type == EffectType.maxHealth) { }
+                else if (e.Type == EffectType.currentHealth) { }
+                else if (e.Type == EffectType.attack) { }
+                else if (e.Type == EffectType.defense) { }
+                else if (e.Type == EffectType.accuracy) { }
+                else if (e.Type == EffectType.evasion) { }
+                else if (e.Type == EffectType.speed) { }
+                
+                //continue in the Effect's expiration
+                if (e.TurnsToLive == 1)
+                {
+                    //remove the effect from this player's list and check for linked effects.
+                    first.effects.Remove(e);
+                    if (e.LinkedEffect != null)
+                        first.addNextTurn.Add(e.LinkedEffect);
+                }
+                else
+                    e.anotherTurn();
+            }
+            foreach (Effect a in first.addNextTurn)
+            {
+                first.effects.Add(a);
+                first.addNextTurn.Remove(a);
+            }
+
+            //now do the same for the second player
+            foreach (Effect e in first.effects)
+            {
+                //calculate actual effect on player
+                if (e.Type == EffectType.nullEffect) { }
+                else if (e.Type == EffectType.maxHealth) { }
+                else if (e.Type == EffectType.currentHealth) { }
+                else if (e.Type == EffectType.attack) { }
+                else if (e.Type == EffectType.defense) { }
+                else if (e.Type == EffectType.accuracy) { }
+                else if (e.Type == EffectType.evasion) { }
+                else if (e.Type == EffectType.speed) { }
+
+                //continue in the Effect's expiration
+                if (e.TurnsToLive == 1)
+                {
+                    //remove the effect from this player's list and check for linked effects.
+                    first.effects.Remove(e);
+                    if (e.LinkedEffect != null)
+                        first.addNextTurn.Add(e.LinkedEffect);
+                }
+                else
+                    e.anotherTurn();
+            }
+            foreach (Effect a in first.addNextTurn)
+            {
+                first.effects.Add(a);
+                first.addNextTurn.Remove(a);
             }
         }
 
@@ -64,6 +126,36 @@ namespace BMORPG_Server
                 persistent = p;
                 linkedEffect = l;
             }
+
+            public EffectType Type
+            {
+                get { return type; }
+            }
+
+            public int Magnitude
+            {
+                get { return magnitude; }
+            }
+
+            public int TurnsToLive
+            {
+                get { return turnsToLive; }
+            }
+
+            public bool Persistent
+            {
+                get { return persistent; }
+            }
+
+            public Effect LinkedEffect
+            {
+                get { return linkedEffect; }
+            }
+
+            public void anotherTurn()
+            {
+                turnsToLive--;
+            }
         }
 
         /// <summary>
@@ -71,7 +163,7 @@ namespace BMORPG_Server
         /// </summary>
         private enum EffectType
         {
-
+            nullEffect, maxHealth, currentHealth, attack, defense, accuracy, evasion, speed
         };
 
         /// <summary>
@@ -80,11 +172,13 @@ namespace BMORPG_Server
         private class Player2
         {
             string name;
-            List<Effect> effects;
+            public List<Effect> effects;
+            public List<Effect> addNextTurn;
 
             public Player2()
             {
                 effects = new List<Effect>();
+                addNextTurn = new List<Effect>();
             }
         }
     }
