@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using BMORPG.NetworkPackets;
+using System.Data.SqlClient;
 
 namespace BMORPG_Server
 {
@@ -81,6 +82,26 @@ namespace BMORPG_Server
                 LoginPacket loginPacket = (LoginPacket)receivePacket;
                 Console.WriteLine("Attempted login with username=" + loginPacket.username + ", password=" + loginPacket.password);
                 // TODO: database
+
+                SqlConnection connect = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
+                    "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
+
+                try
+                {
+                    connect.Open();
+                    SqlDataReader reader = null;
+                    SqlCommand command = new SqlCommand("", connect);
+                    reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        //read in from schema
+                    }
+                    connect.Close();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
             }
             else
             {

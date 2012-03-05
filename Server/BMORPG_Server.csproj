@@ -66,6 +66,7 @@
     <Compile Include="IncomingConnections.cs" />
     <Compile Include="MatchMaker.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="ProfileFetcher.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Listeners\SecureListener.cs" />
