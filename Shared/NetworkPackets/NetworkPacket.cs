@@ -88,7 +88,7 @@ namespace BMORPG.NetworkPackets
         /// Converts the byte array contained in TransmissionBuffer
         /// into a specific Networkpacket
         /// </summary>
-        /// <returns>null if the packet cannot be deserialized</returns>
+        /// <returns>A base NetworkPacket, with PacketType set if the packet cannot be deserialized</returns>
         public NetworkPacket Deserialize()
         {
             byte[] dataBuffer = TransmissionBuffer.ToArray();
@@ -112,13 +112,14 @@ namespace BMORPG.NetworkPackets
                     case RestartPacket.Identifier:
                         return (RestartPacket)formatter.Deserialize(mem);
                     default:
-                        return null;
+                        return this;
                 }
             }
             catch (SerializationException ex)
             {
+                PacketType = "<none>";
                 Console.WriteLine(ex.Message);
-                return null;
+                return this;
             }
         }
     }

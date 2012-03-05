@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\NetworkPackets\ErrorPacket.cs">
+      <Link>NetworkPackets\ErrorPacket.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\NetworkPackets\LoginPacket.cs">
       <Link>NetworkPackets\LoginPacket.cs</Link>
     </Compile>

@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using BMORPG.NetworkPackets;
 
 namespace BMORPG_Server
 {
@@ -39,22 +40,60 @@ namespace BMORPG_Server
             while (true)
             {
                 Stream incoming = IncomingConnections.pop();
-                if (incoming == null)
-                    continue;
-                //need-to-do list: figure out buffers for different streams; determine what Object to use for last parameter; get packet info from Luke.
-                IAsyncResult result = incoming.BeginRead(null, 0, 0, authenticate, null);
+                if (incoming != null)
+                {
+                    //need-to-do list: figure out buffers for different streams; determine what Object to use for last parameter; get packet info from Luke.
+                    NetworkPacket packet = new NetworkPacket();
+                    packet.stream = incoming;
+                    incoming.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
+                }
             }
         }
 
-        public void authenticate(IAsyncResult result)
+        public void ReceivePacket(IAsyncResult result)
         {
-            if (!result.IsCompleted)
+            NetworkPacket packet = (NetworkPacket)result.AsyncState;
+            int bytesRead = packet.stream.EndRead(result);
+
+            if (bytesRead == 0)
             {
-                //ummm....
+                packet.stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
+                return;
             }
             else
             {
-                //need-to-do list: figure out how to get information from the buffer; decipher that information and make it useable; authenticate.
+                for (int i = 0; i < bytesRead; i++)
+                {
+                    packet.TransmissionBuffer.Add(packet.buffer[i]);
+                }
+
+                //we need to read again if this is false
+                if (packet.TransmissionBuffer.Count != packet.buffer.Length)
+                {
+                    packet.stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
+                    return;
+                }
+            }
+
+            NetworkPacket receivePacket = packet.Deserialize();
+            if (receivePacket is LoginPacket)
+            {
+                LoginPacket loginPacket = (LoginPacket)receivePacket;
+                Console.WriteLine("Attempted login with username=" + loginPacket.username + ", password=" + loginPacket.password);
+                // TODO: database
+            }
+            else
+            {
+                String msg = "Authenticator received unexpected packet type: " + receivePacket.PacketType;
+                Console.WriteLine(msg);
+
+                ErrorPacket errorPacket = new ErrorPacket();
+                errorPacket.message = msg;
+                byte[] buffer = errorPacket.Serialize();
+                receivePacket.stream.Write(buffer, 0, buffer.Length);
+
+                NetworkPacket newReceivePacket = new NetworkPacket();
+                receivePacket.stream.BeginRead(newReceivePacket.buffer, 0, newReceivePacket.buffer.Length, ReceivePacket, newReceivePacket);
             }
         }
     }

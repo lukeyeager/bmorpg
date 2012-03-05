@@ -15,26 +15,22 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
+using System.Runtime.Serialization;
 
-namespace BMORPG_Server
+namespace BMORPG.NetworkPackets
 {
-    // This class should be linked to the database somehow
-    class Player
+    [Serializable]
+    class ErrorPacket : NetworkPacket
     {
-        /// <summary>
-        /// The socket connection related to this user
-        /// </summary>
-        public Stream netStream = null;
+        [NonSerialized]
+        public const String Identifier = "ERROR";
 
-        // Consider this maybe? (LCY)
-        // private int maxHealth;
-        //      Base value based on player stats
-        // public int getMaxHealth();
-        //      This parses the effects list for effects of type MaxHealth, and adds/subtracts the modifiers from the base
+        public String message = "";
 
+        public ErrorPacket()
+        {
+            PacketType = Identifier;
+        }
     }
 }
