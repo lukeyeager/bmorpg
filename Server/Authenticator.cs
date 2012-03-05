@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using BMORPG.NetworkPackets;
+using System.Threading;
 using System.Data.SqlClient;
 
 namespace BMORPG_Server
@@ -31,23 +32,21 @@ namespace BMORPG_Server
     public class Authenticator
     {
         /// <summary>
-        /// Temporary stub. This is the function that watches Server.incomingConnections
+        /// This is the Start() method for this thread, it watches Server.incomingConnections
         /// </summary>
         public void RunAuthenticator()
         {
-            // For example
-            //Stream stream = Server.incomingConnections[0];
-            //stream.BeginRead();
             while (true)
             {
-                Stream incoming = IncomingConnections.pop();
-                if (incoming != null)
+                Stream incoming = null;
+                if (Server.incomingConnections.pop(out incoming))
                 {
-                    //need-to-do list: figure out buffers for different streams; determine what Object to use for last parameter; get packet info from Luke.
                     NetworkPacket packet = new NetworkPacket();
                     packet.stream = incoming;
                     incoming.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
                 }
+
+                Thread.Sleep(Server.SleepTime());
             }
         }
 

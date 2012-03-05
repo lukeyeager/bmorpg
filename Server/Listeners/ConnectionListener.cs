@@ -41,7 +41,7 @@ namespace BMORPG_Server.Listeners
             stream.Write(buffer, 0, buffer.Length);
 
             // Add stream to Server's list of incoming connections
-            Server.incomingConnections.Add(stream);
+            Server.incomingConnections.push(stream);
         }
     }
 }

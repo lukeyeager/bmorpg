@@ -36,18 +36,18 @@ namespace BMORPG_Server
         /// The ConnectionListener adds Streams to this list,
         /// and the Authenticator removes them
         /// </summary>
-        public static List<Stream> incomingConnections = new List<Stream>();
+        public static SafeList<Stream> incomingConnections = new SafeList<Stream>();
 
         /// <summary>
         /// The Authenticator adds Players to this list,
         /// and the Matchmaker removes them
         /// </summary>
-        public static List<Player> authenticatedPlayers = new List<Player>();
+        public static SafeList<Player> authenticatedPlayers = new SafeList<Player>();
 
         /// <summary>
         /// The MatchMaker adds Games to this list
         /// </summary>
-        public static List<Game> currentGames = new List<Game>();
+        public static SafeList<Game> currentGames = new SafeList<Game>();
 
         public static Thread listenThread = null;
         public static ConnectionListener listener = null;
@@ -115,6 +115,16 @@ namespace BMORPG_Server
             proc.Start();
 
             Environment.Exit(0);
+        }
+
+        /// <summary>
+        /// Returns a random amount of time for a thread to sleep
+        /// </summary>
+        /// <returns>Time in milliseconds</returns>
+        public static int SleepTime()
+        {
+            // TODO: Make random
+            return 1000;
         }
 
 /*
