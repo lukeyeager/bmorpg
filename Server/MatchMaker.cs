@@ -30,10 +30,26 @@ namespace BMORPG_Server
         List<Player> players = new List<Player>();
 
         /// <summary>
-        /// Temporary stub. We need some function to run within a thread and watch Server.authenticatedPlayers
+        /// We need some function to run within a thread and watch Server.authenticatedPlayers
+        /// Waits for two or more players to be authenticated and pairs them to play a game.
+        /// Client should receive a "successful login" message while waiting to be paired 
         /// </summary>
         public void RunMatchMaker()
         {
+            Player p1, p2;
+
+            while (true) {
+
+                if (Server.authenticatedPlayers.Count() >= 2)
+                { 
+                    p1 = players[0];
+                    p2 = players[1];
+
+                    Server.authenticatedPlayers.RemoveRange(0, 2);
+                    
+                    Server.currentGames.Add( new Game(p1.ToString(), p2.ToString()) );
+                }
+            }
         }
     }
 }
