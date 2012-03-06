@@ -3,45 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace BMORPG_Server
 {
     class ProfileFetcher
     {
-        string playerName;
-        string playerProfile;
-
-        public ProfileFetcher(string name)
+        public Player fetchProfile(string playerName, Stream netStream)
         {
-            playerName = name;
+            Player playerProfile;
             //need to get details for UID, PWD, and Database
             SqlConnection connect = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
                 "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
+            SqlDataReader reader = null;
+            SqlCommand command = new SqlCommand("SELECT *\nFROM Profile\nWHERE Username = " + playerName, connect);
             try
             {
                 connect.Open();
-
-                SqlDataReader reader = null;
-                SqlCommand command = new SqlCommand("", connect);
                 reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     //read in from schema
                 }
-
+                reader.Close();
                 connect.Close();
                 //dummy until schema developed
-                playerProfile = "";
+                playerProfile = null;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                playerProfile = "";
+                playerProfile = null;
             }
-        }
-
-        public string getProfile()
-        {
             return playerProfile;
         }
     }

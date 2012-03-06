@@ -40,7 +40,7 @@ namespace BMORPG_Server
 
             while (true) {
 
-                if (Server.authenticatedPlayers.Count() >= 2)
+                if (Server.authenticatedPlayers.Count >= 2)
                 { 
                     p1 = players[0];
                     p2 = players[1];

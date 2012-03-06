@@ -31,6 +31,7 @@ namespace BMORPG.NetworkPackets
         public RestartPacket()
         {
             PacketType = Identifier;
+            updateSvn = false;
         }
     }
 }

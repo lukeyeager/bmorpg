@@ -28,7 +28,16 @@ namespace BMORPG_Server
     public class SafeList<T>
     {
         private List<T> list;
-        private object myLock = new Object();
+        private object myLock;// = new Object();
+
+        /// <summary>
+        /// Instatiates the SafeList.
+        /// </summary>
+        public SafeList()
+        {
+            list = new List<T>();
+            myLock = new Object();
+        }
 
         /// <summary>
         /// This method adds an object to the list
@@ -62,6 +71,32 @@ namespace BMORPG_Server
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the number of elements actually contained in the List<T>.
+        /// </summary>
+        public Int32 Count
+        {
+            get
+            {
+                return list.Count;
+            }
+        }
+
+        /// <summary>
+        /// Removes a range of elements from the List<T></T>.
+        /// </summary>
+        /// <param name="index">The zero-based starting index of the range of elements to remove.</param>
+        /// <param name="count">The number of elements to remove.</param>
+        public void RemoveRange(int index, int count)
+        {
+            list.RemoveRange(index, count);
+        }
+
+        public void Add(T item)
+        {
+            list.Add(item);
         }
     }
 }

@@ -82,20 +82,28 @@ namespace BMORPG_Server
                 Console.WriteLine("Attempted login with username=" + loginPacket.username + ", password=" + loginPacket.password);
                 // TODO: database
 
-                SqlConnection connect = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
+                SqlConnection databaseConnection = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
                     "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
-
+                SqlDataReader reader = null;
+                SqlCommand command = new SqlCommand("SELECT Password\nFROM Authenticate\nWHERE Username = " +
+                    loginPacket.username, databaseConnection);
+                command.CommandTimeout = 15;
                 try
                 {
-                    connect.Open();
-                    SqlDataReader reader = null;
-                    SqlCommand command = new SqlCommand("", connect);
+                    databaseConnection.Open();
                     reader = command.ExecuteReader();
-                    while (reader.Read())
+                    reader.Read();
+                    Console.WriteLine("Password in database for " + loginPacket.username + ": " + reader[0]);
+                    if (loginPacket.password == (string) reader[0])
                     {
-                        //read in from schema
+                        //success!
+
                     }
-                    connect.Close();
+                    else
+                    {
+                    }
+                    reader.Close();
+                    databaseConnection.Close();
                 }
                 catch (Exception e)
                 {
