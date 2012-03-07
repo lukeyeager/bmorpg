@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace BMORPG_Server
 {
@@ -39,15 +40,16 @@ namespace BMORPG_Server
             Player p1, p2;
 
             while (true) {
-
                 if (Server.authenticatedPlayers.Count >= 2)
-                { 
-                    p1 = players[0];
-                    p2 = players[1];
+                {
+                    while (!Server.authenticatedPlayers.Pop(out p1)) ;
+                    while (!Server.authenticatedPlayers.Pop(out p2)) ;
 
-                    Server.authenticatedPlayers.RemoveRange(0, 2);
-                    
-                    Server.currentGames.Add( new Game(p1.ToString(), p2.ToString()) );
+                    Game game = new Game(p1, p2);
+                    Thread thread = new Thread(() => game.Start());
+                    thread.Start();
+
+                    Server.currentGames.Push( game );
                 }
             }
         }

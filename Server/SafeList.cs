@@ -43,7 +43,7 @@ namespace BMORPG_Server
         /// This method adds an object to the list
         /// </summary>
         /// <param name="obj"></param>
-        public void push(T obj)
+        public void Push(T obj)
         {
             lock (myLock)
             {
@@ -55,7 +55,7 @@ namespace BMORPG_Server
         /// Stores the first object in the list to obj
         /// </summary>
         /// <returns>False if the list is empty</returns>
-        public bool pop(out T obj)
+        public bool Pop(out T obj)
         {
             lock (myLock)
             {
@@ -84,19 +84,5 @@ namespace BMORPG_Server
             }
         }
 
-        /// <summary>
-        /// Removes a range of elements from the List<T></T>.
-        /// </summary>
-        /// <param name="index">The zero-based starting index of the range of elements to remove.</param>
-        /// <param name="count">The number of elements to remove.</param>
-        public void RemoveRange(int index, int count)
-        {
-            list.RemoveRange(index, count);
-        }
-
-        public void Add(T item)
-        {
-            list.Add(item);
-        }
     }
 }

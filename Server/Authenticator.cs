@@ -39,7 +39,7 @@ namespace BMORPG_Server
             while (true)
             {
                 Stream incoming = null;
-                if (Server.incomingConnections.pop(out incoming))
+                if (Server.incomingConnections.Pop(out incoming))
                 {
                     NetworkPacket packet = new NetworkPacket();
                     packet.stream = incoming;
@@ -50,6 +50,10 @@ namespace BMORPG_Server
             }
         }
 
+        /// <summary>
+        /// Asynchronous callback when a packet is received
+        /// </summary>
+        /// <param name="result"></param>
         public void ReceivePacket(IAsyncResult result)
         {
             NetworkPacket packet = (NetworkPacket)result.AsyncState;
@@ -109,6 +113,10 @@ namespace BMORPG_Server
                 {
                     Console.WriteLine(e.ToString());
                 }
+            }
+            else if (receivePacket is RestartPacket)
+            {
+                Server.Restart(((RestartPacket)receivePacket).updateSvn);
             }
             else
             {

@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using BMORPG.NetworkPackets;
 
 /*To Do:
  * Get player objects from rest of  server
@@ -30,37 +31,87 @@ using System.Threading;
 namespace BMORPG_Server
 {
     /// <summary>
+    /// an enumeration for the different types of effects that there are.
+    /// </summary>
+    /// <remarks>Move to new file?</remarks>
+    public enum EffectType
+    {
+        nullEffect, maxHealth, currentHealth, attack, defense, accuracy, evasion, speed
+    };
+    
+    /// <summary>
     /// 
+    /// </summary>
+    /// <remarks>Move to new file?</remarks>
+    public class Effect
+    {
+        EffectType type;
+        int magnitude;
+        int turnsToLive;
+        bool persistent;
+        Effect linkedEffect;
+
+        public Effect(EffectType t, int m, int ttl, bool p = false, Effect l = null)
+        {
+            type = t;
+            magnitude = m;
+            turnsToLive = ttl;
+            persistent = p;
+            linkedEffect = l;
+        }
+
+        public EffectType Type
+        {
+            get { return type; }
+        }
+
+        public int Magnitude
+        {
+            get { return magnitude; }
+        }
+
+        public int TurnsToLive
+        {
+            get { return turnsToLive; }
+        }
+
+        public bool Persistent
+        {
+            get { return persistent; }
+        }
+
+        public Effect LinkedEffect
+        {
+            get { return linkedEffect; }
+        }
+
+        public void anotherTurn()
+        {
+            turnsToLive--;
+        }
+    }
+
+    /// <summary>
+    /// Represents a game being played between two Players
     /// </summary>
     class Game
     {
-        string username1, username2;
-        Player2 one, two;
+        public Player player1, player2;
 
-        public Game(string _n1, string _n2)
+        public Game(Player p1, Player p2)
         {
-            username1 = _n1;
-            username2 = _n2;
-            one = null;
-            two = null;
+            player1 = p1;
+            player2 = p2;
         }
 
         public void Start()
         {
-            /*for (int i = 0; i < 5; i++)
-            {
-                Thread.Sleep(1000);
-                Console.WriteLine(username1 + " vs. " + username2);
-            }*/
+            Console.WriteLine("Starting Game between " + player1.username + " and " + player2.username);
 
-            // config player 1 to info provided.
-            // config player 2 to info provided.
+            SendStartGamePackets();
 
 
-            Console.WriteLine(username1 + " vs. " + username2);
-            // Start armed combat
-
-            while ((one.current_health > 0) || (two.current_health > 0))    // fight to the death
+            while ((player1.current_health > 0) || (player2.current_health > 0))    // fight to the death
             {
                 // rec input from one && rec input from two
                 // after both commands rec, compute effect list
@@ -70,9 +121,13 @@ namespace BMORPG_Server
            
         }
 
-        private void calculateEffects(Player2 first, Player2 second)
+        private void SendStartGamePackets()
         {
-            foreach (Effect e in first.effects)
+        }
+
+        private void calculateEffects()
+        {
+            foreach (Effect e in player1.effects)
             {
                 //calculate actual effect on player
                 if (e.Type == EffectType.nullEffect) { }
@@ -88,21 +143,21 @@ namespace BMORPG_Server
                 if (e.TurnsToLive == 1)
                 {
                     //remove the effect from this player's list and check for linked effects.
-                    first.effects.Remove(e);
+                    player1.effects.Remove(e);
                     if (e.LinkedEffect != null)
-                        first.addNextTurn.Add(e.LinkedEffect);
+                        player1.addNextTurn.Add(e.LinkedEffect);
                 }
                 else
                     e.anotherTurn();
             }
-            foreach (Effect a in first.addNextTurn)
+            foreach (Effect a in player1.addNextTurn)
             {
-                first.effects.Add(a);
-                first.addNextTurn.Remove(a);
+                player1.effects.Add(a);
+                player1.addNextTurn.Remove(a);
             }
 
             //now do the same for the second player
-            foreach (Effect e in first.effects)
+            foreach (Effect e in player1.effects)
             {
                 //calculate actual effect on player
                 if (e.Type == EffectType.nullEffect) { }
@@ -118,79 +173,21 @@ namespace BMORPG_Server
                 if (e.TurnsToLive == 1)
                 {
                     //remove the effect from this player's list and check for linked effects.
-                    first.effects.Remove(e);
+                    player1.effects.Remove(e);
                     if (e.LinkedEffect != null)
-                        first.addNextTurn.Add(e.LinkedEffect);
+                        player1.addNextTurn.Add(e.LinkedEffect);
                 }
                 else
                     e.anotherTurn();
             }
-            foreach (Effect a in first.addNextTurn)
+            foreach (Effect a in player1.addNextTurn)
             {
-                first.effects.Add(a);
-                first.addNextTurn.Remove(a);
+                player1.effects.Add(a);
+                player1.addNextTurn.Remove(a);
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private class Effect
-        {
-            EffectType type;
-            int magnitude;
-            int turnsToLive;
-            bool persistent;
-            Effect linkedEffect;
-
-            public Effect(EffectType t, int m, int ttl, bool p = false, Effect l = null)
-            {
-                type = t;
-                magnitude = m;
-                turnsToLive = ttl;
-                persistent = p;
-                linkedEffect = l;
-            }
-
-            public EffectType Type
-            {
-                get { return type; }
-            }
-
-            public int Magnitude
-            {
-                get { return magnitude; }
-            }
-
-            public int TurnsToLive
-            {
-                get { return turnsToLive; }
-            }
-
-            public bool Persistent
-            {
-                get { return persistent; }
-            }
-
-            public Effect LinkedEffect
-            {
-                get { return linkedEffect; }
-            }
-
-            public void anotherTurn()
-            {
-                turnsToLive--;
-            }
-        }
-
-        /// <summary>
-        /// an enumeration for the different types of effects that there are.
-        /// </summary>
-        private enum EffectType
-        {
-            nullEffect, maxHealth, currentHealth, attack, defense, accuracy, evasion, speed
-        };
-
+        /*
         /// <summary>
         /// 
         /// </summary>
@@ -234,5 +231,6 @@ namespace BMORPG_Server
                 tot_speed = 0;
             }
         }
+         */
     }
 }
