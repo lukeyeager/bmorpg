@@ -38,6 +38,8 @@ namespace BMORPG_Server
         {
             while (true)
             {
+                Console.WriteLine("Authenticator checking Server.incomingConnections...");
+
                 Stream incoming = null;
                 if (Server.incomingConnections.Pop(out incoming))
                 {
@@ -57,6 +59,10 @@ namespace BMORPG_Server
         public void ReceivePacket(IAsyncResult result)
         {
             NetworkPacket packet = (NetworkPacket)result.AsyncState;
+
+            // This gets set and sent at the end of the function if an error occurs
+            String errorMessage = null;
+
             int bytesRead = packet.stream.EndRead(result);
 
             if (bytesRead == 0)
@@ -83,8 +89,7 @@ namespace BMORPG_Server
             if (receivePacket is LoginPacket)
             {
                 LoginPacket loginPacket = (LoginPacket)receivePacket;
-                Console.WriteLine("Attempted login with username=" + loginPacket.username + ", password=" + loginPacket.password);
-                // TODO: database
+                Console.WriteLine("Attempting login with username=" + loginPacket.username + ", password=" + loginPacket.password);
 
                 SqlConnection databaseConnection = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
                     "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
@@ -100,18 +105,23 @@ namespace BMORPG_Server
                     Console.WriteLine("Password in database for " + loginPacket.username + ": " + reader[0]);
                     if (loginPacket.password == (string) reader[0])
                     {
-                        //success!
+                        Console.WriteLine("Login succeeded for: " + loginPacket.username);
+                        Player player = new Player();
+                        player.username = loginPacket.username;
+                        // Read rest of attributes
 
+                        Server.authenticatedPlayers.Push(player);
                     }
                     else
                     {
+                        errorMessage = "Unrecognized username/password combination.";
                     }
                     reader.Close();
                     databaseConnection.Close();
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
+                    errorMessage = e.ToString();
                 }
             }
             else if (receivePacket is RestartPacket)
@@ -120,11 +130,15 @@ namespace BMORPG_Server
             }
             else
             {
-                String msg = "Authenticator received unexpected packet type: " + receivePacket.PacketType;
-                Console.WriteLine(msg);
+                errorMessage = "Authenticator received unexpected packet type: " + receivePacket.PacketType;
+            }
 
+            if (errorMessage != null)
+            {
+                Console.WriteLine(errorMessage);
                 ErrorPacket errorPacket = new ErrorPacket();
-                errorPacket.message = msg;
+                errorPacket.message = errorMessage;
+
                 byte[] buffer = errorPacket.Serialize();
                 receivePacket.stream.Write(buffer, 0, buffer.Length);
 

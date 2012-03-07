@@ -40,6 +40,7 @@ namespace BMORPG_Server
             Player p1, p2;
 
             while (true) {
+                Console.WriteLine("MatchMaker checking Server.authenticatedPlayers...");
                 if (Server.authenticatedPlayers.Count >= 2)
                 {
                     while (!Server.authenticatedPlayers.Pop(out p1)) ;
@@ -51,6 +52,8 @@ namespace BMORPG_Server
 
                     Server.currentGames.Push( game );
                 }
+
+                Thread.Sleep(Server.SleepTime());
             }
         }
     }

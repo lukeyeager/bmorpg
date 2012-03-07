@@ -118,13 +118,17 @@ namespace BMORPG_Server
         }
 
         /// <summary>
+        /// Creates random numbers
+        /// </summary>
+        static private Random random = new Random();
+
+        /// <summary>
         /// Returns a random amount of time for a thread to sleep
         /// </summary>
         /// <returns>Time in milliseconds</returns>
         public static int SleepTime()
         {
-            // TODO: Make random
-            return 1000;
+            return 1000 + random.Next(500);
         }
 
 /*
