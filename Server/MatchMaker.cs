@@ -41,8 +41,12 @@ namespace BMORPG_Server
                 if (Server.authenticatedPlayers.Count >= 2)
                 {
                     Console.WriteLine("MatchMaker popping 2 players from Server.authenticatedPlayers.");
-                    while (!Server.authenticatedPlayers.Pop(out p1)) ;
-                    while (!Server.authenticatedPlayers.Pop(out p2)) ;
+                    p1 = null;
+                    p2 = null;
+                    while (p1 == null)
+                        p1 = Server.authenticatedPlayers.Pop();
+                    while (p2 == null)
+                        p2 = Server.authenticatedPlayers.Pop();
 
                     Game game = new Game(p1, p2);
                     Thread thread = new Thread(() => game.Start());

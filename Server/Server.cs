@@ -38,18 +38,18 @@ namespace BMORPG_Server
         /// The ConnectionListener adds Streams to this list,
         /// and the Authenticator removes them
         /// </summary>
-        public static SafeList<Stream> incomingConnections = new SafeList<Stream>();
+        public static SafeList<Stream> incomingConnections = new SafeList<Stream>(null);
 
         /// <summary>
         /// The Authenticator adds Players to this list,
         /// and the Matchmaker removes them
         /// </summary>
-        public static SafeList<Player> authenticatedPlayers = new SafeList<Player>();
+        public static SafeList<Player> authenticatedPlayers = new SafeList<Player>(null);
 
         /// <summary>
         /// The MatchMaker adds Games to this list
         /// </summary>
-        public static SafeList<Game> currentGames = new SafeList<Game>();
+        public static SafeList<Game> currentGames = new SafeList<Game>(null);
 
         public static Thread listenThread = null;
         public static ConnectionListener listener = null;

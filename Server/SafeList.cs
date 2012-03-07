@@ -29,14 +29,16 @@ namespace BMORPG_Server
     {
         private List<T> list;
         private object myLock;// = new Object();
+        private T nullObject;
 
         /// <summary>
         /// Instatiates the SafeList.
         /// </summary>
-        public SafeList()
+        public SafeList(T nullObj)
         {
             list = new List<T>();
             myLock = new Object();
+            nullObject = nullObj;
         }
 
         /// <summary>
@@ -55,20 +57,19 @@ namespace BMORPG_Server
         /// Stores the first object in the list to obj
         /// </summary>
         /// <returns>False if the list is empty</returns>
-        public bool Pop(out T obj)
+        public T Pop()
         {
             lock (myLock)
             {
                 if (list.Count > 0)
                 {
-                    obj = list[0];
+                    T obj = list[0];
                     list.RemoveAt(0);
-                    return true;
+                    return obj;
                 }
                 else
                 {
-                    obj = default(T);
-                    return false;
+                    return nullObject;
                 }
             }
         }

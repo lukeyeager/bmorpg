@@ -35,8 +35,8 @@ namespace BMORPG_Server
         {
             while (true)
             {
-                Stream incoming = null;
-                if (Server.incomingConnections.Pop(out incoming))
+                Stream incoming = Server.incomingConnections.Pop();
+                if (incoming != null)
                 {
                     Console.WriteLine("Authenticator popping connection from Server.incomingConnections.");
                     NetworkPacket packet = new NetworkPacket();
@@ -57,7 +57,7 @@ namespace BMORPG_Server
                     }
                 }
 
-                Thread.Sleep(Server.SleepTime());
+                //Thread.Sleep(Server.SleepTime());
             }
         }
 
@@ -116,30 +116,32 @@ namespace BMORPG_Server
                 if (Server.dbConnection == null)
                 {
                     // For now, we'll just assume they're authenticated
-                    player = new Player();
-                    player.netStream = packet.stream;
-                    player.username = loginPacket.username;
-                    player.current_health = 10;
+                    //player = new Player();
+                    //player.netStream = packet.stream;
+                    //player.username = loginPacket.username;
+                    //player.current_health = 10;
                 }
                 else
                 {
                     SqlDataReader reader = null;
-                    SqlCommand command = new SqlCommand("SELECT Password\nFROM Authenticate\nWHERE Username = " +
+                    SqlCommand command = new SqlCommand("SELECT Password, UID\nFROM Authenticate\nWHERE Username = " +
                         loginPacket.username, Server.dbConnection);
                     command.CommandTimeout = 15;
                     try
                     {
                         reader = command.ExecuteReader();
                         reader.Read();
-                        Console.WriteLine("Password in database for " + loginPacket.username + ": " + reader[0]);
-                        if (loginPacket.password == (string)reader[0])
+                        string dbPwd = (string) reader[0];
+                        Int64 UID = (Int64)reader[1];
+                        Console.WriteLine("Password in database for " + loginPacket.username + ": " + dbPwd);
+                        //assumes the first column is the password and the second column is the UID
+                        if (loginPacket.password == dbPwd)
                         {
                             Console.WriteLine("Login succeeded for: " + loginPacket.username);
-                            player = new Player();
-                            player.username = loginPacket.username;
+                            player = new Player(packet.stream, loginPacket.username, UID);
 
-                            // TODO: Read rest of attributes
-
+                            // TODO: Read rest of attributes and populate player object with them.
+                            Server.authenticatedPlayers.Push(player);
                         }
                         else
                         {
@@ -162,10 +164,10 @@ namespace BMORPG_Server
                 if (Server.dbConnection == null)
                 {
                     // For now, assume player is authenticated
-                    player = new Player();
-                    player.netStream = packet.stream;
-                    player.username = createAccountPacket.username;
-                    player.current_health = 10;
+                    //player = new Player();
+                    //player.netStream = packet.stream;
+                    //player.username = createAccountPacket.username;
+                    //player.current_health = 10;
                 }
                 else
                 {
@@ -176,6 +178,7 @@ namespace BMORPG_Server
             }
             else if (receivePacket is RestartPacket)
             {
+                //why restart with a restartpacket from login screen? (JDF)
                 Server.Restart(((RestartPacket)receivePacket).updateSvn);
                 return;
             }

@@ -31,12 +31,16 @@ namespace BMORPG_Server
         public Stream netStream = null;
 
         public String username;
+        public Int64 userID;
 
         // Consider this maybe? (LCY)
         // private int maxHealth;
         //      Base value based on player stats
         // public int getMaxHealth();
         //      This parses the effects list for effects of type MaxHealth, and adds/subtracts the modifiers from the base
+
+        public List<Effect> effects;
+        public List<Effect> addNextTurn;
 
         public int base_max_health;
         public int tot_max_health;
@@ -51,14 +55,14 @@ namespace BMORPG_Server
         public int tot_evasion;
         public int base_speed;
         public int tot_speed;
-        public List<Effect> effects;
-        public List<Effect> addNextTurn;
 
-        public Player()
+        public Player(Stream nStream, string name, Int64 id)
         {
+            netStream = nStream;
+            username = name;
+            userID = id;
             effects = new List<Effect>();
             addNextTurn = new List<Effect>();
-            username = "";
 	        base_max_health = 0;
 	        tot_max_health = 0;
 	        current_health = 0;
