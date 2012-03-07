@@ -15,9 +15,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using BMORPG.NetworkPackets;
 using System.Threading;
@@ -38,14 +35,26 @@ namespace BMORPG_Server
         {
             while (true)
             {
-                Console.WriteLine("Authenticator checking Server.incomingConnections...");
-
                 Stream incoming = null;
                 if (Server.incomingConnections.Pop(out incoming))
                 {
+                    Console.WriteLine("Authenticator popping connection from Server.incomingConnections.");
                     NetworkPacket packet = new NetworkPacket();
                     packet.stream = incoming;
-                    incoming.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
+                    try
+                    {
+                        incoming.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Authenticator: " + ex.Message);
+                        try
+                        {
+                            packet.stream.Close();
+                        }
+                        finally
+                        { }
+                    }
                 }
 
                 Thread.Sleep(Server.SleepTime());
@@ -62,88 +71,160 @@ namespace BMORPG_Server
 
             // This gets set and sent at the end of the function if an error occurs
             String errorMessage = null;
+            Player player = null;
 
-            int bytesRead = packet.stream.EndRead(result);
-
-            if (bytesRead == 0)
+            try
             {
-                packet.stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
-                return;
-            }
-            else
-            {
-                for (int i = 0; i < bytesRead; i++)
-                {
-                    packet.TransmissionBuffer.Add(packet.buffer[i]);
-                }
+                int bytesRead = packet.stream.EndRead(result);
 
-                //we need to read again if this is false
-                if (packet.TransmissionBuffer.Count != packet.buffer.Length)
+                if (bytesRead == 0)
                 {
+                    Console.WriteLine("Authenticator received 0 bytes");
                     packet.stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
                     return;
                 }
+                else
+                {
+                    for (int i = 0; i < bytesRead; i++)
+                    {
+                        packet.TransmissionBuffer.Add(packet.buffer[i]);
+                    }
+
+                    //we need to read again if this is false
+                    if (packet.TransmissionBuffer.Count != packet.buffer.Length)
+                    {
+                        Console.WriteLine("Authenticator has received " + packet.TransmissionBuffer.Count + " bytes.");
+                        packet.stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
+                        return;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Authenticator lost a connection.");
+                packet.stream.Close();
+                return;
             }
 
+
             NetworkPacket receivePacket = packet.Deserialize();
-            if (receivePacket is LoginPacket)
+            if (receivePacket is LoginRequestPacket)
             {
-                LoginPacket loginPacket = (LoginPacket)receivePacket;
+                LoginRequestPacket loginPacket = (LoginRequestPacket)receivePacket;
                 Console.WriteLine("Attempting login with username=" + loginPacket.username + ", password=" + loginPacket.password);
 
-                SqlConnection databaseConnection = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
-                    "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
-                SqlDataReader reader = null;
-                SqlCommand command = new SqlCommand("SELECT Password\nFROM Authenticate\nWHERE Username = " +
-                    loginPacket.username, databaseConnection);
-                command.CommandTimeout = 15;
-                try
+                if (Server.dbConnection == null)
                 {
-                    databaseConnection.Open();
-                    reader = command.ExecuteReader();
-                    reader.Read();
-                    Console.WriteLine("Password in database for " + loginPacket.username + ": " + reader[0]);
-                    if (loginPacket.password == (string) reader[0])
-                    {
-                        Console.WriteLine("Login succeeded for: " + loginPacket.username);
-                        Player player = new Player();
-                        player.username = loginPacket.username;
-                        // Read rest of attributes
-
-                        Server.authenticatedPlayers.Push(player);
-                    }
-                    else
-                    {
-                        errorMessage = "Unrecognized username/password combination.";
-                    }
-                    reader.Close();
-                    databaseConnection.Close();
+                    // For now, we'll just assume they're authenticated
+                    player = new Player();
+                    player.netStream = packet.stream;
+                    player.username = loginPacket.username;
+                    player.current_health = 10;
                 }
-                catch (Exception e)
+                else
                 {
-                    errorMessage = e.ToString();
+                    SqlDataReader reader = null;
+                    SqlCommand command = new SqlCommand("SELECT Password\nFROM Authenticate\nWHERE Username = " +
+                        loginPacket.username, Server.dbConnection);
+                    command.CommandTimeout = 15;
+                    try
+                    {
+                        reader = command.ExecuteReader();
+                        reader.Read();
+                        Console.WriteLine("Password in database for " + loginPacket.username + ": " + reader[0]);
+                        if (loginPacket.password == (string)reader[0])
+                        {
+                            Console.WriteLine("Login succeeded for: " + loginPacket.username);
+                            player = new Player();
+                            player.username = loginPacket.username;
+
+                            // TODO: Read rest of attributes
+
+                        }
+                        else
+                        {
+                            errorMessage = "Unrecognized username/password combination.";
+                        }
+                        reader.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        errorMessage = e.ToString();
+                    }
+                }
+            }
+            else if (receivePacket is CreateAccountPacket)
+            {
+                CreateAccountPacket createAccountPacket = (CreateAccountPacket)receivePacket;
+
+                Console.WriteLine("Trying to create account with username=" + createAccountPacket.username + ", password=" + createAccountPacket.password);
+
+                if (Server.dbConnection == null)
+                {
+                    // For now, assume player is authenticated
+                    player = new Player();
+                    player.netStream = packet.stream;
+                    player.username = createAccountPacket.username;
+                    player.current_health = 10;
+                }
+                else
+                {
+                    //TODO: Database
+
+                    errorMessage = "Not implemented.";
                 }
             }
             else if (receivePacket is RestartPacket)
             {
                 Server.Restart(((RestartPacket)receivePacket).updateSvn);
+                return;
             }
             else
             {
                 errorMessage = "Authenticator received unexpected packet type: " + receivePacket.PacketType;
             }
 
-            if (errorMessage != null)
+
+            if (player != null) //The login succeeded
+            {
+                LoginStatusPacket statusPacket = new LoginStatusPacket();
+                statusPacket.success = true;
+                byte[] buffer = statusPacket.Serialize();
+
+                try
+                {
+                    packet.stream.Write(buffer, 0, buffer.Length);
+                    Server.authenticatedPlayers.Push(player);
+                    Console.WriteLine("Login success: " + player.username);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    packet.stream.Close();
+                }
+            }
+            else if (errorMessage != null) //The login failed
             {
                 Console.WriteLine(errorMessage);
-                ErrorPacket errorPacket = new ErrorPacket();
-                errorPacket.message = errorMessage;
 
-                byte[] buffer = errorPacket.Serialize();
-                receivePacket.stream.Write(buffer, 0, buffer.Length);
+                LoginStatusPacket statusPacket = new LoginStatusPacket();
+                statusPacket.success = false;
+                statusPacket.errorMessage = errorMessage;
+                byte[] buffer = statusPacket.Serialize();
 
-                NetworkPacket newReceivePacket = new NetworkPacket();
-                receivePacket.stream.BeginRead(newReceivePacket.buffer, 0, newReceivePacket.buffer.Length, ReceivePacket, newReceivePacket);
+                try
+                {
+                    packet.stream.Write(buffer, 0, buffer.Length);
+
+                    NetworkPacket newReceivePacket = new NetworkPacket();
+                    packet.stream.BeginRead(newReceivePacket.buffer, 0, newReceivePacket.buffer.Length, ReceivePacket, newReceivePacket);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    packet.stream.Close();
+                }
+
             }
         }
     }

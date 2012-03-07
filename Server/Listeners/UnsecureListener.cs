@@ -48,7 +48,9 @@ namespace BMORPG_Server.Listeners
                     {
                         // Thread blocks while waiting to accept new client
                         Socket client = listener.Accept();
-                        NetworkStream stream = new NetworkStream(client);
+                        NetworkStream stream = new NetworkStream(client, true);
+                        stream.WriteTimeout = 30;
+                        stream.ReadTimeout = 30;
                         AddConnection(stream);
 
                         Console.WriteLine("Client connected: " + client.RemoteEndPoint);

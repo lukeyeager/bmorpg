@@ -152,8 +152,6 @@
             // SecureBox
             // 
             this.SecureBox.AutoSize = true;
-            this.SecureBox.Checked = true;
-            this.SecureBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.SecureBox.Location = new System.Drawing.Point(368, 59);
             this.SecureBox.Name = "SecureBox";
             this.SecureBox.Size = new System.Drawing.Size(60, 17);

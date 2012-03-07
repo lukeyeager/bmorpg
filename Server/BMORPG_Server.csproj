@@ -43,11 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\NetworkPackets\CreateAccountPacket.cs">
+      <Link>NetworkPackets\CreateAccountPacket.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\NetworkPackets\ErrorPacket.cs">
       <Link>NetworkPackets\ErrorPacket.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\NetworkPackets\LoginPacket.cs">
-      <Link>NetworkPackets\LoginPacket.cs</Link>
+    <Compile Include="..\Shared\NetworkPackets\LoginRequestPacket.cs">
+      <Link>NetworkPackets\LoginRequestPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\NetworkPackets\LoginStatusPacket.cs">
+      <Link>NetworkPackets\LoginStatusPacket.cs</Link>
     </Compile>
     <Compile Include="..\Shared\NetworkPackets\NetworkPacket.cs">
       <Link>NetworkPackets\NetworkPacket.cs</Link>

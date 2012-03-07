@@ -21,15 +21,15 @@ using System.Runtime.Serialization;
 namespace BMORPG.NetworkPackets
 {
     [Serializable]
-    class LoginPacket : NetworkPacket
+    class LoginRequestPacket : NetworkPacket
     {
         [NonSerialized]
-        public const String Identifier = "LOGIN";
+        public const String Identifier = "LOGIN_REQUEST";
 
         public String username = "";
         public String password = "";
 
-        public LoginPacket()
+        public LoginRequestPacket()
         {
             PacketType = Identifier;
         }

@@ -23,6 +23,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
+using System.Threading;
 
 namespace BMORPG_Client
 {
@@ -100,6 +101,8 @@ namespace BMORPG_Client
                 {
                     socket.Connect(ipEndpoint);
                     stream = new NetworkStream(socket);
+                    stream.WriteTimeout = 30;
+                    stream.ReadTimeout = 30;
                 }
                 catch (Exception ex)
                 {
@@ -116,7 +119,7 @@ namespace BMORPG_Client
             stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveWelcome, packet);
         }
 
-        public void ReceiveWelcome(IAsyncResult result)
+        private void ReceiveWelcome(IAsyncResult result)
         {
             try
             {
@@ -150,10 +153,9 @@ namespace BMORPG_Client
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Exception: {0}", ex.Message);
+                MessageBox.Show("Exception: " + ex.Message);
             }
         }
-
 
         private void Login_Click(object sender, EventArgs e)
         {
@@ -161,7 +163,7 @@ namespace BMORPG_Client
                 LoginStatusBox.Text = "Socket is not connected";
             else
             {
-                LoginPacket packet = new LoginPacket();
+                LoginRequestPacket packet = new LoginRequestPacket();
                 packet.username = UsernameBox.Text;
                 packet.password = PasswordBox.Text;
 
@@ -170,12 +172,96 @@ namespace BMORPG_Client
                     byte[] buffer = packet.Serialize();
                     stream.Write(buffer, 0, buffer.Length);
                     LoginStatusBox.Text = "Sent login information.";
+
+                    LoginStatusPacket statusPacket = new LoginStatusPacket();
+                    statusPacket.stream = stream;
+                    stream.BeginRead(statusPacket.buffer, 0, statusPacket.buffer.Length, ReceiveLoginStatus, statusPacket);
+                    LoginStatusBox.Text = "Waiting for login status";
                 }
                 catch (Exception ex)
                 {
                     LoginStatusBox.Text = ex.Message;
                 }
             }
+        }
+
+        private void ReceiveLoginStatus(IAsyncResult result)
+        {
+            LoginStatusPacket packet = (LoginStatusPacket)result.AsyncState;
+
+            try
+            {
+                int bytesRead = packet.stream.EndRead(result);
+
+                if (bytesRead == 0)
+                {
+                    MessageBox.Show("ReceiveLoginStatus read 0 bytes");
+                    stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveLoginStatus, packet);
+                    return;
+                }
+                else
+                {
+                    for (int i = 0; i < bytesRead; i++)
+                    {
+                        packet.TransmissionBuffer.Add(packet.buffer[i]);
+                    }
+
+                    //we need to read again if this is false
+                    if (packet.TransmissionBuffer.Count != packet.buffer.Length)
+                    {
+                        MessageBox.Show("ReceiveLoginStatus read " + packet.TransmissionBuffer.Count + " bytes");
+                        stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveLoginStatus, packet);
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            String text;
+            if (packet.success)
+                text = "Login successful";
+            else
+                text = packet.errorMessage;
+            MessageBox.Show(text);
+
+            if (packet.success)
+            {
+                StartGamePacket gamePacket = new StartGamePacket();
+                stream.BeginRead(gamePacket.buffer, 0, gamePacket.buffer.Length, ReceiveGameStart, gamePacket);
+            }
+        }
+
+        private void ReceiveGameStart(IAsyncResult result)
+        {
+            StartGamePacket packet = (StartGamePacket)result.AsyncState;
+
+            int bytesRead = packet.stream.EndRead(result);
+
+            if (bytesRead == 0)
+            {
+                stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveGameStart, packet);
+                return;
+            }
+            else
+            {
+                for (int i = 0; i < bytesRead; i++)
+                {
+                    packet.TransmissionBuffer.Add(packet.buffer[i]);
+                }
+
+                //we need to read again if this is false
+                if (packet.TransmissionBuffer.Count != packet.buffer.Length)
+                {
+                    stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveGameStart, packet);
+                    return;
+                }
+            }
+
+            MessageBox.Show("Playing " + packet.opponentUsername);
+            stream.Close();
         }
 
         private void Restart_Click(object sender, EventArgs e)

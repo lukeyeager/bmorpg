@@ -21,6 +21,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Net.Security;
 
 namespace BMORPG.NetworkPackets
 {
@@ -59,10 +60,11 @@ namespace BMORPG.NetworkPackets
     {
         [NonSerialized]
         public Stream stream;
+
         [NonSerialized]
         public List<byte> TransmissionBuffer = new List<byte>();
         [NonSerialized]
-        public const int BufferSize = 1024;
+        public const int BufferSize = 256;
         [NonSerialized]
         public byte[] buffer = new byte[BufferSize];
         [NonSerialized]
@@ -107,14 +109,18 @@ namespace BMORPG.NetworkPackets
                         return (WelcomePacket)formatter.Deserialize(mem);
                     case StatePacket.Identifier:
                         return (WelcomePacket)formatter.Deserialize(mem);
-                    case LoginPacket.Identifier:
-                        return (LoginPacket)formatter.Deserialize(mem);
+                    case LoginRequestPacket.Identifier:
+                        return (LoginRequestPacket)formatter.Deserialize(mem);
+                    case LoginStatusPacket.Identifier:
+                        return (LoginStatusPacket)formatter.Deserialize(mem);
                     case RestartPacket.Identifier:
                         return (RestartPacket)formatter.Deserialize(mem);
-                    case ErrorPacket.Identifier:
-                        return (ErrorPacket)formatter.Deserialize(mem);
                     case StartGamePacket.Identifier:
                         return (StartGamePacket)formatter.Deserialize(mem);
+                    case CreateAccountPacket.Identifier:
+                        return (CreateAccountPacket)formatter.Deserialize(mem);
+                    case ErrorPacket.Identifier:
+                        return (ErrorPacket)formatter.Deserialize(mem);
                     default:
                         return this;
                 }
@@ -126,5 +132,6 @@ namespace BMORPG.NetworkPackets
                 return this;
             }
         }
+
     }
 }

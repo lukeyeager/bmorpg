@@ -16,8 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace BMORPG_Server
@@ -40,9 +38,9 @@ namespace BMORPG_Server
             Player p1, p2;
 
             while (true) {
-                Console.WriteLine("MatchMaker checking Server.authenticatedPlayers...");
                 if (Server.authenticatedPlayers.Count >= 2)
                 {
+                    Console.WriteLine("MatchMaker popping 2 players from Server.authenticatedPlayers.");
                     while (!Server.authenticatedPlayers.Pop(out p1)) ;
                     while (!Server.authenticatedPlayers.Pop(out p2)) ;
 

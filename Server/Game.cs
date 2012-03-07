@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using BMORPG.NetworkPackets;
+using System.Net.Sockets;
 
 /*To Do:
  * Get player objects from rest of  server
@@ -111,22 +112,31 @@ namespace BMORPG_Server
         {
             Console.WriteLine("Starting Game between " + player1.username + " and " + player2.username);
 
-            SendStartGamePackets();
+            if (!SendStartGamePackets())
+                return;
 
-            while ((player1.current_health > 0) || (player2.current_health > 0))    // fight to the death
+            while ((player1.current_health > 0) && (player2.current_health > 0))    // fight to the death
             {
+                Console.WriteLine("Playing game between " + player1.username + " and " + player2.username);
+
                 // rec input from one && rec input from two
                 // after both commands rec, compute effect list
                     //speed affects the order of populating the effect list
                     //user provided commands(attacks/items) should be last two items in list
+                Thread.Sleep(Server.SleepTime());
             }
-           
+
+            // For now, let's just quit
+            Console.WriteLine("Ending game between " + player1.username + " and " + player2.username);
+            player1.netStream.Close();
+            player2.netStream.Close();
         }
 
         /// <summary>
         /// Lets each Player know the game has started, and sends all relevant data to each player
         /// </summary>
-        private void SendStartGamePackets()
+        /// <returns>True if both Clients are still connected</returns>
+        private bool SendStartGamePackets()
         {
             // Step 1: send to player1
 
@@ -135,7 +145,16 @@ namespace BMORPG_Server
             packet.stream = player1.netStream;
 
             byte[] buffer = packet.Serialize();
-            player1.netStream.BeginWrite(buffer, 0, buffer.Length, SendPacketCallback, packet);
+            try
+            {
+                player1.netStream.BeginWrite(buffer, 0, buffer.Length, SendPacketCallback, player1);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Player1 disconnected.");
+                player1.netStream.Close();
+                return false;
+            }
 
             // Step 2: send to player2
 
@@ -144,7 +163,18 @@ namespace BMORPG_Server
             packet.stream = player2.netStream;
 
             buffer = packet.Serialize();
-            player2.netStream.BeginWrite(buffer, 0, buffer.Length, SendPacketCallback, packet);
+            try
+            {
+                player2.netStream.BeginWrite(buffer, 0, buffer.Length, SendPacketCallback, player1);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Player2 disconnected.");
+                player2.netStream.Close();
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -153,11 +183,21 @@ namespace BMORPG_Server
         /// <param name="result"></param>
         private void SendPacketCallback(IAsyncResult result)
         {
-            NetworkPacket packet = (NetworkPacket)result.AsyncState;
+            Player player = (Player)result.AsyncState;
 
-            packet.stream.EndWrite(result);
+            try
+            {
+                player.netStream.EndWrite(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                player.netStream.Close();
+            }
 
             //TODO: Check for errors
+
+            player.current_health = 0;
         }
 
         private void calculateEffects()

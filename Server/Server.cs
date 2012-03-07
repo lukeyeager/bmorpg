@@ -18,8 +18,8 @@ using System;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
-using System.Collections.Generic;
 using BMORPG_Server.Listeners;
+using System.Data.SqlClient;
 
 namespace BMORPG_Server
 {
@@ -29,6 +29,8 @@ namespace BMORPG_Server
     class Server
     {
         public const string ServerVersion = "1.0";
+
+        public static SqlConnection dbConnection = null;
 
         //the incomingConnections List instance is being moved to a class in the file Incoming Connections
         //in order to make it multi-threaded safe.
@@ -61,8 +63,21 @@ namespace BMORPG_Server
         // Program entry point
         static void Main(string[] args)
         {
-            // Default
-            int port = 11000;
+            // Make database connection
+            try
+            {
+                dbConnection = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
+                    "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
+                dbConnection.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to open database connection: " + ex.Message);
+                dbConnection = null;
+            }
+
+            // Decide which port to use
+            int port = 11000;   //Default
             if (args.Length > 0)
             {
                 try
@@ -76,31 +91,30 @@ namespace BMORPG_Server
             }
             Console.WriteLine("Using port: " + port);
 
+            // Start the Connection Listener
             //listener = new SecureListener("certificates/BmorpgCA.cer", true);
             listener = new UnsecureListener();
             listenThread = new Thread(() => listener.Listen(port));
             listenThread.IsBackground = false;
             listenThread.Start();
 
+            // Start the Authenticator
             authenticator = new Authenticator();
             authenticatorThread = new Thread(authenticator.RunAuthenticator);
             authenticatorThread.IsBackground = false;
             authenticatorThread.Start();
 
+            // Start the MatchMaker
             matchMaker = new MatchMaker();
             matchMakerThread = new Thread(matchMaker.RunMatchMaker);
             matchMakerThread.IsBackground = false;
             matchMakerThread.Start();
-
-            Console.WriteLine("Done initializing threads.");
         }
 
-        // In the future, we may use this function to update SVN, then restart the server
-
         /// <summary>
-        /// uhgjyhgkh
+        /// Restarts the server via a batch script
         /// </summary>
-        /// <param name="updateSvn"></param>
+        /// <param name="updateSvn">Should the script update the SVN before restarting the Server?</param>
         public static void Restart( bool updateSvn = false )
         {
             Process proc = new Process();
@@ -109,7 +123,7 @@ namespace BMORPG_Server
                 proc.StartInfo.Arguments = "svn";
 
             // Get this directory's parent's parent (../..)
-            string dir = new FileInfo(Directory.GetCurrentDirectory()).Directory.Parent.Parent.FullName;
+            string dir = new FileInfo(Directory.GetCurrentDirectory()).Directory.Parent.FullName;
             Console.WriteLine("Dir: " + dir);
             proc.StartInfo.WorkingDirectory = dir;
             proc.Start();
@@ -130,146 +144,6 @@ namespace BMORPG_Server
         {
             return 1000 + random.Next(500);
         }
-
-/*
-
-        // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
-        // Welcomes a new client and listens.
-        public static void AcceptConnection(IAsyncResult ar)
-        {
-            // Signal the main thread to continue.
-            connectionMade.Set();
-
-            // Get the socket that handles the client request.
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
-
-            // WELCOME
-            Console.WriteLine("Welcoming new client...");
-            WelcomePacket sendPacket = new WelcomePacket();
-            sendPacket.version = ServerVersion;
-            sendPacket.socket = handler;
-            //packet.Send(handler);
-            Send(sendPacket);
-
-            // Create the state object.
-            NetworkPacket receivePacket = new NetworkPacket();
-            receivePacket.socket = handler;
-
-            // Receive game type from client.
-            handler.BeginReceive(receivePacket.buffer, 0, receivePacket.buffer.Length, 0, new AsyncCallback(GetPlayerLogin), receivePacket);
-        }
-
-        // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
-        // Sends a string from the server to a client using the given socket.
-        private static void Send(NetworkPacket packet)
-        {
-            try
-            {
-                byte[] data = packet.Serialize();
-                // Begin sending the data to the remote device.
-                packet.socket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallback), packet);
-            }
-            catch (SocketException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        // Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
-        // Specifies what was sent to the client by the server.
-        private static void SendCallback(IAsyncResult ar)
-        {
-            try
-            {
-                // Retrieve the socket from the state object.
-                NetworkPacket packet = (NetworkPacket)ar.AsyncState;
-
-                if (packet.socket.Connected)
-                {
-                    // Complete sending the data to the remote device.
-                    int bytesSent = packet.socket.EndSend(ar);
-                    //Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-                }
-                else
-                {
-                    Console.WriteLine("Unable to send. Player left.");
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
-        // Format Source: http://msdn.microsoft.com/en-us/library/5w7b7x5f.aspx
-        // Receive Player information from the Client
-        public static void GetPlayerLogin(IAsyncResult ar)
-        {
-            String content = String.Empty;
-
-            // Retrieve the state object and the handler socket from the asynchronous state object.
-            NetworkPacket packet = (NetworkPacket)ar.AsyncState;
-            Socket handler = packet.socket;
-
-            try
-            {
-                if (handler.Connected)
-                {
-                    // Read data from the client socket. 
-                    int bytesRead = handler.EndReceive(ar);
-                    //Console.WriteLine("\tBytes Read = {0}", bytesRead);
-
-                    if (bytesRead > 0)
-                    {
-                        for (int i = 0; i < bytesRead; i++)
-                        {
-                            packet.TransmissionBuffer.Add(packet.buffer[i]);
-                        }
-
-                        //we need to read again if this is true
-                        if (bytesRead == packet.buffer.Length)
-                        {
-                            packet.socket.BeginReceive(packet.buffer, 0, packet.buffer.Length, SocketFlags.None, GetPlayerLogin, packet);
-                            Console.Out.WriteLine("Receiving more of the LoginPacket");
-                            return;
-                        }
-                    }
-                    NetworkPacket receivePacket = packet.Deserialize();
-                    if (receivePacket != null && receivePacket is LoginPacket)
-                    {
-                        LoginPacket loginPacket = (LoginPacket)receivePacket;
-                
-                        Console.WriteLine("Attempted login with username=" + loginPacket.username + ", password=" + loginPacket.password);
-                        
-                        //TODO: Check login against database
-
-                        // Example of how to start a game thread
-                        if (false)
-                        {
-                            Game game = new Game(loginPacket.username, "player2");
-                            Thread thread = new Thread(game.Start);
-                            thread.Start();
-                        }
-                    }
-                    else if (receivePacket != null && receivePacket is RestartPacket)
-                    {
-                        Console.WriteLine("Received RESTART command");
-                        Restart(((RestartPacket)receivePacket).updateSvn);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Received unknown packet");
-                    }
-                }
-            }
-            catch (SocketException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-         
-*/
 
     }
 }
