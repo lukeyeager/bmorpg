@@ -104,12 +104,14 @@ namespace BMORPG_Server
             player2 = p2;
         }
 
+        /// <summary>
+        /// Entry point for the Thread
+        /// </summary>
         public void Start()
         {
             Console.WriteLine("Starting Game between " + player1.username + " and " + player2.username);
 
             SendStartGamePackets();
-
 
             while ((player1.current_health > 0) || (player2.current_health > 0))    // fight to the death
             {
@@ -121,8 +123,41 @@ namespace BMORPG_Server
            
         }
 
+        /// <summary>
+        /// Lets each Player know the game has started, and sends all relevant data to each player
+        /// </summary>
         private void SendStartGamePackets()
         {
+            // Step 1: send to player1
+
+            StartGamePacket packet = new StartGamePacket();
+            packet.opponentUsername = player2.username;
+            packet.stream = player1.netStream;
+
+            byte[] buffer = packet.Serialize();
+            player1.netStream.BeginWrite(buffer, 0, buffer.Length, SendPacketCallback, packet);
+
+            // Step 2: send to player2
+
+            packet = new StartGamePacket();
+            packet.opponentUsername = player1.username;
+            packet.stream = player2.netStream;
+
+            buffer = packet.Serialize();
+            player2.netStream.BeginWrite(buffer, 0, buffer.Length, SendPacketCallback, packet);
+        }
+
+        /// <summary>
+        /// Asynchronous callback after sending a packet
+        /// </summary>
+        /// <param name="result"></param>
+        private void SendPacketCallback(IAsyncResult result)
+        {
+            NetworkPacket packet = (NetworkPacket)result.AsyncState;
+
+            packet.stream.EndWrite(result);
+
+            //TODO: Check for errors
         }
 
         private void calculateEffects()
@@ -187,50 +222,5 @@ namespace BMORPG_Server
             }
         }
 
-        /*
-        /// <summary>
-        /// 
-        /// </summary>
-        private class Player2
-        {
-
-            public string name;
-            public int base_max_health;
-            public int tot_max_health;
-            public int current_health;
-            public int base_attack;
-            public int tot_attack;
-            public int base_defence;
-            public int tot_defence;
-            public int base_accuracy;
-            public int tot_accuracy;
-            public int base_evasion;
-            public int tot_evasion;
-            public int base_speed;
-            public int tot_speed;
-            public List<Effect> effects;
-            public List<Effect> addNextTurn;
-
-            public Player2()
-            {
-                effects = new List<Effect>();
-                addNextTurn = new List<Effect>();
-                name = "";
-                base_max_health = 0;
-                tot_max_health = 0;
-                current_health = 0;
-                base_attack = 0;
-                tot_attack = 0;
-                base_defence = 0;
-                tot_defence = 0;
-                base_accuracy = 0;
-                tot_accuracy = 0;
-                base_evasion = 0;
-                tot_evasion = 0;
-                base_speed = 0;
-                tot_speed = 0;
-            }
-        }
-         */
     }
 }

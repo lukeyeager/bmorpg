@@ -58,6 +58,20 @@ namespace BMORPG_Server
         {
             effects = new List<Effect>();
             addNextTurn = new List<Effect>();
+            username = "";
+	        base_max_health = 0;
+	        tot_max_health = 0;
+	        current_health = 0;
+	        base_attack = 0;
+	        tot_attack = 0;
+	        base_defence = 0;
+	        tot_defence = 0;
+	        base_accuracy = 0;
+	        tot_accuracy = 0;
+	        base_evasion = 0;
+	        tot_evasion = 0;
+	        base_speed = 0;
+            tot_speed = 0;
         }
 
     }
