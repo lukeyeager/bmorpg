@@ -144,17 +144,8 @@ namespace BMORPG_Server
             packet.opponentUsername = player2.username;
             packet.stream = player1.netStream;
 
-            byte[] buffer = packet.Serialize();
-            try
-            {
-                player1.netStream.BeginWrite(buffer, 0, buffer.Length, SendPacketCallback, player1);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Player1 disconnected.");
-                player1.netStream.Close();
+            if (!packet.Send(SendStartGamePacketsCallback, player1))
                 return false;
-            }
 
             // Step 2: send to player2
 
@@ -162,44 +153,32 @@ namespace BMORPG_Server
             packet.opponentUsername = player1.username;
             packet.stream = player2.netStream;
 
-            buffer = packet.Serialize();
-            try
-            {
-                player2.netStream.BeginWrite(buffer, 0, buffer.Length, SendPacketCallback, player1);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Player2 disconnected.");
-                player2.netStream.Close();
+            if (!packet.Send(SendStartGamePacketsCallback, player2))
                 return false;
-            }
 
             return true;
         }
 
         /// <summary>
-        /// Asynchronous callback after sending a packet
+        /// Callback after sending a StartGamePacket
         /// </summary>
-        /// <param name="result"></param>
-        private void SendPacketCallback(IAsyncResult result)
+        /// <param name="ex"></param>
+        /// <param name="parameter"></param>
+        private void SendStartGamePacketsCallback(Exception ex, object parameter)
         {
-            Player player = (Player)result.AsyncState;
-
-            try
+            Player player = (Player)parameter;
+            if (ex != null)
             {
-                player.netStream.EndWrite(result);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Game received exception while sending start game packets: " + ex.Message);
                 player.netStream.Close();
             }
-
-            //TODO: Check for errors
+            else
+                Console.WriteLine("Sent start game packet to " + player.username);
 
             player.current_health = 0;
         }
 
+        // Should be deprecated by a function in Player
         private void calculateEffects()
         {
             foreach (Effect e in player1.effects)

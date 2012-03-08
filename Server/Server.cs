@@ -60,7 +60,10 @@ namespace BMORPG_Server
         public static Thread matchMakerThread = null;
         public static MatchMaker matchMaker = null;
         
-        // Program entry point
+        /// <summary>
+        /// Program entry point
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             // Make database connection

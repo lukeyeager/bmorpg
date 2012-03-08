@@ -31,17 +31,42 @@ namespace BMORPG_Server.Listeners
         /// <param name="port"></param>
         public abstract void Listen(int port);
 
+        /// <summary>
+        /// Welcome an incoming stream to the server
+        /// </summary>
+        /// <param name="stream"></param>
         public void AddConnection(Stream stream)
         {
             // Send a welcome to the new connection
             WelcomePacket packet = new WelcomePacket();
             packet.version = Server.ServerVersion;
+            packet.stream = stream;
 
-            byte[] buffer = packet.Serialize();
-            stream.Write(buffer, 0, buffer.Length);
+            if (!packet.Send(SendCallback, stream))
+            {
+                Console.WriteLine("ConnectionListener failed to send welcome packet.");
+                stream.Close();
+            }
+        }
 
-            // Add stream to Server's list of incoming connections
-            Server.incomingConnections.Push(stream);
+        /// <summary>
+        /// Callback after sending a WelcomePacket, 
+        /// Adds the stream to Server.incomingConnections if the send was successful
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="parameter"></param>
+        private void SendCallback(Exception ex, object parameter)
+        {
+            Stream stream = (Stream)parameter;
+            if (ex != null)
+            {
+                Console.WriteLine("ConnectionListener received exception while sending: " + ex.Message);
+                stream.Close();
+            }
+            else
+            {
+                Server.incomingConnections.Push(stream);
+            }
         }
     }
 }

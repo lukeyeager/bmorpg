@@ -57,7 +57,7 @@ namespace BMORPG_Server.Listeners
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Error while listening: " + ex.Message);
+                        Console.WriteLine("UnsecureListener exception: " + ex.Message);
                     }
                 }
 

@@ -22,7 +22,9 @@ using System.IO;
 
 namespace BMORPG_Server
 {
-    // This class should be linked to the database somehow
+    /// <summary>
+    /// Represents a Player on a connected Client
+    /// </summary>
     class Player
     {
         /// <summary>

@@ -41,20 +41,9 @@ namespace BMORPG_Server
                     Console.WriteLine("Authenticator popping connection from Server.incomingConnections.");
                     NetworkPacket packet = new NetworkPacket();
                     packet.stream = incoming;
-                    try
-                    {
-                        incoming.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Authenticator: " + ex.Message);
-                        try
-                        {
-                            packet.stream.Close();
-                        }
-                        finally
-                        { }
-                    }
+
+                    packet.Receive(ReceivePacketCallback);
+                    continue;
                 }
 
                 //Thread.Sleep(Server.SleepTime());
@@ -62,64 +51,33 @@ namespace BMORPG_Server
         }
 
         /// <summary>
-        /// Asynchronous callback when a packet is received
+        /// Callback after receiving a LoginRequestPacket or CreateAccountPacket
         /// </summary>
-        /// <param name="result"></param>
-        public void ReceivePacket(IAsyncResult result)
+        /// <param name="exception"></param>
+        /// <param name="packet"></param>
+        /// <param name="obj"></param>
+        public void ReceivePacketCallback(Exception exception, NetworkPacket packet, object obj)
         {
-            NetworkPacket packet = (NetworkPacket)result.AsyncState;
-
-            // This gets set and sent at the end of the function if an error occurs
-            String errorMessage = null;
-            Player player = null;
-
-            try
+            if (exception != null)
             {
-                int bytesRead = packet.stream.EndRead(result);
-
-                if (bytesRead == 0)
-                {
-                    Console.WriteLine("Authenticator received 0 bytes");
-                    packet.stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
-                    return;
-                }
-                else
-                {
-                    for (int i = 0; i < bytesRead; i++)
-                    {
-                        packet.TransmissionBuffer.Add(packet.buffer[i]);
-                    }
-
-                    //we need to read again if this is false
-                    if (packet.TransmissionBuffer.Count != packet.buffer.Length)
-                    {
-                        Console.WriteLine("Authenticator has received " + packet.TransmissionBuffer.Count + " bytes.");
-                        packet.stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceivePacket, packet);
-                        return;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Authenticator lost a connection.");
+                Console.WriteLine("Authenticator receieved an error while receiving: " + exception.Message);
                 packet.stream.Close();
                 return;
             }
 
+            Player player = null;
+            String errorMessage = null;
 
-            NetworkPacket receivePacket = packet.Deserialize();
-            if (receivePacket is LoginRequestPacket)
+            if (packet is LoginRequestPacket)
             {
-                LoginRequestPacket loginPacket = (LoginRequestPacket)receivePacket;
+                LoginRequestPacket loginPacket = (LoginRequestPacket)packet;
                 Console.WriteLine("Attempting login with username=" + loginPacket.username + ", password=" + loginPacket.password);
 
                 if (Server.dbConnection == null)
                 {
                     // For now, we'll just assume they're authenticated
-                    //player = new Player();
-                    //player.netStream = packet.stream;
-                    //player.username = loginPacket.username;
-                    //player.current_health = 10;
+                    player = new Player(packet.stream, loginPacket.username, 1);
+                    player.current_health = 10;
                 }
                 else
                 {
@@ -149,25 +107,23 @@ namespace BMORPG_Server
                         }
                         reader.Close();
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        errorMessage = e.ToString();
+                        errorMessage = ex.ToString();
                     }
                 }
             }
-            else if (receivePacket is CreateAccountPacket)
+            else if (packet is CreateAccountPacket)
             {
-                CreateAccountPacket createAccountPacket = (CreateAccountPacket)receivePacket;
+                CreateAccountPacket createAccountPacket = (CreateAccountPacket)packet;
 
                 Console.WriteLine("Trying to create account with username=" + createAccountPacket.username + ", password=" + createAccountPacket.password);
 
                 if (Server.dbConnection == null)
                 {
                     // For now, assume player is authenticated
-                    //player = new Player();
-                    //player.netStream = packet.stream;
-                    //player.username = createAccountPacket.username;
-                    //player.current_health = 10;
+                    player = new Player(packet.stream, createAccountPacket.username, 1);
+                    player.current_health = 10;
                 }
                 else
                 {
@@ -176,15 +132,16 @@ namespace BMORPG_Server
                     errorMessage = "Not implemented.";
                 }
             }
-            else if (receivePacket is RestartPacket)
+            else if (packet is RestartPacket)
             {
-                //why restart with a restartpacket from login screen? (JDF)
-                Server.Restart(((RestartPacket)receivePacket).updateSvn);
+                // Restart here because it's the first chance we get from the client's perspective
+				// Can add this check to any place where we receive any packet
+                Server.Restart(((RestartPacket)packet).updateSvn);
                 return;
             }
             else
             {
-                errorMessage = "Authenticator received unexpected packet type: " + receivePacket.PacketType;
+                errorMessage = "Authenticator received unexpected packet type: " + packet.PacketType;
             }
 
 
@@ -192,43 +149,71 @@ namespace BMORPG_Server
             {
                 LoginStatusPacket statusPacket = new LoginStatusPacket();
                 statusPacket.success = true;
-                byte[] buffer = statusPacket.Serialize();
+                statusPacket.stream = packet.stream;
 
-                try
+                if (!statusPacket.Send(SendSuccessCallback, player))
                 {
-                    packet.stream.Write(buffer, 0, buffer.Length);
-                    Server.authenticatedPlayers.Push(player);
-                    Console.WriteLine("Login success: " + player.username);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Authenticator could not send LoginStatusPacket.");
                     packet.stream.Close();
                 }
             }
             else if (errorMessage != null) //The login failed
             {
                 Console.WriteLine(errorMessage);
+                player = null;
 
                 LoginStatusPacket statusPacket = new LoginStatusPacket();
                 statusPacket.success = false;
                 statusPacket.errorMessage = errorMessage;
-                byte[] buffer = statusPacket.Serialize();
-
-                try
+                statusPacket.stream = packet.stream;
+                if (!statusPacket.Send(SendFailureCallback, packet.stream))
                 {
-                    packet.stream.Write(buffer, 0, buffer.Length);
-
-                    NetworkPacket newReceivePacket = new NetworkPacket();
-                    packet.stream.BeginRead(newReceivePacket.buffer, 0, newReceivePacket.buffer.Length, ReceivePacket, newReceivePacket);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Authenticator could not send LoginStatusPacket.");
                     packet.stream.Close();
                 }
-
             }
         }
+
+        /// <summary>
+        /// Callback after sending a successful LoginStatusPacket
+        /// </summary>
+        /// <param name="exception"></param>
+        /// <param name="parameter"></param>
+        private void SendSuccessCallback(Exception exception, object parameter)
+        {
+            Player player = (Player)parameter;
+            if (exception != null)
+            {
+                Console.WriteLine("Authenticator received exception while sending: " + exception.Message);
+                player.netStream.Close();
+            }
+            else
+            {
+                Console.WriteLine("Login success: " + player.username);
+                Server.authenticatedPlayers.Push(player);
+            }
+        }
+
+        /// <summary>
+        /// Callback after sending a failed LoginStatusPacket
+        /// </summary>
+        /// <param name="exception"></param>
+        /// <param name="parameter"></param>
+        private void SendFailureCallback(Exception exception, object parameter)
+        {
+            Stream stream = (Stream)parameter;
+
+            if (exception != null)
+            {
+                Console.WriteLine("Authenticator received exception while sending: " + exception.Message);
+                stream.Close();
+            }
+            else
+            {
+                NetworkPacket packet = new NetworkPacket();
+                packet.Receive(ReceivePacketCallback);
+            }
+        }
+
     }
 }

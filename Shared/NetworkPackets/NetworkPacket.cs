@@ -25,6 +25,9 @@ using System.Net.Security;
 
 namespace BMORPG.NetworkPackets
 {
+    public delegate void PacketSendCallback(Exception ex, object parameter);
+    public delegate void PacketReceiveCallback(Exception ex, NetworkPacket packet, object parameter);
+
     /// <summary>
     /// This class lets us serialize and deserialize the same objects in different applications
     /// </summary>
@@ -78,7 +81,7 @@ namespace BMORPG.NetworkPackets
         /// Convert this object into a byte array
         /// </summary>
         /// <returns></returns>
-        public byte[] Serialize()
+        private byte[] Serialize()
         {
             MemoryStream mem = new MemoryStream();
             formatter.Serialize(mem, PacketType);
@@ -91,7 +94,7 @@ namespace BMORPG.NetworkPackets
         /// into a specific Networkpacket
         /// </summary>
         /// <returns>A base NetworkPacket, with PacketType set if the packet cannot be deserialized</returns>
-        public NetworkPacket Deserialize()
+        private NetworkPacket Deserialize()
         {
             byte[] dataBuffer = TransmissionBuffer.ToArray();
             MemoryStream mem = new MemoryStream();
@@ -131,6 +134,130 @@ namespace BMORPG.NetworkPackets
                 Console.WriteLine(ex.Message);
                 return this;
             }
+        }
+
+        /// <summary>
+        /// Sends a packet over the network
+        /// </summary>
+        /// <param name="callBack">The callback (PacketSendCallback) used when this operation is completed</param>
+        /// <param name="parameter">Any parameter you might want to pass to the callback function</param>
+        /// <returns>True if the asynchronous write was kicked off successfully</returns>
+        public bool Send(PacketSendCallback callBack, object parameter = null)
+        {
+            if (stream == null)
+                return false;
+
+            List<object> list = new List<object>();
+            list.Add(callBack);
+            list.Add(parameter);
+
+            try
+            {
+                buffer = Serialize();
+                stream.BeginWrite(buffer, 0, buffer.Length, SendCallback, list);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Internal callback after a Send()
+        /// </summary>
+        /// <param name="result"></param>
+        private void SendCallback(IAsyncResult result)
+        {
+            Exception exception = null;
+            try
+            {
+                stream.EndWrite(result);
+
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            List<object> list = (List<object>)result.AsyncState;
+
+            PacketSendCallback handler = (PacketSendCallback)list[0];
+            object parameter = list[1];
+
+            handler(exception, parameter);
+        }
+
+        /// <summary>
+        /// Receives a packet from over the network
+        /// </summary>
+        /// <param name="callBack">The callback (PacketReceiveCallback) used when this operation is completed</param>
+        /// <param name="parameter">Any parameter you might want to pass to the callback function</param>
+        /// <returns>True if the asynchronous read was kicked off successfully</returns>
+        public bool Receive(PacketReceiveCallback callBack, object parameter = null)
+        {
+            if (stream == null)
+                return false;
+
+            List<object> list = new List<object>();
+            list.Add(callBack);
+            list.Add(parameter);
+
+            try
+            {
+                stream.BeginRead(buffer, 0, buffer.Length, ReceiveCallback, list);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Internal callback after a Receive()
+        /// </summary>
+        /// <param name="result"></param>
+        private void ReceiveCallback(IAsyncResult result)
+        {
+            Exception exception = null;
+            List<object> list = (List<object>)result.AsyncState;
+
+            try
+            {
+                int bytesRead = stream.EndRead(result);
+
+                if (bytesRead == 0)
+                {
+                    stream.BeginRead(buffer, 0, buffer.Length, ReceiveCallback, list);
+                    return;
+                }
+                else
+                {
+                    for (int i = 0; i < bytesRead; i++)
+                    {
+                        TransmissionBuffer.Add(buffer[i]);
+                    }
+
+                    //we need to read again if this is false
+                    if (TransmissionBuffer.Count != buffer.Length)
+                    {
+                        stream.BeginRead(buffer, 0, buffer.Length, ReceiveCallback, list);
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            PacketReceiveCallback handler = (PacketReceiveCallback)list[0];
+            object parameter = list[1];
+
+            NetworkPacket receivedPacket = this.Deserialize();
+            receivedPacket.stream = stream;
+            handler(exception, receivedPacket, parameter);
         }
 
     }

@@ -55,6 +55,12 @@ namespace BMORPG_Client
 
         private void Connect_Click(object sender, EventArgs e)
         {
+            if (stream != null)
+            {
+                ConnectionStatusBox.Text = "Already connected.";
+                return;
+            }
+
             int port = 11000;
             string certName = "BmorpgCA";
 
@@ -116,152 +122,120 @@ namespace BMORPG_Client
 
             NetworkPacket packet = new NetworkPacket();
             packet.stream = stream;
-            stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveWelcome, packet);
+            packet.Receive(ReceiveWelcome);
         }
 
-        private void ReceiveWelcome(IAsyncResult result)
+        private void ReceiveWelcome(Exception exception, NetworkPacket packet, object parameter)
         {
-            try
+            if (exception != null)
             {
-                NetworkPacket packet = (NetworkPacket)result.AsyncState;
-                int read = packet.stream.EndRead(result);
-                if (read > 0)
-                {
-                    for (int i = 0; i < read; i++)
-                    {
-                        packet.TransmissionBuffer.Add(packet.buffer[i]);
-                    }
-
-                    //we need to read again if this is true
-                    if (read == packet.buffer.Length)
-                    {
-                        packet.stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveWelcome, packet);
-                        return;
-                    }
-                }
-                NetworkPacket receivePacket = packet.Deserialize();
-                if (receivePacket != null && receivePacket is WelcomePacket)
-                {
-                    WelcomePacket welcomePacket = (WelcomePacket)receivePacket;
-
-                    MessageBox.Show("Server version: " + welcomePacket.version);
-                }
-                else
-                {
-                    MessageBox.Show("Received unknown packet.");
-                }
+                MessageBox.Show("Received exception while waiting for welcome: " + exception.Message);
+                packet.stream.Close();
+                stream = null;
+                return;
             }
-            catch (Exception ex)
+            
+            if (packet != null && packet is WelcomePacket)
             {
-                MessageBox.Show("Exception: " + ex.Message);
+                WelcomePacket welcomePacket = (WelcomePacket)packet;
+
+                MessageBox.Show("Server version: " + welcomePacket.version);
+            }
+            else
+            {
+                MessageBox.Show("Received unknown packet.");
             }
         }
 
         private void Login_Click(object sender, EventArgs e)
         {
-            if (stream == null || !stream.CanRead || !stream.CanWrite)
+            if (stream == null)
                 LoginStatusBox.Text = "Socket is not connected";
             else
             {
                 LoginRequestPacket packet = new LoginRequestPacket();
                 packet.username = UsernameBox.Text;
                 packet.password = PasswordBox.Text;
+                packet.stream = stream;
 
-                try
-                {
-                    byte[] buffer = packet.Serialize();
-                    stream.Write(buffer, 0, buffer.Length);
+                if (packet.Send(SendLoginCallback))
                     LoginStatusBox.Text = "Sent login information.";
-
-                    LoginStatusPacket statusPacket = new LoginStatusPacket();
-                    statusPacket.stream = stream;
-                    stream.BeginRead(statusPacket.buffer, 0, statusPacket.buffer.Length, ReceiveLoginStatus, statusPacket);
-                    LoginStatusBox.Text = "Waiting for login status";
-                }
-                catch (Exception ex)
-                {
-                    LoginStatusBox.Text = ex.Message;
-                }
-            }
-        }
-
-        private void ReceiveLoginStatus(IAsyncResult result)
-        {
-            LoginStatusPacket packet = (LoginStatusPacket)result.AsyncState;
-
-            try
-            {
-                int bytesRead = packet.stream.EndRead(result);
-
-                if (bytesRead == 0)
-                {
-                    MessageBox.Show("ReceiveLoginStatus read 0 bytes");
-                    stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveLoginStatus, packet);
-                    return;
-                }
                 else
                 {
-                    for (int i = 0; i < bytesRead; i++)
-                    {
-                        packet.TransmissionBuffer.Add(packet.buffer[i]);
-                    }
-
-                    //we need to read again if this is false
-                    if (packet.TransmissionBuffer.Count != packet.buffer.Length)
-                    {
-                        MessageBox.Show("ReceiveLoginStatus read " + packet.TransmissionBuffer.Count + " bytes");
-                        stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveLoginStatus, packet);
-                        return;
-                    }
+                    LoginStatusBox.Text = "Couldn't send login information.";
+                    stream = null;
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-
-            String text;
-            if (packet.success)
-                text = "Login successful";
-            else
-                text = packet.errorMessage;
-            MessageBox.Show(text);
-
-            if (packet.success)
-            {
-                StartGamePacket gamePacket = new StartGamePacket();
-                stream.BeginRead(gamePacket.buffer, 0, gamePacket.buffer.Length, ReceiveGameStart, gamePacket);
             }
         }
 
-        private void ReceiveGameStart(IAsyncResult result)
+        private void SendLoginCallback(Exception exception, object parameter)
         {
-            StartGamePacket packet = (StartGamePacket)result.AsyncState;
-
-            int bytesRead = packet.stream.EndRead(result);
-
-            if (bytesRead == 0)
+            if (exception != null)
             {
-                stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveGameStart, packet);
-                return;
+                MessageBox.Show("Received exception wile sending login packet: " + exception.Message);
+                stream.Close();
+                stream = null;
             }
             else
             {
-                for (int i = 0; i < bytesRead; i++)
-                {
-                    packet.TransmissionBuffer.Add(packet.buffer[i]);
-                }
+                LoginStatusPacket packet = new LoginStatusPacket();
+                packet.stream = stream;
+                packet.Receive(ReceiveLoginStatus);
+            }
+        }
 
-                //we need to read again if this is false
-                if (packet.TransmissionBuffer.Count != packet.buffer.Length)
+        private void ReceiveLoginStatus(Exception exception, NetworkPacket packet, object parameter)
+        {
+            if (exception != null)
+            {
+                MessageBox.Show("Received error while waiting for login status: " + exception.Message);
+                stream.Close();
+                stream = null;
+            }
+            else if (!(packet is LoginStatusPacket))
+            {
+                MessageBox.Show("Received unknown packet when waiting for LoginStatus packet: " + packet.PacketType);
+            }
+            else
+            {
+                LoginStatusPacket statusPacket = (LoginStatusPacket)packet;
+
+                String text;
+                if (statusPacket.success)
+                    text = "Login successful";
+                else
+                    text = statusPacket.errorMessage;
+                MessageBox.Show(text);
+
+                if (statusPacket.success)
                 {
-                    stream.BeginRead(packet.buffer, 0, packet.buffer.Length, ReceiveGameStart, packet);
-                    return;
+                    NetworkPacket receivePacket = new NetworkPacket();
+                    receivePacket.stream = stream;
+
+                    if (!receivePacket.Receive(ReceiveGameStart))
+                    {
+                        MessageBox.Show("Could not start receiving gamestart packet.");
+                        stream.Close();
+                        stream = null;
+                    }
                 }
             }
+        }
 
-            MessageBox.Show("Playing " + packet.opponentUsername);
-            stream.Close();
+        private void ReceiveGameStart(Exception exception, NetworkPacket packet, object parameter)
+        {
+            if (exception != null)
+            {
+                MessageBox.Show("Received exception while waiting for game start: " + exception.Message);
+                stream.Close();
+                stream = null;
+            }
+            else
+            {
+                MessageBox.Show("Playing " + ((StartGamePacket)packet).opponentUsername);
+                stream.Close();
+                stream = null;
+            }
         }
 
         private void Restart_Click(object sender, EventArgs e)
@@ -272,18 +246,20 @@ namespace BMORPG_Client
             {
                 RestartPacket packet = new RestartPacket();
                 packet.updateSvn = SvnCheckBox.Checked;
-
-                try
-                {
-                    byte[] buffer = packet.Serialize();
-                    stream.Write(buffer, 0, buffer.Length);
-                    ConnectionStatusBox.Text = "Sent restart packet";
-                }
-                catch (Exception ex)
-                {
-                    ConnectionStatusBox.Text = ex.Message;
-                }
+                packet.stream = stream;
+                packet.Send(SendRestartCallback);
             }
+        }
+
+        private void SendRestartCallback(Exception ex, object parameter)
+        {
+            if (ex != null)
+                MessageBox.Show("Received exception while sending restart packet: " + ex.Message);
+            else
+                MessageBox.Show("Sent restart packet");
+
+            stream.Close();
+            stream = null;
         }
     }
 }
