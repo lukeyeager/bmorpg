@@ -1,7 +1,7 @@
 ﻿<Window
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	x:Class="RPGProofOfConcept.MapSelect"
+	x:Class="BMORPGClient.MapSelect"
 	x:Name="Window"
 	Title="MapSelect" ResizeMode="NoResize" Width="768" Height="535">
 

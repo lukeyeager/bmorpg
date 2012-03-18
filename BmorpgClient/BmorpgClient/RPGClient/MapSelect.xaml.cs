@@ -10,7 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace RPGProofOfConcept
+namespace BMORPGClient
 {
 	/// <summary>
 	/// Interaction logic for MapSelect.xaml
