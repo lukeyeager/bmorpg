@@ -32,67 +32,6 @@ using System.Net.Sockets;
 namespace BMORPG_Server
 {
     /// <summary>
-    /// an enumeration for the different types of effects that there are.
-    /// </summary>
-    /// <remarks>Move to new file?</remarks>
-    public enum EffectType
-    {
-        nullEffect, maxHealth, currentHealth, attack, defense, accuracy, evasion, speed
-    };
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <remarks>Move to new file?</remarks>
-    public class Effect
-    {
-        EffectType type;
-        int magnitude;
-        int turnsToLive;
-        bool persistent;
-        Effect linkedEffect;
-
-        public Effect(EffectType t, int m, int ttl, bool p = false, Effect l = null)
-        {
-            type = t;
-            magnitude = m;
-            turnsToLive = ttl;
-            persistent = p;
-            linkedEffect = l;
-        }
-
-        public EffectType Type
-        {
-            get { return type; }
-        }
-
-        public int Magnitude
-        {
-            get { return magnitude; }
-        }
-
-        public int TurnsToLive
-        {
-            get { return turnsToLive; }
-        }
-
-        public bool Persistent
-        {
-            get { return persistent; }
-        }
-
-        public Effect LinkedEffect
-        {
-            get { return linkedEffect; }
-        }
-
-        public void anotherTurn()
-        {
-            turnsToLive--;
-        }
-    }
-
-    /// <summary>
     /// Represents a game being played between two Players
     /// </summary>
     class Game
@@ -115,7 +54,7 @@ namespace BMORPG_Server
             if (!SendStartGamePackets())
                 return;
 
-            while ((player1.current_health > 0) && (player2.current_health > 0))    // fight to the death
+            while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
             {
                 Console.WriteLine("Playing game between " + player1.username + " and " + player2.username);
 
@@ -175,71 +114,10 @@ namespace BMORPG_Server
             else
                 Console.WriteLine("Sent start game packet to " + player.username);
 
-            player.current_health = 0;
+            //player.current_health = 0;    is this necessary?
         }
 
-        // Should be deprecated by a function in Player
-        private void calculateEffects()
-        {
-            foreach (Effect e in player1.effects)
-            {
-                //calculate actual effect on player
-                if (e.Type == EffectType.nullEffect) { }
-                else if (e.Type == EffectType.maxHealth) { }
-                else if (e.Type == EffectType.currentHealth) { }
-                else if (e.Type == EffectType.attack) { }
-                else if (e.Type == EffectType.defense) { }
-                else if (e.Type == EffectType.accuracy) { }
-                else if (e.Type == EffectType.evasion) { }
-                else if (e.Type == EffectType.speed) { }
-                
-                //continue in the Effect's expiration
-                if (e.TurnsToLive == 1)
-                {
-                    //remove the effect from this player's list and check for linked effects.
-                    player1.effects.Remove(e);
-                    if (e.LinkedEffect != null)
-                        player1.addNextTurn.Add(e.LinkedEffect);
-                }
-                else
-                    e.anotherTurn();
-            }
-            foreach (Effect a in player1.addNextTurn)
-            {
-                player1.effects.Add(a);
-                player1.addNextTurn.Remove(a);
-            }
-
-            //now do the same for the second player
-            foreach (Effect e in player1.effects)
-            {
-                //calculate actual effect on player
-                if (e.Type == EffectType.nullEffect) { }
-                else if (e.Type == EffectType.maxHealth) { }
-                else if (e.Type == EffectType.currentHealth) { }
-                else if (e.Type == EffectType.attack) { }
-                else if (e.Type == EffectType.defense) { }
-                else if (e.Type == EffectType.accuracy) { }
-                else if (e.Type == EffectType.evasion) { }
-                else if (e.Type == EffectType.speed) { }
-
-                //continue in the Effect's expiration
-                if (e.TurnsToLive == 1)
-                {
-                    //remove the effect from this player's list and check for linked effects.
-                    player1.effects.Remove(e);
-                    if (e.LinkedEffect != null)
-                        player1.addNextTurn.Add(e.LinkedEffect);
-                }
-                else
-                    e.anotherTurn();
-            }
-            foreach (Effect a in player1.addNextTurn)
-            {
-                player1.effects.Add(a);
-                player1.addNextTurn.Remove(a);
-            }
-        }
+        //private void calculateEffects has been deleted and replaced with attribute Properties in the Player class. (JDF)
 
     }
 }

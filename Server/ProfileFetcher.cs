@@ -32,7 +32,7 @@ namespace BMORPG_Server
             SqlConnection connect = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
                 "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
             SqlDataReader reader = null;
-            SqlCommand command = new SqlCommand("SELECT *\nFROM Profile\nWHERE Username = " + playerName, connect);
+            SqlCommand command = new SqlCommand("SELECT *\nFROM Profile\nWHERE Username = '" + playerName + "'" , connect);
             try
             {
                 connect.Open();

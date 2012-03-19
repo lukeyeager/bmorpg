@@ -77,33 +77,39 @@ namespace BMORPG_Server
                 {
                     // For now, we'll just assume they're authenticated
                     player = new Player(packet.stream, loginPacket.username, 1);
-                    player.current_health = 10;
+                    //player.current_health = 10;   is this necessary?
                 }
                 else
                 {
                     SqlDataReader reader = null;
-                    SqlCommand command = new SqlCommand("SELECT Password, UID\nFROM Authenticate\nWHERE Username = " +
-                        loginPacket.username, Server.dbConnection);
+                    SqlCommand command = new SqlCommand("SELECT Password, UID\nFROM Authenticate\nWHERE Username = '" +
+                        loginPacket.username + "'" , Server.dbConnection);
                     command.CommandTimeout = 15;
                     try
                     {
                         reader = command.ExecuteReader();
-                        reader.Read();
-                        string dbPwd = (string) reader[0];
-                        Int64 UID = (Int64)reader[1];
-                        Console.WriteLine("Password in database for " + loginPacket.username + ": " + dbPwd);
-                        //assumes the first column is the password and the second column is the UID
-                        if (loginPacket.password == dbPwd)
+                        if (reader.Read())
                         {
-                            Console.WriteLine("Login succeeded for: " + loginPacket.username);
-                            player = new Player(packet.stream, loginPacket.username, UID);
+                            string dbPwd = (string)reader[0];
+                            Int64 UID = (Int64)reader[1];
+                            Console.WriteLine("Password in database for " + loginPacket.username + ": " + dbPwd);
+                            //assumes the first column is the password and the second column is the UID
+                            if (loginPacket.password == dbPwd)
+                            {
+                                Console.WriteLine("Login succeeded for: " + loginPacket.username);
+                                player = new Player(packet.stream, loginPacket.username, UID);
 
-                            // TODO: Read rest of attributes and populate player object with them.
-                            Server.authenticatedPlayers.Push(player);
+                                // TODO: Read rest of attributes and populate player object with them.
+                                Server.authenticatedPlayers.Push(player);
+                            }
+                            else
+                            {
+                                errorMessage = "Unrecognized username/password combination.";
+                            }
                         }
                         else
                         {
-                            errorMessage = "Unrecognized username/password combination.";
+                            errorMessage = "Username does not exist.";
                         }
                         reader.Close();
                     }
@@ -123,7 +129,7 @@ namespace BMORPG_Server
                 {
                     // For now, assume player is authenticated
                     player = new Player(packet.stream, createAccountPacket.username, 1);
-                    player.current_health = 10;
+                    //player.current_health = 10;   is this necessary?
                 }
                 else
                 {

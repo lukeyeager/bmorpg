@@ -28,12 +28,13 @@ namespace BMORPG_Server
     public class SafeList<T>
     {
         private List<T> list;
-        private object myLock;// = new Object();
+        private object myLock;// = new Object(); instantiate in the constructor so each list has its own lock.
         private T nullObject;
 
         /// <summary>
         /// Instatiates the SafeList.
         /// </summary>
+        /// <param name="nullObj">Use null for this parameter.</param>
         public SafeList(T nullObj)
         {
             list = new List<T>();
@@ -44,7 +45,7 @@ namespace BMORPG_Server
         /// <summary>
         /// This method adds an object to the list
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">The object to be added to the list.</param>
         public void Push(T obj)
         {
             lock (myLock)

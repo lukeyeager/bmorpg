@@ -44,20 +44,27 @@ namespace BMORPG_Server
         public List<Effect> effects;
         public List<Effect> addNextTurn;
 
-        public int base_max_health;
-        public int tot_max_health;
-        public int current_health;
-        public int base_attack;
-        public int tot_attack;
-        public int base_defence;
-        public int tot_defence;
-        public int base_accuracy;
-        public int tot_accuracy;
-        public int base_evasion;
-        public int tot_evasion;
-        public int base_speed;
-        public int tot_speed;
+        private int base_max_health;
+        private int tot_max_health;
+        private int current_health;
+        private int base_attack;
+        private int tot_attack;
+        private int base_defense;
+        private int tot_defense;
+        private int base_accuracy;
+        private int tot_accuracy;
+        private int base_evasion;
+        private int tot_evasion;
+        private int base_speed;
+        private int tot_speed;
 
+        /// <summary>
+        /// Constructor for the Player class.
+        /// </summary>
+        /// <remarks>Maybe change the constructor to connect to the database and retrieve player information?</remarks>
+        /// <param name="nStream">Stream associated with the logged in user.</param>
+        /// <param name="name">Name of the character.</param>
+        /// <param name="id">Personal ID# associated with the player.</param>
         public Player(Stream nStream, string name, Int64 id)
         {
             netStream = nStream;
@@ -70,8 +77,8 @@ namespace BMORPG_Server
 	        current_health = 0;
 	        base_attack = 0;
 	        tot_attack = 0;
-	        base_defence = 0;
-	        tot_defence = 0;
+	        base_defense = 0;
+	        tot_defense = 0;
 	        base_accuracy = 0;
 	        tot_accuracy = 0;
 	        base_evasion = 0;
@@ -80,5 +87,131 @@ namespace BMORPG_Server
             tot_speed = 0;
         }
 
+        /// <summary>
+        /// The maximum health of the character.
+        /// </summary>
+        public int MaxHealth
+        {
+            get
+            {
+                tot_max_health = base_max_health;
+                //iterate through the list of effects and see which ones affect the maximum health value.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.maxHealth)
+                        tot_max_health += e.Magnitude;
+                }
+                return tot_max_health;
+            }
+        }
+
+        /// <summary>
+        /// The character's current health.
+        /// </summary>
+        public int CurrentHealth
+        {
+            get
+            {
+                //iterate through the list of effects and see which ones affect the current health value.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.currentHealth)
+                        current_health += e.Magnitude;
+                }
+                if (current_health > MaxHealth)
+                    current_health = tot_max_health;
+                return current_health;
+            }
+        }
+
+        /// <summary>
+        /// The character's attack value.
+        /// </summary>
+        public int Attack
+        {
+            get
+            {
+                tot_attack = base_attack;
+                //iterate through the list of effects and see which ones affect the attack value.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.attack)
+                        tot_attack += e.Magnitude;
+                }
+                return tot_attack;
+            }
+        }
+
+        /// <summary>
+        /// The character's defense value.
+        /// </summary>
+        public int Defense
+        {
+            get
+            {
+                tot_defense = base_defense;
+                //iterate through the list of effects and see which ones affect the defense value.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.defense)
+                        tot_defense += e.Magnitude;
+                }
+                return tot_defense;
+            }
+        }
+
+        /// <summary>
+        /// The character's accuracy value.
+        /// </summary>
+        public int Accuracy
+        {
+            get
+            {
+                tot_accuracy = base_accuracy;
+                //iterate through the list of effects and see which ones affect the accuracy value.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.accuracy)
+                        tot_accuracy += e.Magnitude;
+                }
+                return tot_accuracy;
+            }
+        }
+
+        /// <summary>
+        /// The character's evasion value.
+        /// </summary>
+        public int Evasion
+        {
+            get
+            {
+                tot_evasion = base_evasion;
+                //iterate through the list of effects and see which ones affect the evasion health value.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.evasion)
+                        tot_evasion += e.Magnitude;
+                }
+                return tot_evasion;
+            }
+        }
+
+        /// <summary>
+        /// The character's speed value.
+        /// </summary>
+        public int Speed
+        {
+            get
+            {
+                tot_speed = base_speed;
+                //iterate through the list of effects and see which ones affect the speed value.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.speed)
+                        tot_speed += e.Magnitude;
+                }
+                return tot_speed;
+            }
+        }
     }
 }

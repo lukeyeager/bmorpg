@@ -71,6 +71,7 @@
       <Link>NetworkPackets\WelcomePacket.cs</Link>
     </Compile>
     <Compile Include="Authenticator.cs" />
+    <Compile Include="Effect.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="MatchMaker.cs" />
     <Compile Include="Player.cs" />
