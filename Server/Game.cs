@@ -56,12 +56,20 @@ namespace BMORPG_Server
 
             while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
             {
+                // Note: only call CurrentHealth once each turn so as not to deal damage twice. (JDF)
+
                 Console.WriteLine("Playing game between " + player1.username + " and " + player2.username);
 
                 // receive input from one && receive input from two
                 // after both commands rec, compute effect list
                     //speed affects the order of populating the effect list
                     //user provided commands(attacks/items) should be last two items in list
+
+                //age active effects for each player.
+                player1.expireTurn();
+                player2.expireTurn();
+
+                //why put the thread to sleep here? (JDF)
                 Thread.Sleep(Server.SleepTime());
             }
 

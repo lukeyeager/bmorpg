@@ -10,7 +10,8 @@ namespace BMORPG_Server
     /// </summary>
     public enum EffectType
     {
-        nullEffect, maxHealth, currentHealth, attack, defense, accuracy, evasion, speed
+        nullEffect, defaultAttack, maxHealth, currentHealth, attack, defense, accuracy, evasion, speed
+        //Note: use defaultAttack in order to do an attack.  If we want later we can change code to allow for attack at 1.5X power, etc.  (JDF)
     };
 
     /// <summary>

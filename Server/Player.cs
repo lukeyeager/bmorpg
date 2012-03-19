@@ -88,6 +88,30 @@ namespace BMORPG_Server
         }
 
         /// <summary>
+        /// Checks all active effects and updates them as necessary (in terms of turns to live).
+        /// </summary>
+        public void expireTurn()
+        {
+            foreach (Effect e in effects)
+            {
+                if (!e.Persistent)
+                {
+                    e.anotherTurn();
+                    if (e.TurnsToLive <= 0)
+                    {
+                        addNextTurn.Add(e.LinkedEffect);
+                        effects.Remove(e);
+                    }
+                }
+            }
+            foreach (Effect e in addNextTurn)
+            {
+                effects.Add(e);
+                addNextTurn.Remove(e);
+            }
+        }
+
+        /// <summary>
         /// The maximum health of the character.
         /// </summary>
         public int MaxHealth
@@ -118,8 +142,19 @@ namespace BMORPG_Server
                     if (e.Type == EffectType.currentHealth)
                         current_health += e.Magnitude;
                 }
+                //cap health to maximum health
                 if (current_health > MaxHealth)
                     current_health = tot_max_health;
+                //iterate through the list again and check for attacks.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.defaultAttack)
+                    {
+                        // (FIXME) perform some type of calculation to determine amount of damage to health.
+                        // it's possible that this calculation should be done elsewhere. (JDF)
+                        current_health -= 0;
+                    }
+                }
                 return current_health;
             }
         }
