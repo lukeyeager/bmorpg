@@ -82,16 +82,20 @@ namespace BMORPG_Server
                 else
                 {
                     SqlDataReader reader = null;
-                    SqlCommand command = new SqlCommand("SELECT Password, UID\nFROM Authenticate\nWHERE Username = '" +
+                    SqlCommand command = new SqlCommand("SELECT UID, Password\nFROM Player\nWHERE Username = '" +
                         loginPacket.username + "'" , Server.dbConnection);
                     command.CommandTimeout = 15;
                     try
                     {
-                        reader = command.ExecuteReader();
+                        //I assume you have to/want to lock for the ExecuteReader method (JDF)
+                        lock (Server.dbConnectionLock)
+                        {
+                            reader = command.ExecuteReader();
+                        }
                         if (reader.Read())
                         {
-                            string dbPwd = (string)reader[0];
-                            Int64 UID = (Int64)reader[1];
+                            string dbPwd = reader.GetString(1); //(string)reader[1];
+                            Int64 UID = reader.GetInt64(0); //(Int64)reader[0];
                             Console.WriteLine("Password in database for " + loginPacket.username + ": " + dbPwd);
                             //assumes the first column is the password and the second column is the UID
                             if (loginPacket.password == dbPwd)

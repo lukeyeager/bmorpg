@@ -72,6 +72,8 @@ namespace BMORPG_Server
             userID = id;
             effects = new List<Effect>();
             addNextTurn = new List<Effect>();
+
+            //populate base stats using database
 	        base_max_health = 0;
 	        tot_max_health = 0;
 	        current_health = 0;

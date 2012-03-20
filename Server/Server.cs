@@ -30,10 +30,11 @@ namespace BMORPG_Server
     {
         public const string ServerVersion = "1.0";
 
+        //Lock dbConnectionLock before using dbConnection in order to avoid multi-threaded problems.
+        //Note: it may be impractical to have one universal connection to the database.  Consider having a collection of them? (JDF)
         public static SqlConnection dbConnection = null;
+        public static object dbConnectionLock = new Object();
 
-        //the incomingConnections List instance is being moved to a class in the file Incoming Connections
-        //in order to make it multi-threaded safe.
         /// <summary>
         /// The ConnectionListener adds Streams to this list,
         /// and the Authenticator removes them
