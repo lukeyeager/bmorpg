@@ -60,10 +60,13 @@ namespace BMORPG_Server
 
                 Console.WriteLine("Playing game between " + player1.username + " and " + player2.username);
 
+                // TODO: add listener that receives a PlayerMovePacket 
                 // receive input from one && receive input from two
                 // after both commands rec, compute effect list
                     //speed affects the order of populating the effect list
                     //user provided commands(attacks/items) should be last two items in list
+
+                // After both PlayerMovePackets are received, calculate their healths
 
                 //age active effects for each player.
                 player1.expireTurn();
