@@ -133,7 +133,6 @@ namespace BMORPG_Server
                 {
                     // For now, assume player is authenticated
                     player = new Player(packet.stream, createAccountPacket.username, 1);
-                    //player.current_health = 10;   is this necessary?
                 }
                 else
                 {

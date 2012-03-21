@@ -15,6 +15,8 @@ namespace BMORPGClient
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+        private Stream stream;
+
 		public MainWindow()
 		{
 			this.InitializeComponent();
@@ -25,13 +27,20 @@ namespace BMORPGClient
             tabControl1.Visibility = System.Windows.Visibility.Hidden;
         }
 
+        private void menuExit_Click(object sender, RoutedEventArgs e)
+        {
+            // Memory leak
+            //this.Close();
+            
+            Environment.Exit(1);
+        }
+
         private void buttonNewAcct_Click(object sender, RoutedEventArgs e)
         {
             tabControl1.SelectedIndex = 1;
         }
 
         #region Login Tab
-        private Stream stream;
 
         // Source: http://msdn.microsoft.com/en-us/library/system.net.security.sslstream.aspx
         // The following method is invoked by the RemoteCertificateValidationDelegate.
@@ -163,7 +172,6 @@ namespace BMORPGClient
                     stream = null;
                 }
             }
-            MessageBox.Show("Regardless of login status, main window will now display.");
             tabControl1.Visibility = System.Windows.Visibility.Hidden;
         }
 
@@ -221,22 +229,6 @@ namespace BMORPGClient
             }
         }
 
-        private void ReceiveGameStart(Exception exception, NetworkPacket packet, object parameter)
-        {
-            if (exception != null)
-            {
-                MessageBox.Show("Received exception while waiting for game start: " + exception.Message);
-                stream.Close();
-                stream = null;
-            }
-            else
-            {
-                MessageBox.Show("Playing " + ((StartGamePacket)packet).opponentUsername);
-                stream.Close();
-                stream = null;
-            }
-        }
-
         private void Restart_Click(object sender, EventArgs e)
         {
             if (stream == null || !stream.CanRead || !stream.CanWrite)
@@ -268,12 +260,94 @@ namespace BMORPGClient
 
         #region Create New Account
 
-        //Doesn't work yet
         private void buttonCreateAccount_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Fake login");
+            if (comboBoxClassPick.SelectedIndex == -1) 
+            {
+                MessageBox.Show("Don't hate Mass Effect 3. Choose a class.");
+                return;
+            }
+            CreateAccountPacket newAcct = new CreateAccountPacket();
+            newAcct.username = textBoxPickUsername.Text;
+            newAcct.password = textBoxPickPassword.Password;
+            switch (comboBoxClassPick.SelectedIndex) 
+            {
+                case 0:
+                    newAcct.userClass = "Soldier";
+                    break;
+                case 1:
+                    newAcct.userClass = "Adept";
+                    break;
+                case 2:
+                    newAcct.userClass = "Engineer";
+                    break;
+            }
+            newAcct.stream = stream;
+
+            newAcct.Send(SendCreateAccountPacketCallback);
+            tabControl1.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        void SendCreateAccountPacketCallback(Exception ex, object parameter)
+        {
+            if (ex != null)
+            {
+                MessageBox.Show("Received error while sending CreateAccountPacket: " + ex.Message);
+                stream.Close();
+                stream = null;
+                return;
+            }
+
+            LoginStatusPacket packet = new LoginStatusPacket();
+            packet.stream = stream;
+            packet.Receive(ReceiveLoginStatus);
+        }
+
+        #endregion
+
+        private void ReceiveGameStart(Exception exception, NetworkPacket packet, object parameter)
+        {
+            if (exception != null)
+            {
+                MessageBox.Show("Received exception while waiting for game start: " + exception.Message);
+                stream.Close();
+                stream = null;
+            }
+            else
+            {
+                MessageBox.Show("Playing " + ((StartGamePacket)packet).opponentUsername);
+                stream.Close();
+                stream = null;
+            }
+        }
+
+        private void buttonGoBack_Click(object sender, RoutedEventArgs e)
+        {
             tabControl1.SelectedIndex = 0;
         }
+
+        #region Action Buttons
+
+        private void buttonAttack1(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("You have attacked.");
+        }
+
+        private void buttonAttack2(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("You have attacked.");
+        }
+
+        private void buttonDefend(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("You have defended.");
+        }
+
+        private void buttonSpecial(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("You have used your special move.");
+        }
+
         #endregion
     }
 }

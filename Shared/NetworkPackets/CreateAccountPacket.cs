@@ -28,6 +28,7 @@ namespace BMORPG.NetworkPackets
 
         public String username = "";
         public String password = "";
+        public String userClass = "";
 
         public CreateAccountPacket()
         {

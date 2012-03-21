@@ -69,6 +69,33 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="..\..\..\Shared\NetworkPackets\CreateAccountPacket.cs">
+      <Link>NetworkPackets\CreateAccountPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Shared\NetworkPackets\ErrorPacket.cs">
+      <Link>NetworkPackets\ErrorPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Shared\NetworkPackets\LoginRequestPacket.cs">
+      <Link>NetworkPackets\LoginRequestPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Shared\NetworkPackets\LoginStatusPacket.cs">
+      <Link>NetworkPackets\LoginStatusPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Shared\NetworkPackets\NetworkPacket.cs">
+      <Link>NetworkPackets\NetworkPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Shared\NetworkPackets\RestartPacket.cs">
+      <Link>NetworkPackets\RestartPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Shared\NetworkPackets\StartGamePacket.cs">
+      <Link>NetworkPackets\StartGamePacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Shared\NetworkPackets\StatePacket.cs">
+      <Link>NetworkPackets\StatePacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Shared\NetworkPackets\WelcomePacket.cs">
+      <Link>NetworkPackets\WelcomePacket.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -86,15 +113,6 @@
     <Compile Include="MapSelect.xaml.cs">
       <DependentUpon>MapSelect.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NetworkPackets\CreateAccountPacket.cs" />
-    <Compile Include="NetworkPackets\ErrorPacket.cs" />
-    <Compile Include="NetworkPackets\LoginRequestPacket.cs" />
-    <Compile Include="NetworkPackets\LoginStatusPacket.cs" />
-    <Compile Include="NetworkPackets\NetworkPacket.cs" />
-    <Compile Include="NetworkPackets\RestartPacket.cs" />
-    <Compile Include="NetworkPackets\StartGamePacket.cs" />
-    <Compile Include="NetworkPackets\StatePacket.cs" />
-    <Compile Include="NetworkPackets\WelcomePacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -7,7 +7,7 @@
 	Width="640" Height="480">
 
 	<Grid x:Name="LayoutRoot">
-        <Button Content="Attack 1" HorizontalAlignment="Right" Height="40" Margin="0,0,40,166" VerticalAlignment="Bottom" Width="140" Foreground="Black" ToolTip="Attack: 20hp">
+        <Button Content="Attack 1" HorizontalAlignment="Right" Height="40" Margin="0,0,40,166" VerticalAlignment="Bottom" Width="140" Foreground="Black" ToolTip="Attack: 20hp" Click="buttonAttack1">
 			<Button.Effect>
 				<DropShadowEffect/>
 			</Button.Effect>
@@ -20,7 +20,7 @@
 				</LinearGradientBrush>
 			</Button.Background>
 		</Button>
-		<Button Content="Attack 2" HorizontalAlignment="Right" Height="40" Margin="0,0,40,122" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+		<Button Content="Attack 2" HorizontalAlignment="Right" Height="40" Margin="0,0,40,122" VerticalAlignment="Bottom" Width="140" Foreground="Black" Click="buttonAttack2">
 			<Button.Effect>
 				<DropShadowEffect/>
 			</Button.Effect>
@@ -33,7 +33,7 @@
 				</LinearGradientBrush>
 			</Button.Background>
 		</Button>
-		<Button Content="Defend" HorizontalAlignment="Right" Height="40" Margin="0,0,40,79" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+		<Button Content="Defend" HorizontalAlignment="Right" Height="40" Margin="0,0,40,79" VerticalAlignment="Bottom" Width="140" Foreground="Black" Click="buttonDefend">
 			<Button.Effect>
 				<DropShadowEffect/>
 			</Button.Effect>
@@ -46,7 +46,7 @@
 				</LinearGradientBrush>
 			</Button.Background>
 		</Button>
-		<Button Content="Special" HorizontalAlignment="Right" Height="40" Margin="0,0,40,35" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+		<Button Content="Special" HorizontalAlignment="Right" Height="40" Margin="0,0,40,35" VerticalAlignment="Bottom" Width="140" Foreground="Black" Click="buttonSpecial">
 			<Button.Effect>
 				<DropShadowEffect/>
 			</Button.Effect>
@@ -69,7 +69,7 @@
 			<MenuItem Header="File" Height="22" Width="71">
 				<MenuItem Header="Save"/>
 				<MenuItem Header="Load"/>
-				<MenuItem Header="Exit"/>
+				<MenuItem Header="Exit" Click="menuExit_Click"/>
 			</MenuItem>
 			<MenuItem Header="Help" Height="19" Width="81">
 				<MenuItem Header="How To Play"/>
@@ -103,7 +103,7 @@
                     <Label Content="Choose a password" Height="30" HorizontalAlignment="Left" Margin="82,98,0,0" Name="labelPass" VerticalAlignment="Top" Width="142" />
                     <Label Content="Choose a class" Height="25" HorizontalAlignment="Left" Margin="82,143,0,0" Name="labelWhatClass" VerticalAlignment="Top" Width="112" />
                     <TextBox Height="22" HorizontalAlignment="Left" Margin="235,53,0,0" Name="textBoxPickUsername" VerticalAlignment="Top" Width="171" />
-                    <TextBox Height="23" HorizontalAlignment="Left" Margin="235,100,0,0" Name="textBoxPickPassword" VerticalAlignment="Top" Width="171" />
+                    <PasswordBox Height="23" HorizontalAlignment="Left" Margin="235,100,0,0" Name="textBoxPickPassword" VerticalAlignment="Top" Width="171" PasswordChar="*"/>
                     <ComboBox Height="26" HorizontalAlignment="Left" Margin="235,143,0,0" Name="comboBoxClassPick" VerticalAlignment="Top" Width="191" IsReadOnly="True">
                         <ComboBoxItem Content="Soldier" />
                         <ComboBoxItem Content="Adept" />
@@ -111,6 +111,7 @@
                     </ComboBox>
                     <Button Content="Create" Height="51" HorizontalAlignment="Left" Margin="247,211,0,0" Name="buttonCreateAccount" VerticalAlignment="Top" Width="159" Click="buttonCreateAccount_Click" />
                     <TextBox Height="40" HorizontalAlignment="Left" Margin="218,283,0,0" Name="textBoxCreateStatus" VerticalAlignment="Top" Width="222" IsReadOnly="True" Visibility="Visible" Text="Status" IsEnabled="False" />
+                    <Button Content="Go Back" Height="29" HorizontalAlignment="Left" Margin="34,393,0,0" Name="buttonGoBack" VerticalAlignment="Top" Width="102" Click="buttonGoBack_Click" />
                 </Grid>
             </TabItem>
         </TabControl>
