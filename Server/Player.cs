@@ -33,7 +33,7 @@ namespace BMORPG_Server
         public Stream netStream = null;
 
         public String username;
-        public Int64 userID;
+        public int userID;
 
         // Consider this maybe? (LCY)
         // private int maxHealth;
@@ -65,7 +65,7 @@ namespace BMORPG_Server
         /// <param name="nStream">Stream associated with the logged in user.</param>
         /// <param name="name">Name of the character.</param>
         /// <param name="id">Personal ID# associated with the player.</param>
-        public Player(Stream nStream, string name, Int64 id)
+        public Player(Stream nStream, string name, int id)
         {
             netStream = nStream;
             username = name;
@@ -101,7 +101,7 @@ namespace BMORPG_Server
                     e.anotherTurn();
                     if (e.TurnsToLive <= 0)
                     {
-                        addNextTurn.Add(e.LinkedEffect);
+                        addNextTurn.Add(Server.masterListEffects[e.LinkedEffect]);
                         effects.Remove(e);
                     }
                 }

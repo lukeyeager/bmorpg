@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using BMORPG_Server.Listeners;
 using System.Data.SqlClient;
+using System.Collections.Generic;
 
 namespace BMORPG_Server
 {
@@ -34,6 +35,12 @@ namespace BMORPG_Server
         //Note: it may be impractical to have one universal connection to the database.  Consider having a collection of them? (JDF)
         public static SqlConnection dbConnection = null;
         public static object dbConnectionLock = new Object();
+
+        //Might want to have this in Game class instead of Server class.
+        /// <summary>
+        /// Holds all of the Effects needed for items, abilities, etc.
+        /// </summary>
+        public static Dictionary<int, Effect> masterListEffects = new Dictionary<int, Effect>();
 
         /// <summary>
         /// The ConnectionListener adds Streams to this list,
@@ -70,14 +77,57 @@ namespace BMORPG_Server
             // Make database connection
             try
             {
-                dbConnection = new SqlConnection("UID=username;PWD=password;Addr=(local);Trusted_Connection=sspi;" +
-                    "Database=database;Connection Timeout=5;ApplicationIntent=ReadOnly");
+                dbConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
+                    "Database=BMORPG;Connection Timeout=5;"/*ApplicationIntent=ReadOnly"*/);
                 dbConnection.Open();
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to open database connection: " + ex.Message);
                 dbConnection = null;
+            }
+
+            // Read in necessary information from the database
+            // Effects
+            SqlDataReader reader = null;
+            SqlCommand command = new SqlCommand("SELECT *\nFROM Effects", Server.dbConnection);
+            command.CommandTimeout = 15;
+            try
+            {
+                lock (Server.dbConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                }
+                while (reader.Read())
+                {
+                    int EID = reader.GetInt32(0);
+                    EffectType type = (EffectType) reader.GetInt32(1);
+                    int magnitude = reader.GetInt32(2);
+                    int turnsToLive = reader.GetInt32(3);
+                    bool persistent = reader.GetBoolean(4);
+                    if (reader.IsDBNull(5))
+                    {
+                        Console.WriteLine("Effect: EID = " + EID + "; type = " + ((int)type) + "; magnitude = " + magnitude
+                            + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = NULL");
+                        Effect temp = new Effect(type, magnitude, turnsToLive, persistent);
+                        masterListEffects.Add(EID, temp);
+                    }
+                    else
+                    {
+                        int linkedEffect = reader.GetInt32(5);
+                        Console.WriteLine("Effect: EID = " + EID + "; type = " + ((int)type) + "; magnitude = " + magnitude
+                            + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = " + linkedEffect);
+                        Effect temp = new Effect(type, magnitude, turnsToLive, persistent, linkedEffect);
+                        masterListEffects.Add(EID, temp);
+                    }
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                //errorMessage = ex.ToString();
+                Console.WriteLine(ex.ToString());
+                //reader.Close();
             }
 
             // Decide which port to use

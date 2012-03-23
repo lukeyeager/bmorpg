@@ -95,7 +95,7 @@ namespace BMORPG_Server
                         if (reader.Read())
                         {
                             string dbPwd = reader.GetString(1); //(string)reader[1];
-                            Int64 UID = reader.GetInt64(0); //(Int64)reader[0];
+                            int UID = reader.GetInt32(0); //(Int64)reader[0];
                             Console.WriteLine("Password in database for " + loginPacket.username + ": " + dbPwd);
                             //assumes the first column is the password and the second column is the UID
                             if (loginPacket.password == dbPwd)
@@ -120,6 +120,7 @@ namespace BMORPG_Server
                     catch (Exception ex)
                     {
                         errorMessage = ex.ToString();
+                        reader.Close();
                     }
                 }
             }

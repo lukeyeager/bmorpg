@@ -23,7 +23,7 @@ namespace BMORPG_Server
         private int magnitude;
         private int turnsToLive;
         private bool persistent;
-        private Effect linkedEffect;
+        private int linkedEffect;
 
         /// <summary>
         /// Constructor fot the Effect class.  It's pretty self-explanatory.
@@ -33,7 +33,7 @@ namespace BMORPG_Server
         /// <param name="ttl">The turns for this effect to remain active on a player.</param>
         /// <param name="p">Whether this effect is indefinitely permanent or not.</param>
         /// <param name="l">An Effect to add to the player's list of Effects when this effect is over.</param>
-        public Effect(EffectType t, int m, int ttl, bool p = false, Effect l = null)
+        public Effect(EffectType t, int m, int ttl, bool p = false, int l = -1)
         {
             type = t;
             magnitude = m;
@@ -62,7 +62,7 @@ namespace BMORPG_Server
             get { return persistent; }
         }
 
-        public Effect LinkedEffect
+        public int LinkedEffect
         {
             get { return linkedEffect; }
         }
