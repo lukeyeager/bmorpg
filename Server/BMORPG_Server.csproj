@@ -76,6 +76,7 @@
     <Compile Include="Authenticator.cs" />
     <Compile Include="Effect.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Item.cs" />
     <Compile Include="MatchMaker.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="SafeList.cs" />
@@ -85,6 +86,9 @@
     <Compile Include="Listeners\SecureListener.cs" />
     <Compile Include="Listeners\ConnectionListener.cs" />
     <Compile Include="Listeners\UnsecureListener.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Documentation\project sql structure.xlsx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

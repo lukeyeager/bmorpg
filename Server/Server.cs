@@ -41,6 +41,10 @@ namespace BMORPG_Server
         /// Holds all of the Effects needed for items, abilities, etc.
         /// </summary>
         public static Dictionary<int, Effect> masterListEffects = new Dictionary<int, Effect>();
+        /// <summary>
+        /// Holds all of the Items that exist in the game.
+        /// </summary>
+        public static Dictionary<int, Item> masterListItems = new Dictionary<int, Item>();
 
         /// <summary>
         /// The ConnectionListener adds Streams to this list,
@@ -91,7 +95,7 @@ namespace BMORPG_Server
             // Effects
             SqlDataReader reader = null;
             SqlCommand command = new SqlCommand("SELECT *\nFROM Effects", Server.dbConnection);
-            command.CommandTimeout = 15;
+            command.CommandTimeout = 10;
             try
             {
                 lock (Server.dbConnectionLock)
@@ -126,8 +130,59 @@ namespace BMORPG_Server
             catch (Exception ex)
             {
                 //errorMessage = ex.ToString();
+                Console.WriteLine("\nFailed to read in Effects from the database:\n");
                 Console.WriteLine(ex.ToString());
-                //reader.Close();
+                if (reader != null)
+                    reader.Close();
+            }
+
+
+            // Items
+            reader = null;
+            command = new SqlCommand("SELECT *\nFROM Items", Server.dbConnection);
+            command.CommandTimeout = 10;
+            try
+            {
+                lock (Server.dbConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                }
+                while (reader.Read())
+                {
+                    // needs fixing: binary data is not being read correctly
+                    int ItID = reader.GetInt32(0);
+                    byte[] tempBArray = new byte[40];
+                    long bytesRead = reader.GetBytes(1, 0, tempBArray, 0, 40);
+                    byte[] reallyTemp = new byte[bytesRead];
+                    for (long x = 0; x < bytesRead; x++)
+                    {
+                        reallyTemp[x] = tempBArray[x];
+                    }
+                    List<byte> effects = new List<byte>(reallyTemp);
+                    tempBArray = new byte[10];
+                    bytesRead = reader.GetBytes(2, 0, tempBArray, 0, 10);
+                    reallyTemp = new byte[bytesRead];
+                    for (long x = 0; x < bytesRead; x++)
+                    {
+                        reallyTemp[x] = tempBArray[x];
+                    }
+                    List<byte> enemy = new List<byte>(reallyTemp);
+                    string name = reader.GetString(3);
+                    string description = reader.GetString(4);
+                    //Console.WriteLine("Effect: EID = " + ItID + "; type = " + ((int)type) + "; magnitude = " + magnitude
+                    //    + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = NULL");
+                    Item temp = new Item(name, description, effects, enemy);
+                    masterListItems.Add(ItID, temp);
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                //errorMessage = ex.ToString();
+                Console.WriteLine("\nFailed to read in Items from the database:\n");
+                Console.WriteLine(ex.ToString());
+                if (reader != null)
+                    reader.Close();
             }
 
             // Decide which port to use
