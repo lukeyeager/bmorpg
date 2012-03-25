@@ -1,4 +1,20 @@
-﻿using System;
+﻿/*  This file is part of BMORPG.
+
+    BMORPG is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    BMORPG is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with BMORPG.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -55,7 +71,7 @@ namespace BMORPG_Server
                 int two = Convert.ToInt32(ef[x + 1]);
                 int three = Convert.ToInt32(ef[x + 2]);
                 int four = Convert.ToInt32(ef[x + 3]);
-                int total = one + two * 256 + three * 65536 + four * 16777216;
+                int total = one * 16777216 + two * 65536 + three * 256 + four;
                 effects.Add(total);
             }
             enemy = new List<bool>();

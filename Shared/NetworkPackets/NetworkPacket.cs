@@ -124,8 +124,8 @@ namespace BMORPG.NetworkPackets
                         return (CreateAccountPacket)formatter.Deserialize(mem);
                     case ErrorPacket.Identifier:
                         return (ErrorPacket)formatter.Deserialize(mem);
-                    case PlayerMovePacket.Identifier:
-                        return (PlayerMovePacket)formatter.Deserialize(mem);
+                    //case PlayerMovePacket.Identifier:
+                    //    return (PlayerMovePacket)formatter.Deserialize(mem);
                     default:
                         return this;
                 }

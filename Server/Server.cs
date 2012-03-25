@@ -82,7 +82,7 @@ namespace BMORPG_Server
             try
             {
                 dbConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
-                    "Database=BMORPG;Connection Timeout=5;"/*ApplicationIntent=ReadOnly"*/);
+                    "Database=BMORPG;Connection Timeout=5;");
                 dbConnection.Open();
             }
             catch (Exception ex)
@@ -129,13 +129,11 @@ namespace BMORPG_Server
             }
             catch (Exception ex)
             {
-                //errorMessage = ex.ToString();
                 Console.WriteLine("\nFailed to read in Effects from the database:\n");
                 Console.WriteLine(ex.ToString());
                 if (reader != null)
                     reader.Close();
             }
-
 
             // Items
             reader = null;
@@ -149,7 +147,6 @@ namespace BMORPG_Server
                 }
                 while (reader.Read())
                 {
-                    // needs fixing: binary data is not being read correctly
                     int ItID = reader.GetInt32(0);
                     byte[] tempBArray = new byte[40];
                     long bytesRead = reader.GetBytes(1, 0, tempBArray, 0, 40);
@@ -169,8 +166,19 @@ namespace BMORPG_Server
                     List<byte> enemy = new List<byte>(reallyTemp);
                     string name = reader.GetString(3);
                     string description = reader.GetString(4);
-                    //Console.WriteLine("Effect: EID = " + ItID + "; type = " + ((int)type) + "; magnitude = " + magnitude
-                    //    + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = NULL");
+                    Console.Write("Item: ItID = " + ItID + "; Name = " + name + "; Description = \"" + description + "\"; Effect indices = ");
+                    foreach (byte b in effects)
+                    {
+                        Console.Write(Convert.ToInt32(b));
+                        Console.Write(',');
+                    }
+                    Console.Write("\b; Enemy indices = ");
+                    foreach (byte b in enemy)
+                    {
+                        Console.Write(Convert.ToBoolean(b));
+                        Console.Write(',');
+                    }
+                    Console.WriteLine("\b ");
                     Item temp = new Item(name, description, effects, enemy);
                     masterListItems.Add(ItID, temp);
                 }

@@ -82,7 +82,7 @@ namespace BMORPG_Server
                 else
                 {
                     SqlDataReader reader = null;
-                    SqlCommand command = new SqlCommand("SELECT UID, Password\nFROM Player\nWHERE Username = '" +
+                    SqlCommand command = new SqlCommand("SELECT PID, Password\nFROM Player\nWHERE Username = '" +
                         loginPacket.username + "'" , Server.dbConnection);
                     command.CommandTimeout = 15;
                     try
@@ -96,14 +96,12 @@ namespace BMORPG_Server
                         {
                             string dbPwd = reader.GetString(1); //(string)reader[1];
                             int UID = reader.GetInt32(0); //(Int64)reader[0];
+                            reader.Close();
                             Console.WriteLine("Password in database for " + loginPacket.username + ": " + dbPwd);
-                            //assumes the first column is the password and the second column is the UID
                             if (loginPacket.password == dbPwd)
                             {
                                 Console.WriteLine("Login succeeded for: " + loginPacket.username);
                                 player = new Player(packet.stream, loginPacket.username, UID);
-
-                                // TODO: Read rest of attributes and populate player object with them.
                                 Server.authenticatedPlayers.Push(player);
                             }
                             else
@@ -115,12 +113,12 @@ namespace BMORPG_Server
                         {
                             errorMessage = "Username does not exist.";
                         }
-                        reader.Close();
                     }
                     catch (Exception ex)
                     {
                         errorMessage = ex.ToString();
-                        reader.Close();
+                        if(reader != null)
+                            reader.Close();
                     }
                 }
             }

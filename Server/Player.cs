@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Data.SqlClient;
 
 namespace BMORPG_Server
 {
@@ -74,18 +75,48 @@ namespace BMORPG_Server
             addNextTurn = new List<Effect>();
 
             //populate base stats using database
-	        base_max_health = 0;
+
+            SqlDataReader reader = null;
+            SqlCommand command = new SqlCommand("SELECT MaxHealth, Attack, Defense, Accuracy, Evasion, Speed\nFROM Player\nWHERE PID="
+                + userID, Server.dbConnection);
+            command.CommandTimeout = 10;
+            try
+            {
+                lock (Server.dbConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                }
+                if (reader.Read())
+                {
+                    base_max_health = reader.GetInt32(0);
+                    base_attack = reader.GetInt32(1);
+                    base_defense = reader.GetInt32(2);
+                    base_accuracy = reader.GetInt32(3);
+                    base_evasion = reader.GetInt32(4);
+                    base_speed = reader.GetInt32(5);
+                    Console.WriteLine("Successfully logged in: " + username + "\tUID: " + userID);
+                }
+                else
+                {
+                    Console.WriteLine("\nFailed to read in attributes for Player " + username + " UID: " + userID
+                        + " from the database:\n\nRecords for this Player do not exist in the database");
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nFailed to read in attributes for Player " + username + " UID: " + userID 
+                    + " from the database:\n");
+                Console.WriteLine(ex.ToString());
+                if (reader != null)
+                    reader.Close();
+            }
 	        tot_max_health = 0;
 	        current_health = 0;
-	        base_attack = 0;
 	        tot_attack = 0;
-	        base_defense = 0;
 	        tot_defense = 0;
-	        base_accuracy = 0;
 	        tot_accuracy = 0;
-	        base_evasion = 0;
 	        tot_evasion = 0;
-	        base_speed = 0;
             tot_speed = 0;
         }
 
