@@ -33,6 +33,8 @@ namespace BMORPG.NetworkPackets
         public int p2Health = 0;
         public List<String> modifiers = new List<String>();
 
+        String lastMove = "lastMove";   //the name of the last move
+
         public StatePacket()
         {
             PacketType = Identifier;
