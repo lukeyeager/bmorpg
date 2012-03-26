@@ -37,11 +37,13 @@ namespace BMORPG_Server
     class Game
     {
         public Player player1, player2;
+        bool playerOneTurn;  
 
         public Game(Player p1, Player p2)
         {
             player1 = p1;
             player2 = p2;
+            playerOneTurn = true;   // player 1 goes first
         }
 
         /// <summary>
@@ -60,17 +62,31 @@ namespace BMORPG_Server
 
                 Console.WriteLine("Playing game between " + player1.username + " and " + player2.username);
 
-                // TODO: add listener that receives a PlayerMovePacket 
-                // receive input from one && receive input from two
-                // after both commands rec, compute effect list
-                    //speed affects the order of populating the effect list
-                    //user provided commands(attacks/items) should be last two items in list
+                // TODO: add listener for each player that receives a PlayerMovePacket 
+                // receive input from one || receive input from two, depending on whose turn it is
+                // after both commands rec, compute effect list based on the player and moveID
+                    // speed affects the order of populating the effect list
+                    // user provided commands(attacks/items) should be last two items in list
+
+                if (playerOneTurn)
+                {
+                    
+                }
+                else // player2's turn
+                { 
+                    
+                }
 
                 // After both PlayerMovePackets are received, calculate their healths
+                // and send a StatePacket back to each player
 
-                //age active effects for each player.
+                // age active effects for each player.
+
+
                 player1.expireTurn();
                 player2.expireTurn();
+
+                playerOneTurn ^= playerOneTurn; // change whose turn it is
 
                 //why put the thread to sleep here? (JDF)
                 Thread.Sleep(Server.SleepTime());
