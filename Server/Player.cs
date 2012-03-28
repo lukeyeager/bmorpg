@@ -33,31 +33,51 @@ namespace BMORPG_Server
         /// </summary>
         public Stream netStream = null;
 
-        public String username;
-        public int userID;
+        #region Attributes with their own database column
 
-        // Consider this maybe? (LCY)
-        // private int maxHealth;
-        //      Base value based on player stats
-        // public int getMaxHealth();
-        //      This parses the effects list for effects of type MaxHealth, and adds/subtracts the modifiers from the base
+        /// <summary>
+        /// A Player's name
+        /// </summary>
+        /// <remarks>DB: Players.Username</remarks>
+        private String username;
+        public String Username
+        {
+            get { return username; }
+        }
+
+        /// <summary>
+        /// This Player's unique identifier in the database
+        /// </summary>
+        /// <remarks>DB: Players.ID</remarks>
+        private int userID;
+        public int UserID
+        {
+            get { return userID; }
+        }
+
+        /// <summary>
+        /// The higher a Player's level, the more difficult an opponent they should be
+        /// </summary>
+        /// <remarks>DB: Players.Level</remarks>
+        private int level;
+        public int Level
+        {
+            get { return level; }
+        }
+
+        /// <summary>
+        /// As a Player gains experience through playing Games, their Level will increase
+        /// </summary>
+        private int experience;
+        public int Experience
+        {
+            get { return experience; }
+        }
+
+        #endregion
 
         public List<Effect> effects;
         public List<Effect> addNextTurn;
-
-        private int base_max_health;
-        private int tot_max_health;
-        private int current_health;
-        private int base_attack;
-        private int tot_attack;
-        private int base_defense;
-        private int tot_defense;
-        private int base_accuracy;
-        private int tot_accuracy;
-        private int base_evasion;
-        private int tot_evasion;
-        private int base_speed;
-        private int tot_speed;
 
         /// <summary>
         /// Constructor for the Player class.
@@ -144,6 +164,8 @@ namespace BMORPG_Server
             }
         }
 
+        #region Effect Related Attributes
+
         /// <summary>
         /// The maximum health of the character.
         /// </summary>
@@ -161,10 +183,13 @@ namespace BMORPG_Server
                 return tot_max_health;
             }
         }
+        private int base_max_health;
+        private int tot_max_health;
 
         /// <summary>
         /// The character's current health.
         /// </summary>
+        /// <remarks>NOTE: This updates the current_health variable, so only call it when you're sure you want to.</remarks>
         public int CurrentHealth
         {
             get
@@ -191,6 +216,7 @@ namespace BMORPG_Server
                 return current_health;
             }
         }
+        private int current_health;
 
         /// <summary>
         /// The character's attack value.
@@ -209,6 +235,8 @@ namespace BMORPG_Server
                 return tot_attack;
             }
         }
+        private int base_attack;
+        private int tot_attack;
 
         /// <summary>
         /// The character's defense value.
@@ -227,6 +255,8 @@ namespace BMORPG_Server
                 return tot_defense;
             }
         }
+        private int base_defense;
+        private int tot_defense;
 
         /// <summary>
         /// The character's accuracy value.
@@ -245,6 +275,8 @@ namespace BMORPG_Server
                 return tot_accuracy;
             }
         }
+        private int base_accuracy;
+        private int tot_accuracy;
 
         /// <summary>
         /// The character's evasion value.
@@ -263,6 +295,8 @@ namespace BMORPG_Server
                 return tot_evasion;
             }
         }
+        private int base_evasion;
+        private int tot_evasion;
 
         /// <summary>
         /// The character's speed value.
@@ -281,5 +315,9 @@ namespace BMORPG_Server
                 return tot_speed;
             }
         }
+        private int base_speed;
+        private int tot_speed;
+
+        #endregion
     }
 }

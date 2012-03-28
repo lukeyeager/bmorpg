@@ -86,6 +86,7 @@
     <Compile Include="Listeners\SecureListener.cs" />
     <Compile Include="Listeners\ConnectionListener.cs" />
     <Compile Include="Listeners\UnsecureListener.cs" />
+    <Compile Include="UpgradeCalculations.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Documentation\project sql structure.xlsx" />
