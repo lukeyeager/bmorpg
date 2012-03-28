@@ -27,6 +27,8 @@ namespace BMORPG.NetworkPackets
         public const String Identifier = "START_GAME";
 
         public String opponentUsername = "";
+        int userHitPoints, opponentHitPoints;
+
 
         public StartGamePacket()
         {

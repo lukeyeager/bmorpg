@@ -56,25 +56,29 @@ namespace BMORPG_Server
             if (!SendStartGamePackets())
                 return;
 
+            NetworkPacket packet = new NetworkPacket();
+
             while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
             {
                 // Note: only call CurrentHealth once each turn so as not to deal damage twice. (JDF)
 
                 Console.WriteLine("Playing game between " + player1.username + " and " + player2.username);
 
-                // TODO: add listener for each player that receives a PlayerMovePacket 
-                // receive input from one || receive input from two, depending on whose turn it is
+                // TODO: 
                 // after both commands rec, compute effect list based on the player and moveID
                     // speed affects the order of populating the effect list
                     // user provided commands(attacks/items) should be last two items in list
 
+                
                 if (playerOneTurn)
                 {
-                    
+                    packet.stream = player1.netStream;
+                    packet.Receive(ReceivePacketCallback);
                 }
                 else // player2's turn
-                { 
-                    
+                {
+                    packet.stream = player2.netStream;
+                    packet.Receive(ReceivePacketCallback);
                 }
 
                 // After both PlayerMovePackets are received, calculate their healths
@@ -86,7 +90,7 @@ namespace BMORPG_Server
                 player1.expireTurn();
                 player2.expireTurn();
 
-                playerOneTurn ^= playerOneTurn; // change whose turn it is
+                playerOneTurn = !playerOneTurn; // change whose turn it is
 
                 //why put the thread to sleep here? (JDF)
                 Thread.Sleep(Server.SleepTime());
@@ -143,6 +147,32 @@ namespace BMORPG_Server
 
             //player.current_health = 0;    is this necessary?
         }
+
+        /// <summary>
+        /// Callback after receiving a PlayerMovePacket
+        /// </summary>
+        /// <param name="exception"></param>
+        /// <param name="packet"></param>
+        /// <param name="obj"></param>
+        public void ReceivePacketCallback(Exception exception, NetworkPacket packet, object obj)
+        {
+            if (exception != null)
+            {
+                Console.WriteLine("Game Thread received an error while receiving a move: " + exception.Message);
+                packet.stream.Close();
+                return;
+            }
+
+
+            if (packet is PlayerMovePacket)
+            {
+                // TODO
+                /*
+                 * look up packet.moveID in the database
+                 * calculate the other player's new health based on that move
+                */
+            }
+                
 
         //private void calculateEffects has been deleted and replaced with attribute Properties in the Player class. (JDF)
 
