@@ -78,6 +78,9 @@ namespace BMORPG_Server
 
         public List<Effect> effects;
         public List<Effect> addNextTurn;
+        public List<int> items;
+        public List<int> equipment;
+        public List<int> abilities;
 
         /// <summary>
         /// Constructor for the Player class.
@@ -93,6 +96,9 @@ namespace BMORPG_Server
             userID = id;
             effects = new List<Effect>();
             addNextTurn = new List<Effect>();
+            items = new List<int>();
+            equipment = new List<int>();
+            abilities = new List<int>();
 
             //populate base stats using database
 
@@ -114,7 +120,7 @@ namespace BMORPG_Server
                     base_accuracy = reader.GetInt32(3);
                     base_evasion = reader.GetInt32(4);
                     base_speed = reader.GetInt32(5);
-                    Console.WriteLine("Successfully logged in: " + username + "\tUID: " + userID);
+                    Console.WriteLine("Read in stats from database for: " + username);
                 }
                 else
                 {
@@ -131,6 +137,95 @@ namespace BMORPG_Server
                 if (reader != null)
                     reader.Close();
             }
+
+            //read in Items for the player
+
+            reader = null;
+            command = new SqlCommand("SELECT Item_ID\nFROM PlayerItems\nWHERE Player_ID="
+                + userID, Server.dbConnection);
+            command.CommandTimeout = 10;
+            try
+            {
+                lock (Server.dbConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                }
+                while (reader.Read())
+                {
+                    int item_ID = reader.GetInt32(0);
+                    items.Add(item_ID);
+                };
+                Console.WriteLine("Read in items from database for: " + username);
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nFailed to read in items for Player " + username + " UID: " + userID
+                    + " from the database:\n");
+                Console.WriteLine(ex.ToString());
+                if (reader != null)
+                    reader.Close();
+            }
+
+            //read in Equipment for the player
+
+            reader = null;
+            command = new SqlCommand("SELECT Equipment_ID\nFROM PlayerEquipments\nWHERE Player_ID="
+                + userID, Server.dbConnection);
+            command.CommandTimeout = 10;
+            try
+            {
+                lock (Server.dbConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                }
+                while (reader.Read())
+                {
+                    int equipment_ID = reader.GetInt32(0);
+                    equipment.Add(equipment_ID);
+                };
+                Console.WriteLine("Read in equipment from database for: " + username);
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nFailed to read in equipment for Player " + username + " UID: " + userID
+                    + " from the database:\n");
+                Console.WriteLine(ex.ToString());
+                if (reader != null)
+                    reader.Close();
+            }
+
+            //read in Abilities for the player
+
+            reader = null;
+            command = new SqlCommand("SELECT Ability_ID\nFROM PlayerAbilities\nWHERE Player_ID="
+                + userID, Server.dbConnection);
+            command.CommandTimeout = 10;
+            try
+            {
+                lock (Server.dbConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                }
+                while (reader.Read())
+                {
+                    int ability_ID = reader.GetInt32(0);
+                    abilities.Add(ability_ID);
+                };
+                Console.WriteLine("Read in abilities from database for: " + username);
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nFailed to read in abilities for Player " + username + " UID: " + userID
+                    + " from the database:\n");
+                Console.WriteLine(ex.ToString());
+                if (reader != null)
+                    reader.Close();
+            }
+
+            Console.WriteLine("Successfully logged in: " + username + "\tUID: " + userID);
 	        tot_max_health = 0;
 	        current_health = 0;
 	        tot_attack = 0;
@@ -150,7 +245,7 @@ namespace BMORPG_Server
                 if (!e.Persistent)
                 {
                     e.anotherTurn();
-                    if (e.TurnsToLive <= 0)
+                    if (e.TurnsToLive <= 0 && e.LinkedEffect != -1)
                     {
                         addNextTurn.Add(Server.masterListEffects[e.LinkedEffect]);
                         effects.Remove(e);

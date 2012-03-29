@@ -197,7 +197,7 @@ namespace BMORPG_Server
             }
             else
             {
-                Console.WriteLine("Login success: " + player.username);
+                Console.WriteLine("Login success: " + player.Username);
                 Server.authenticatedPlayers.Push(player);
             }
         }

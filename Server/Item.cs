@@ -18,110 +18,86 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data.SqlClient;
 
 namespace BMORPG_Server
 {
-    class Item
+    class Item: EffectContainer
     {
-        private string name;
-        private string description;
-        private List<int> effects;
-        //indicates whether each Effect is placed on the opposing player or the using/casting player.
-        private List<bool> enemy;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="n"></param>
-        /// <param name="d"></param>
-        /// <param name="ef"></param>
-        /// <param name="en"></param>
-        public Item(string n, string d, List<int> ef, List<bool> en)
+        public Item(string n, string d)
+            : base(n, d)
         {
-            name = n;
-            description = d;
-            effects = new List<int>();
-            foreach (int i in ef)
-            {
-                effects.Add(i);
-            }
-            enemy = new List<bool>();
-            foreach (bool b in en)
-            {
-                enemy.Add(b);
-            }
         }
 
         /// <summary>
-        /// 
+        /// Reads in the information for all of the Items from the database.
         /// </summary>
-        /// <param name="n"></param>
-        /// <param name="d"></param>
-        /// <param name="ef"></param>
-        /// <param name="en"></param>
-        public Item(string n, string d, List<byte> ef, List<byte> en)
+        public static void populateMasterList()
         {
-            name = n;
-            description = d;
-            effects = new List<int>();
-            // testing on converting from an array of bytes to integers is needed!
-            for (int x = 0; x < ef.Count; x += 4)
+            SqlDataReader reader = null;
+            SqlCommand command = new SqlCommand("SELECT *\nFROM Items", Server.dbConnection);
+            command.CommandTimeout = 10;
+            bool readLinks = true;
+            try
             {
-                int one = Convert.ToInt32(ef[x]);
-                int two = Convert.ToInt32(ef[x + 1]);
-                int three = Convert.ToInt32(ef[x + 2]);
-                int four = Convert.ToInt32(ef[x + 3]);
-                int total = one * 16777216 + two * 65536 + three * 256 + four;
-                effects.Add(total);
+                lock (Server.dbConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                }
+                while (reader.Read())
+                {
+                    int ItID = reader.GetInt32(0);
+                    string name = reader.GetString(1);
+                    string description = reader.GetString(2);
+                    Console.WriteLine("Item: ItID = " + ItID + "; Name = " + name + "; Description = \"" + description + "\"");
+                    Item temp = new Item(name, description);
+                    //maybe make the master list a static object in this class?
+                    Server.masterListItems.Add(ItID, temp);
+                }
+                reader.Close();
             }
-            enemy = new List<bool>();
-            foreach (byte b in en)
+            catch (Exception ex)
             {
-                enemy.Add(Convert.ToBoolean(b));
+                readLinks = false;
+                Console.WriteLine("\nFailed to read in Items from the database:\n");
+                Console.WriteLine(ex.ToString());
+                if (reader != null)
+                    reader.Close();
             }
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Name
-        {
-            get
+            //if more db connections added, this will be moved to Item constructor
+            if (readLinks)
             {
-                return name;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Description
-        {
-            get
-            {
-                return description;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<int> Effects
-        {
-            get
-            {
-                return effects;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<bool> Enemy
-        {
-            get
-            {
-                return enemy;
+                //read in links to effects from database (but not if there was an error reading in Items from the db
+                foreach (KeyValuePair<int, Item> i in Server.masterListItems)
+                {
+                    reader = null;
+                    command = new SqlCommand("Select Effect_ID, Enemy\nFROM ItemEffects\nWHERE Item_ID = \'" + i.Key + "\'", Server.dbConnection);
+                    command.CommandTimeout = 10;
+                    try
+                    {
+                        lock (Server.dbConnectionLock)
+                        {
+                            reader = command.ExecuteReader();
+                        }
+                        while (reader.Read())
+                        {
+                            int Effect_ID = reader.GetInt32(0);
+                            bool enemy = reader.GetBoolean(1);
+                            i.Value.AddEffect(Effect_ID, enemy);
+                        }
+                        Console.WriteLine("Another Effect read in for an Item.");
+                        reader.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("\nFailed to read in links to Effects table for Items from the database:\n");
+                        Console.WriteLine(ex.ToString());
+                        if (reader != null)
+                            reader.Close();
+                        break;
+                    }
+                }
             }
         }
     }

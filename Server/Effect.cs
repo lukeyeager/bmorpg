@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data.SqlClient;
 
 namespace BMORPG_Server
 {
@@ -87,6 +88,51 @@ namespace BMORPG_Server
         {
             if(turnsToLive > 0)
                 turnsToLive--;
+        }
+
+        public static void populateMasterList()
+        {
+            SqlDataReader reader = null;
+            SqlCommand command = new SqlCommand("SELECT *\nFROM Effects", Server.dbConnection);
+            command.CommandTimeout = 10;
+            try
+            {
+                lock (Server.dbConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                }
+                while (reader.Read())
+                {
+                    int EID = reader.GetInt32(0);
+                    EffectType type = (EffectType)reader.GetInt32(1);
+                    int magnitude = reader.GetInt32(2);
+                    int turnsToLive = reader.GetInt32(3);
+                    bool persistent = reader.GetBoolean(4);
+                    if (reader.IsDBNull(5))
+                    {
+                        Console.WriteLine("Effect: EID = " + EID + "; type = " + ((int)type) + "; magnitude = " + magnitude
+                            + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = NULL");
+                        Effect temp = new Effect(type, magnitude, turnsToLive, persistent);
+                        Server.masterListEffects.Add(EID, temp);
+                    }
+                    else
+                    {
+                        int linkedEffect = reader.GetInt32(5);
+                        Console.WriteLine("Effect: EID = " + EID + "; type = " + ((int)type) + "; magnitude = " + magnitude
+                            + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = " + linkedEffect);
+                        Effect temp = new Effect(type, magnitude, turnsToLive, persistent, linkedEffect);
+                        Server.masterListEffects.Add(EID, temp);
+                    }
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nFailed to read in Effects from the database:\n");
+                Console.WriteLine(ex.ToString());
+                if (reader != null)
+                    reader.Close();
+            }
         }
     }
 }

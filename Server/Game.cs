@@ -63,7 +63,7 @@ namespace BMORPG_Server
         /// </summary>
         public void Start()
         {
-            Console.WriteLine("Starting Game between " + player1.username + " and " + player2.username);
+            Console.WriteLine("Starting Game between " + player1.Username + " and " + player2.Username);
 
             if (!SendStartGamePackets())
                 return;
@@ -74,7 +74,7 @@ namespace BMORPG_Server
             {
                 // Note: only call CurrentHealth once each turn so as not to deal damage twice. (JDF)
 
-                Console.WriteLine("Playing game between " + player1.username + " and " + player2.username);
+                Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
 
                 // TODO: 
                 // after both commands rec, compute effect list based on the player and moveID
@@ -109,7 +109,7 @@ namespace BMORPG_Server
             }
 
             // For now, let's just quit
-            Console.WriteLine("Ending game between " + player1.username + " and " + player2.username);
+            Console.WriteLine("Ending game between " + player1.Username + " and " + player2.Username);
             player1.netStream.Close();
             player2.netStream.Close();
         }
@@ -123,7 +123,7 @@ namespace BMORPG_Server
             // Step 1: send to player1
 
             StartGamePacket packet = new StartGamePacket();
-            packet.opponentUsername = player2.username;
+            packet.opponentUsername = player2.Username;
             packet.stream = player1.netStream;
 
             if (!packet.Send(SendStartGamePacketsCallback, player1))
@@ -132,7 +132,7 @@ namespace BMORPG_Server
             // Step 2: send to player2
 
             packet = new StartGamePacket();
-            packet.opponentUsername = player1.username;
+            packet.opponentUsername = player1.Username;
             packet.stream = player2.netStream;
 
             if (!packet.Send(SendStartGamePacketsCallback, player2))
@@ -155,7 +155,7 @@ namespace BMORPG_Server
                 player.netStream.Close();
             }
             else
-                Console.WriteLine("Sent start game packet to " + player.username);
+                Console.WriteLine("Sent start game packet to " + player.Username);
 
             //player.current_health = 0;    is this necessary?
         }
@@ -184,7 +184,7 @@ namespace BMORPG_Server
                  * calculate the other player's new health based on that move
                 */
             }
-                
+        }       
 
         //private void calculateEffects has been deleted and replaced with attribute Properties in the Player class. (JDF)
 

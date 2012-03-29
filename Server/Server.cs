@@ -93,105 +93,10 @@ namespace BMORPG_Server
 
             // Read in necessary information from the database
             // Effects
-            SqlDataReader reader = null;
-            SqlCommand command = new SqlCommand("SELECT *\nFROM Effects", Server.dbConnection);
-            command.CommandTimeout = 10;
-            try
-            {
-                lock (Server.dbConnectionLock)
-                {
-                    reader = command.ExecuteReader();
-                }
-                while (reader.Read())
-                {
-                    int EID = reader.GetInt32(0);
-                    EffectType type = (EffectType) reader.GetInt32(1);
-                    int magnitude = reader.GetInt32(2);
-                    int turnsToLive = reader.GetInt32(3);
-                    bool persistent = reader.GetBoolean(4);
-                    if (reader.IsDBNull(5))
-                    {
-                        Console.WriteLine("Effect: EID = " + EID + "; type = " + ((int)type) + "; magnitude = " + magnitude
-                            + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = NULL");
-                        Effect temp = new Effect(type, magnitude, turnsToLive, persistent);
-                        masterListEffects.Add(EID, temp);
-                    }
-                    else
-                    {
-                        int linkedEffect = reader.GetInt32(5);
-                        Console.WriteLine("Effect: EID = " + EID + "; type = " + ((int)type) + "; magnitude = " + magnitude
-                            + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = " + linkedEffect);
-                        Effect temp = new Effect(type, magnitude, turnsToLive, persistent, linkedEffect);
-                        masterListEffects.Add(EID, temp);
-                    }
-                }
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("\nFailed to read in Effects from the database:\n");
-                Console.WriteLine(ex.ToString());
-                if (reader != null)
-                    reader.Close();
-            }
+            Effect.populateMasterList();
 
             // Items
-            reader = null;
-            command = new SqlCommand("SELECT *\nFROM Items", Server.dbConnection);
-            command.CommandTimeout = 10;
-            try
-            {
-                lock (Server.dbConnectionLock)
-                {
-                    reader = command.ExecuteReader();
-                }
-                while (reader.Read())
-                {
-                    int ItID = reader.GetInt32(0);
-                    byte[] tempBArray = new byte[40];
-                    long bytesRead = reader.GetBytes(1, 0, tempBArray, 0, 40);
-                    byte[] reallyTemp = new byte[bytesRead];
-                    for (long x = 0; x < bytesRead; x++)
-                    {
-                        reallyTemp[x] = tempBArray[x];
-                    }
-                    List<byte> effects = new List<byte>(reallyTemp);
-                    tempBArray = new byte[10];
-                    bytesRead = reader.GetBytes(2, 0, tempBArray, 0, 10);
-                    reallyTemp = new byte[bytesRead];
-                    for (long x = 0; x < bytesRead; x++)
-                    {
-                        reallyTemp[x] = tempBArray[x];
-                    }
-                    List<byte> enemy = new List<byte>(reallyTemp);
-                    string name = reader.GetString(3);
-                    string description = reader.GetString(4);
-                    Console.Write("Item: ItID = " + ItID + "; Name = " + name + "; Description = \"" + description + "\"; Effect indices = ");
-                    foreach (byte b in effects)
-                    {
-                        Console.Write(Convert.ToInt32(b));
-                        Console.Write(',');
-                    }
-                    Console.Write("\b; Enemy indices = ");
-                    foreach (byte b in enemy)
-                    {
-                        Console.Write(Convert.ToBoolean(b));
-                        Console.Write(',');
-                    }
-                    Console.WriteLine("\b ");
-                    Item temp = new Item(name, description, effects, enemy);
-                    masterListItems.Add(ItID, temp);
-                }
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                //errorMessage = ex.ToString();
-                Console.WriteLine("\nFailed to read in Items from the database:\n");
-                Console.WriteLine(ex.ToString());
-                if (reader != null)
-                    reader.Close();
-            }
+            Item.populateMasterList();
 
             // Decide which port to use
             int port = 11000;   //Default

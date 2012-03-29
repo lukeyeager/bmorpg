@@ -75,6 +75,7 @@
     </Compile>
     <Compile Include="Authenticator.cs" />
     <Compile Include="Effect.cs" />
+    <Compile Include="EffectContainer.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="MatchMaker.cs" />
