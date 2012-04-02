@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Controls;
-using BMORPG.NetworkPackets;
+using BMORPGClient;
 
 namespace BMORPGClient
 {
@@ -29,9 +29,6 @@ namespace BMORPGClient
 
         private void menuExit_Click(object sender, RoutedEventArgs e)
         {
-            // Memory leak
-            //this.Close();
-            
             Environment.Exit(1);
         }
 
@@ -39,6 +36,8 @@ namespace BMORPGClient
         {
             tabControl1.SelectedIndex = 1;
         }
+
+
 
         #region Login Tab
 
