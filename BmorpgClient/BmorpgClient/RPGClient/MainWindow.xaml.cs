@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Controls;
-using BMORPGClient;
+using BMORPG.NetworkPackets;
 
 namespace BMORPGClient
 {

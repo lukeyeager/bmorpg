@@ -69,6 +69,33 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="..\NetworkPackets\CreateAccountPacket.cs">
+      <Link>CreateAccountPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\NetworkPackets\ErrorPacket.cs">
+      <Link>ErrorPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\NetworkPackets\LoginRequestPacket.cs">
+      <Link>LoginRequestPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\NetworkPackets\LoginStatusPacket.cs">
+      <Link>LoginStatusPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\NetworkPackets\NetworkPacket.cs">
+      <Link>NetworkPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\NetworkPackets\RestartPacket.cs">
+      <Link>RestartPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\NetworkPackets\StartGamePacket.cs">
+      <Link>StartGamePacket.cs</Link>
+    </Compile>
+    <Compile Include="..\NetworkPackets\StatePacket.cs">
+      <Link>StatePacket.cs</Link>
+    </Compile>
+    <Compile Include="..\NetworkPackets\WelcomePacket.cs">
+      <Link>WelcomePacket.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
