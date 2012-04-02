@@ -35,16 +35,8 @@ namespace BMORPG_Server
         //Note: it may be impractical to have one universal connection to the database.  Consider having a collection of them? (JDF)
         public static SqlConnection dbConnection = null;
         public static object dbConnectionLock = new Object();
-
-        //Might want to have this in Game class instead of Server class.
-        /// <summary>
-        /// Holds all of the Effects needed for items, abilities, etc.
-        /// </summary>
-        public static Dictionary<int, Effect> masterListEffects = new Dictionary<int, Effect>();
-        /// <summary>
-        /// Holds all of the Items that exist in the game.
-        /// </summary>
-        public static Dictionary<int, Item> masterListItems = new Dictionary<int, Item>();
+        public static SqlConnection dbConnectionSecondary = null;
+        public static object dbConnectionSecondaryLock = new Object();
 
         /// <summary>
         /// The ConnectionListener adds Streams to this list,
@@ -87,8 +79,19 @@ namespace BMORPG_Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to open database connection: " + ex.Message);
+                Console.WriteLine("Failed to open primary database connection: " + ex.Message);
                 dbConnection = null;
+            }
+            try
+            {
+                dbConnectionSecondary = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
+                    "Database=BMORPG;Connection Timeout=5;");
+                dbConnectionSecondary.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to open secondary database connection: " + ex.Message);
+                dbConnectionSecondary = null;
             }
 
             // Read in necessary information from the database
@@ -97,6 +100,12 @@ namespace BMORPG_Server
 
             // Items
             Item.populateMasterList();
+
+            //Equipment
+            Equipment.populateMasterList();
+
+            //Abilities
+            Ability.populateMasterList();
 
             // Decide which port to use
             int port = 11000;   //Default

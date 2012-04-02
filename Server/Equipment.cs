@@ -1,20 +1,4 @@
-﻿/*  This file is part of BMORPG.
-
-    BMORPG is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    BMORPG is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with BMORPG.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,18 +6,18 @@ using System.Data.SqlClient;
 
 namespace BMORPG_Server
 {
-    class Item : EffectContainer
+    class Equipment : EffectContainer
     {
         /// <summary>
-        /// Holds all of the Items that exist in the game.
+        /// Holds all of the Equipment that exist in the game.
         /// </summary>
-        public static Dictionary<int, Item> masterList = new Dictionary<int, Item>();
+        public static Dictionary<int, Equipment> masterList = new Dictionary<int, Equipment>();
 
-        public Item(string n, string d, int id)
+        public Equipment(string n, string d, int id)
             : base(n, d)
         {
             SqlDataReader reader = null;
-            SqlCommand command = new SqlCommand("SELECT Effect_ID, Enemy\nFROM ItemEffects\nWHERE Item_ID = " + id, Server.dbConnectionSecondary);
+            SqlCommand command = new SqlCommand("SELECT Effect_ID, Enemy\nFROM EquipmentEffects\nWHERE Equipment_ID = " + id, Server.dbConnectionSecondary);
             command.CommandTimeout = 3;
             try
             {
@@ -52,7 +36,7 @@ namespace BMORPG_Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("\nFailed to read in Linked Effects for Item \'" + n + "\' from the database:\n");
+                Console.WriteLine("\nFailed to read in Linked Effects for Equipment \'" + n + "\' from the database:\n");
                 Console.WriteLine(ex.ToString());
                 if (reader != null)
                     reader.Close();
@@ -60,12 +44,12 @@ namespace BMORPG_Server
         }
 
         /// <summary>
-        /// Reads in the information for all of the Items from the database.
+        /// Reads in the information for all of the Equipment from the database.
         /// </summary>
         public static void populateMasterList()
         {
             SqlDataReader reader = null;
-            SqlCommand command = new SqlCommand("SELECT *\nFROM Items", Server.dbConnection);
+            SqlCommand command = new SqlCommand("SELECT *\nFROM Equipments", Server.dbConnection);
             command.CommandTimeout = 3;
             try
             {
@@ -75,18 +59,18 @@ namespace BMORPG_Server
                 }
                 while (reader.Read())
                 {
-                    int ItID = reader.GetInt32(0);
+                    int EqID = reader.GetInt32(0);
                     string name = reader.GetString(1);
                     string description = reader.GetString(2);
-                    Item temp = new Item(name, description, ItID);
-                    Console.WriteLine("Item: ItID = " + ItID + "; Name = " + name + "; Description = \"" + description + "\"");
-                    Item.masterList.Add(ItID, temp);
+                    Equipment temp = new Equipment(name, description, EqID);
+                    Console.WriteLine("Item: EqID = " + EqID + "; Name = " + name + "; Description = \"" + description + "\"");
+                    Equipment.masterList.Add(EqID, temp);
                 }
                 reader.Close();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("\nFailed to read in Items from the database:\n");
+                Console.WriteLine("\nFailed to read in Equipment from the database:\n");
                 Console.WriteLine(ex.ToString());
                 if (reader != null)
                     reader.Close();

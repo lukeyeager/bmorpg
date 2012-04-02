@@ -36,6 +36,11 @@ namespace BMORPG_Server
     /// </summary>
     public class Effect
     {
+        /// <summary>
+        /// Holds all of the Effects needed for items, abilities, etc.
+        /// </summary>
+        public static Dictionary<int, Effect> masterList = new Dictionary<int, Effect>();
+
         private EffectType type;
         private int magnitude;
         private int turnsToLive;
@@ -113,7 +118,7 @@ namespace BMORPG_Server
                         Console.WriteLine("Effect: EID = " + EID + "; type = " + ((int)type) + "; magnitude = " + magnitude
                             + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = NULL");
                         Effect temp = new Effect(type, magnitude, turnsToLive, persistent);
-                        Server.masterListEffects.Add(EID, temp);
+                        Effect.masterList.Add(EID, temp);
                     }
                     else
                     {
@@ -121,7 +126,7 @@ namespace BMORPG_Server
                         Console.WriteLine("Effect: EID = " + EID + "; type = " + ((int)type) + "; magnitude = " + magnitude
                             + "; turnsToLive = " + turnsToLive + "; persistent = " + persistent + "; linked effect = " + linkedEffect);
                         Effect temp = new Effect(type, magnitude, turnsToLive, persistent, linkedEffect);
-                        Server.masterListEffects.Add(EID, temp);
+                        Effect.masterList.Add(EID, temp);
                     }
                 }
                 reader.Close();

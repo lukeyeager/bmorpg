@@ -28,6 +28,23 @@ namespace BMORPG_Server
     /// </summary>
     class Player
     {
+        private static SqlConnection playerDBConnection = null;
+        private static object playerDBConnectionLock = new Object();
+        public static void instantiateDBConnection()
+        {
+            try
+            {
+                playerDBConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
+                    "Database=BMORPG;Connection Timeout=5;");
+                playerDBConnection.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to open Player constructor database connection: " + ex.Message);
+                playerDBConnection = null;
+            }
+        }
+
         /// <summary>
         /// The socket connection related to this user
         /// </summary>
@@ -103,31 +120,33 @@ namespace BMORPG_Server
             //populate base stats using database
 
             SqlDataReader reader = null;
-            SqlCommand command = new SqlCommand("SELECT MaxHealth, Attack, Defense, Accuracy, Evasion, Speed\nFROM Player\nWHERE PID="
-                + userID, Server.dbConnection);
-            command.CommandTimeout = 10;
+            SqlCommand command = new SqlCommand("SELECT Experience, Lvl, MaxHealth, Attack, Defense, Accuracy, Evasion, Speed\nFROM Player\nWHERE PID="
+                + userID, playerDBConnection);
+            command.CommandTimeout = 3;
             try
             {
-                lock (Server.dbConnectionLock)
+                lock (playerDBConnectionLock)
                 {
                     reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        experience = reader.GetInt32(0);
+                        level = reader.GetInt32(1);
+                        base_max_health = reader.GetInt32(2);
+                        base_attack = reader.GetInt32(3);
+                        base_defense = reader.GetInt32(4);
+                        base_accuracy = reader.GetInt32(5);
+                        base_evasion = reader.GetInt32(6);
+                        base_speed = reader.GetInt32(7);
+                        Console.WriteLine("Read in stats from database for: " + username);
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nFailed to read in attributes for Player " + username + " UID: " + userID
+                            + " from the database:\n\nRecords for this Player do not exist in the database");
+                    }
+                    reader.Close();
                 }
-                if (reader.Read())
-                {
-                    base_max_health = reader.GetInt32(0);
-                    base_attack = reader.GetInt32(1);
-                    base_defense = reader.GetInt32(2);
-                    base_accuracy = reader.GetInt32(3);
-                    base_evasion = reader.GetInt32(4);
-                    base_speed = reader.GetInt32(5);
-                    Console.WriteLine("Read in stats from database for: " + username);
-                }
-                else
-                {
-                    Console.WriteLine("\nFailed to read in attributes for Player " + username + " UID: " + userID
-                        + " from the database:\n\nRecords for this Player do not exist in the database");
-                }
-                reader.Close();
             }
             catch (Exception ex)
             {
@@ -142,21 +161,21 @@ namespace BMORPG_Server
 
             reader = null;
             command = new SqlCommand("SELECT Item_ID\nFROM PlayerItems\nWHERE Player_ID="
-                + userID, Server.dbConnection);
-            command.CommandTimeout = 10;
+                + userID, playerDBConnection);
+            command.CommandTimeout = 3;
             try
             {
-                lock (Server.dbConnectionLock)
+                lock (playerDBConnectionLock)
                 {
                     reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int item_ID = reader.GetInt32(0);
+                        items.Add(item_ID);
+                    }
+                    reader.Close();
                 }
-                while (reader.Read())
-                {
-                    int item_ID = reader.GetInt32(0);
-                    items.Add(item_ID);
-                };
                 Console.WriteLine("Read in items from database for: " + username);
-                reader.Close();
             }
             catch (Exception ex)
             {
@@ -171,21 +190,21 @@ namespace BMORPG_Server
 
             reader = null;
             command = new SqlCommand("SELECT Equipment_ID\nFROM PlayerEquipments\nWHERE Player_ID="
-                + userID, Server.dbConnection);
-            command.CommandTimeout = 10;
+                + userID, playerDBConnection);
+            command.CommandTimeout = 3;
             try
             {
-                lock (Server.dbConnectionLock)
+                lock (playerDBConnectionLock)
                 {
                     reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int equipment_ID = reader.GetInt32(0);
+                        equipment.Add(equipment_ID);
+                    }
+                    reader.Close();
                 }
-                while (reader.Read())
-                {
-                    int equipment_ID = reader.GetInt32(0);
-                    equipment.Add(equipment_ID);
-                };
                 Console.WriteLine("Read in equipment from database for: " + username);
-                reader.Close();
             }
             catch (Exception ex)
             {
@@ -200,21 +219,21 @@ namespace BMORPG_Server
 
             reader = null;
             command = new SqlCommand("SELECT Ability_ID\nFROM PlayerAbilities\nWHERE Player_ID="
-                + userID, Server.dbConnection);
-            command.CommandTimeout = 10;
+                + userID, playerDBConnection);
+            command.CommandTimeout = 3;
             try
             {
-                lock (Server.dbConnectionLock)
+                lock (playerDBConnectionLock)
                 {
                     reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int ability_ID = reader.GetInt32(0);
+                        abilities.Add(ability_ID);
+                    }
+                    reader.Close();
                 }
-                while (reader.Read())
-                {
-                    int ability_ID = reader.GetInt32(0);
-                    abilities.Add(ability_ID);
-                };
                 Console.WriteLine("Read in abilities from database for: " + username);
-                reader.Close();
             }
             catch (Exception ex)
             {
@@ -247,7 +266,7 @@ namespace BMORPG_Server
                     e.anotherTurn();
                     if (e.TurnsToLive <= 0 && e.LinkedEffect != -1)
                     {
-                        addNextTurn.Add(Server.masterListEffects[e.LinkedEffect]);
+                        addNextTurn.Add(Effect.masterList[e.LinkedEffect]);
                         effects.Remove(e);
                     }
                 }

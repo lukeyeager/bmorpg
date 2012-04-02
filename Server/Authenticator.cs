@@ -28,11 +28,27 @@ namespace BMORPG_Server
     /// </summary>
     public class Authenticator
     {
+        private static SqlConnection authenticatorDBConnection = null;
+        private static object authenticatorDBConnectionLock = new Object();
+
         /// <summary>
         /// This is the Start() method for this thread, it watches Server.incomingConnections
         /// </summary>
         public void RunAuthenticator()
         {
+            // Make database connection
+            try
+            {
+                authenticatorDBConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
+                    "Database=BMORPG;Connection Timeout=5;");
+                authenticatorDBConnection.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to open authenticator database connection: " + ex.Message);
+                authenticatorDBConnection = null;
+            }
+
             while (true)
             {
                 Stream incoming = Server.incomingConnections.Pop();
@@ -73,7 +89,7 @@ namespace BMORPG_Server
                 LoginRequestPacket loginPacket = (LoginRequestPacket)packet;
                 Console.WriteLine("Attempting login with username=" + loginPacket.username + ", password=" + loginPacket.password);
 
-                if (Server.dbConnection == null)
+                if (authenticatorDBConnection == null)
                 {
                     // For now, we'll just assume they're authenticated
                     player = new Player(packet.stream, loginPacket.username, 1);
@@ -83,35 +99,36 @@ namespace BMORPG_Server
                 {
                     SqlDataReader reader = null;
                     SqlCommand command = new SqlCommand("SELECT PID, Password\nFROM Player\nWHERE Username = '" +
-                        loginPacket.username + "'" , Server.dbConnection);
-                    command.CommandTimeout = 15;
+                        loginPacket.username + "'" , authenticatorDBConnection);
+                    command.CommandTimeout = 3;
                     try
                     {
-                        //I assume you have to/want to lock for the ExecuteReader method (JDF)
-                        lock (Server.dbConnectionLock)
+                        string dbPwd = "";
+                        int UID = 0;
+                        lock (authenticatorDBConnectionLock)
                         {
                             reader = command.ExecuteReader();
-                        }
-                        if (reader.Read())
-                        {
-                            string dbPwd = reader.GetString(1); //(string)reader[1];
-                            int UID = reader.GetInt32(0); //(Int64)reader[0];
-                            reader.Close();
-                            Console.WriteLine("Password in database for " + loginPacket.username + ": " + dbPwd);
-                            if (loginPacket.password == dbPwd)
+                            if (reader.Read())
                             {
-                                Console.WriteLine("Login succeeded for: " + loginPacket.username);
-                                player = new Player(packet.stream, loginPacket.username, UID);
-                                Server.authenticatedPlayers.Push(player);
+                                dbPwd = reader.GetString(1);
+                                UID = reader.GetInt32(0);
+                                reader.Close();
                             }
                             else
                             {
-                                errorMessage = "Unrecognized username/password combination.";
+                                errorMessage = "Username does not exist.";
                             }
+                        }
+                        Console.WriteLine("Password in database for " + loginPacket.username + ": " + dbPwd);
+                        if (loginPacket.password == dbPwd)
+                        {
+                            Console.WriteLine("Login succeeded for: " + loginPacket.username);
+                            player = new Player(packet.stream, loginPacket.username, UID);
+                            Server.authenticatedPlayers.Push(player);
                         }
                         else
                         {
-                            errorMessage = "Username does not exist.";
+                            errorMessage = "Unrecognized username/password combination.";
                         }
                     }
                     catch (Exception ex)
