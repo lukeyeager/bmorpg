@@ -171,7 +171,7 @@ namespace BMORPGClient
                     stream = null;
                 }
             }
-            tabControl1.Visibility = System.Windows.Visibility.Hidden;
+            tabControl1.SelectedIndex = 2;
         }
 
         private void SendLoginCallback(Exception exception, object parameter)
@@ -284,7 +284,7 @@ namespace BMORPGClient
             newAcct.stream = stream;
 
             newAcct.Send(SendCreateAccountPacketCallback);
-            tabControl1.Visibility = System.Windows.Visibility.Hidden;
+            tabControl1.SelectedIndex = 2;
         }
 
         void SendCreateAccountPacketCallback(Exception ex, object parameter)
