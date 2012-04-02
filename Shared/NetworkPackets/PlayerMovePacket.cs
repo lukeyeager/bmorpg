@@ -5,17 +5,25 @@ using System.Text;
 
 namespace BMORPG.NetworkPackets
 {
+    /// <summary>
+    /// Player sends this to the Server
+    /// </summary>
     [Serializable]
     class PlayerMovePacket : NetworkPacket
     {
         [NonSerialized]
         public const String Identifier = "PLAYER_MOVE";
 
-        // TODO:
-        // Add more information needed for player X to make a move
+        public enum MoveType
+        {
+            None,
+            Attack1,
+            Attack2,
+            Special,
+            Defense
+        };
 
-        String moveName = "moveName";
-        int moveID = 0; // check the server for this moveID, calculate the new game state, then update each client
+        MoveType moveType = MoveType.None;
         
         public PlayerMovePacket()
         {
