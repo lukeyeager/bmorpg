@@ -17,13 +17,14 @@ namespace BMORPG.NetworkPackets
         public enum MoveType
         {
             None,
-            Attack1,
-            Attack2,
-            Special,
-            Defense
+            Item,
+            Equipment,
+            Ability
         };
 
-        MoveType moveType = MoveType.None;
+        public int moveID;
+        public MoveType moveType = MoveType.None;
+
         
         public PlayerMovePacket()
         {
