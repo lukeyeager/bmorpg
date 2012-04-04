@@ -21,11 +21,10 @@ namespace BMORPG.NetworkPackets
             Equipment,
             Ability
         };
-
+		
         public int moveID;
         public MoveType moveType = MoveType.None;
 
-        
         public PlayerMovePacket()
         {
             PacketType = Identifier;

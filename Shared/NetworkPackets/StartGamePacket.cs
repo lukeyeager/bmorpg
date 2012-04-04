@@ -17,18 +17,33 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace BMORPG.NetworkPackets
 {
     [Serializable]
     class StartGamePacket : NetworkPacket
     {
+        public struct MiniEquipment
+        {
+            public enum EquipType
+            {
+                Armor,
+                Weapon
+            }
+            public String name;
+            public bool equipped;
+            public EquipType type;
+        }
         [NonSerialized]
         public const String Identifier = "START_GAME";
 
         public String opponentUsername = "";
-        int userHitPoints, opponentHitPoints;
+        public bool myTurn = false;
 
+        public List<String> items;
+        public List<MiniEquipment> equipments;
+        public List<String> abilities;
 
         public StartGamePacket()
         {

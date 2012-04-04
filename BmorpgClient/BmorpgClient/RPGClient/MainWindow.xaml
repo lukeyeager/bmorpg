@@ -98,20 +98,24 @@
                         </LinearGradientBrush>
                     </Button.Background>
                 </Button>
-                <Image Height="148" Margin="53,0,285,58" VerticalAlignment="Bottom" Source="poke1.jpg"/>
-                <Label Content="Mana: 100" HorizontalAlignment="Left" Height="34" Margin="67,0,0,20" VerticalAlignment="Bottom" Width="93" FontFamily="Quartz MS" FontSize="14.667"/>
-                <Label Content="Health: 100" HorizontalAlignment="Left" Height="34" Margin="184,0,0,20" VerticalAlignment="Bottom" Width="109" FontFamily="Quartz MS" FontSize="14.667"/>
-                <Image Height="129" Margin="309,44,58,0" VerticalAlignment="Top" Source="Char.jpg"/>
-                <Label Content="Enemy Health: 100" HorizontalAlignment="Left" Height="39" Margin="24,26,0,0" VerticalAlignment="Top" Width="168" FontFamily="Quartz MS" FontSize="14.667"/>
-                <Label Content="Enemy Mana: 100" HorizontalAlignment="Left" Height="32" Margin="24,65,0,0" VerticalAlignment="Top" Width="168" FontFamily="Quartz MS" FontSize="14.667"/>
-    </Grid>
+                <!--<Image Height="148" Margin="53,0,285,58" VerticalAlignment="Bottom" Source="poke1.jpg"/>-->
+                <Label Name="labelMana" Content="Mana:" HorizontalAlignment="Left" Height="34" Margin="68,0,0,78" VerticalAlignment="Bottom" Width="93" FontFamily="Quartz MS" FontSize="14.667"/>
+                <Label Name="labelHealth" Content="Health:" HorizontalAlignment="Left" Height="34" Margin="185,0,0,78" VerticalAlignment="Bottom" Width="109" FontFamily="Quartz MS" FontSize="14.667"/>
+                <!--<Image Height="129" Margin="309,44,58,0" VerticalAlignment="Top" Source="Char.jpg"/>-->
+                <Label Name="P2Health" Content="Enemy Health: 100" HorizontalAlignment="Left" Height="39" Margin="24,26,0,0" VerticalAlignment="Top" Width="168" FontFamily="Quartz MS" FontSize="14.667"/>
+                <Label Name="labelHealth2" Content="Enemy Health:" HorizontalAlignment="Left" Height="32" Margin="24,65,0,0" VerticalAlignment="Top" Width="106" FontFamily="Quartz MS" FontSize="14.667"/>
+                    <Label Content="100" Height="34" HorizontalAlignment="Left" Margin="117,356,0,0" Name="labelP1Mana" VerticalAlignment="Top" Width="44" FontWeight="Bold" />
+                    <Label Content="100" Height="34" HorizontalAlignment="Left" Margin="246,356,0,0" Name="labelP1Health" VerticalAlignment="Top" Width="48" FontWeight="Bold" />
+                    <Label Content="100" Height="23" HorizontalAlignment="Left" Margin="130,65,0,0" Name="labelP2Health" VerticalAlignment="Top" Width="62" FontWeight="Bold" />
+                    <Label Height="57" HorizontalAlignment="Left" Margin="46,396,0,0" Name="labelLastKnownStatus" VerticalAlignment="Top" Width="347" />
+                </Grid>
     </TabItem>
     </TabControl>
         <Menu Height="22" VerticalAlignment="Top" Visibility="Visible" HorizontalAlignment="Stretch">
             <MenuItem Header="File" Height="22" Width="71">
                 <MenuItem Header="Save"/>
                 <MenuItem Header="Load"/>
-                <MenuItem Header="Exit"/>
+                <MenuItem Header="Exit" Click="menuExit_Click"/>
             </MenuItem>
             <MenuItem Header="Help" Height="22" Width="71">
                 <MenuItem Header="How To Play"/>

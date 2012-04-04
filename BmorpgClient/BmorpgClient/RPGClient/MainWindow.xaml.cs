@@ -29,6 +29,8 @@ namespace BMORPGClient
 
         private void menuExit_Click(object sender, RoutedEventArgs e)
         {
+            stream.Close();
+            stream = null;
             Environment.Exit(1);
         }
 
@@ -315,9 +317,21 @@ namespace BMORPGClient
             else
             {
                 MessageBox.Show("Playing " + ((StartGamePacket)packet).opponentUsername);
-                stream.Close();
-                stream = null;
+                if (!((StartGamePacket)packet).myTurn) 
+                {
+                    NetworkPacket state = new NetworkPacket();
+                    state.stream = stream;
+                    state.Receive(ReceiveGameState);
+                }
             }
+        }
+
+        private void ReceiveGameState(Exception exception, NetworkPacket packet, object parameter) 
+        {
+            StatePacket state = (StatePacket)packet;
+            labelP1Health.Content = state.p1Health.ToString();
+            labelP2Health.Content = state.p2Health.ToString();
+            labelLastKnownStatus.Content = state.status;
         }
 
         private void buttonGoBack_Click(object sender, RoutedEventArgs e)
@@ -325,26 +339,71 @@ namespace BMORPGClient
             tabControl1.SelectedIndex = 0;
         }
 
+        public void makeMove(int moveIndex) 
+        {
+            PlayerMovePacket movePacket = new PlayerMovePacket();
+            switch (moveIndex) 
+            {
+                case 1:
+                    movePacket.moveType = PlayerMovePacket.MoveType.Attack1;
+                    break;
+                case 2:
+                    movePacket.moveType = PlayerMovePacket.MoveType.Attack2;
+                    break;
+                case 3:
+                    movePacket.moveType = PlayerMovePacket.MoveType.Defense;
+                    break;
+                case 4:
+                    movePacket.moveType = PlayerMovePacket.MoveType.Special;
+                    break;
+                default:
+                    movePacket.moveType = PlayerMovePacket.MoveType.None;
+                    break;
+            };
+            movePacket.Send(SendMovePacketCallback);
+            
+        }
+
+        void SendMovePacketCallback(Exception ex, object parameter)
+        {
+            if (ex != null)
+            {
+                MessageBox.Show("Received error while sending PlayerMovePacket: " + ex.Message);
+                stream.Close();
+                stream = null;
+                return;
+            }
+
+            StatePacket packet = new StatePacket();
+            packet.stream = stream;
+            packet.Receive(ReceiveGameState);
+        }
+
         #region Action Buttons
 
         private void buttonAttack1(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("You have attacked.");
+            makeMove(1);
         }
 
         private void buttonAttack2(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("You have attacked.");
+            makeMove(2);
         }
 
         private void buttonDefend(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("You have defended.");
+            makeMove(3);
         }
 
         private void buttonSpecial(object sender, RoutedEventArgs e)
         {
+            //Check mana eventually
             MessageBox.Show("You have used your special move.");
+            makeMove(4);
         }
 
         #endregion
