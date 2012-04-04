@@ -95,7 +95,9 @@
     <Compile Include="UpgradeCalculations.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Documentation\project sql structure.xlsx" />
+    <None Include="..\Documentation\project sql structure.xlsx">
+      <Link>Documentation\project sql structure.xlsx</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

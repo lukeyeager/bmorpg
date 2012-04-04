@@ -345,16 +345,13 @@ namespace BMORPGClient
             switch (moveIndex) 
             {
                 case 1:
-                    movePacket.moveType = PlayerMovePacket.MoveType.Attack1;
+                    movePacket.moveType = PlayerMovePacket.MoveType.Ability;
                     break;
                 case 2:
-                    movePacket.moveType = PlayerMovePacket.MoveType.Attack2;
+                    movePacket.moveType = PlayerMovePacket.MoveType.Equipment;
                     break;
                 case 3:
-                    movePacket.moveType = PlayerMovePacket.MoveType.Defense;
-                    break;
-                case 4:
-                    movePacket.moveType = PlayerMovePacket.MoveType.Special;
+                    movePacket.moveType = PlayerMovePacket.MoveType.Item;
                     break;
                 default:
                     movePacket.moveType = PlayerMovePacket.MoveType.None;
