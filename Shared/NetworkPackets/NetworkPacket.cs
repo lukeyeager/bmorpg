@@ -67,7 +67,7 @@ namespace BMORPG.NetworkPackets
         [NonSerialized]
         public List<byte> TransmissionBuffer = new List<byte>();
         [NonSerialized]
-        public const int BufferSize = 256;
+        public const int BufferSize = 512;
         [NonSerialized]
         public byte[] buffer = new byte[BufferSize];
         [NonSerialized]
@@ -128,10 +128,9 @@ namespace BMORPG.NetworkPackets
                         return this;
                 }
             }
-            catch (SerializationException ex)
+            catch (SerializationException)
             {
                 PacketType = "<none>";
-                Console.WriteLine(ex.Message);
                 return this;
             }
         }
@@ -156,8 +155,9 @@ namespace BMORPG.NetworkPackets
                 buffer = Serialize();
                 stream.BeginWrite(buffer, 0, buffer.Length, SendCallback, list);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine("ERROR in NetworkPacket.Send: " + e.Message);
                 return false;
             }
             return true;

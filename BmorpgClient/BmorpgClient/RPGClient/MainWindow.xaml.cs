@@ -145,8 +145,8 @@ namespace BMORPGClient
             if (packet != null && packet is WelcomePacket)
             {
                 WelcomePacket welcomePacket = (WelcomePacket)packet;
-
-                MessageBox.Show("Server version: " + welcomePacket.version);
+                // TODO: Less intrusive message
+                //MessageBox.Show("Server version: " + welcomePacket.version);
             }
             else
             {
@@ -186,7 +186,7 @@ namespace BMORPGClient
             }
             else
             {
-                LoginStatusPacket packet = new LoginStatusPacket();
+                NetworkPacket packet = new NetworkPacket();
                 packet.stream = stream;
                 packet.Receive(ReceiveLoginStatus);
             }
@@ -208,15 +208,11 @@ namespace BMORPGClient
             {
                 LoginStatusPacket statusPacket = (LoginStatusPacket)packet;
 
-                String text;
-                if (statusPacket.success)
-                    text = "Login successful";
-                else
-                    text = statusPacket.errorMessage;
-                MessageBox.Show(text);
-
                 if (statusPacket.success)
                 {
+                    // TODO: Less intrusive message
+                    //MessageBox.Show("Login successful");
+
                     NetworkPacket receivePacket = new NetworkPacket();
                     receivePacket.stream = stream;
 
@@ -227,6 +223,8 @@ namespace BMORPGClient
                         stream = null;
                     }
                 }
+                else
+                    MessageBox.Show("ERROR from login: " + statusPacket.errorMessage);
             }
         }
 
@@ -258,8 +256,7 @@ namespace BMORPGClient
         }
         #endregion
 
-
-        #region Create New Account
+        #region New Account Tab
 
         private void buttonCreateAccount_Click(object sender, RoutedEventArgs e)
         {
@@ -306,6 +303,8 @@ namespace BMORPGClient
 
         #endregion
 
+        #region Game Tab
+
         private void ReceiveGameStart(Exception exception, NetworkPacket packet, object parameter)
         {
             if (exception != null)
@@ -316,12 +315,20 @@ namespace BMORPGClient
             }
             else
             {
-                MessageBox.Show("Playing " + ((StartGamePacket)packet).opponentUsername);
-                if (!((StartGamePacket)packet).myTurn) 
+                if (packet is StartGamePacket)
                 {
-                    NetworkPacket state = new NetworkPacket();
-                    state.stream = stream;
-                    state.Receive(ReceiveGameState);
+                    StartGamePacket startGamePacket = (StartGamePacket)packet;
+                    MessageBox.Show("Playing " + startGamePacket.opponentUsername);
+                    if (!startGamePacket.myTurn)
+                    {
+                        NetworkPacket state = new NetworkPacket();
+                        state.stream = stream;
+                        state.Receive(ReceiveGameState);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Received unknown packet type");
                 }
             }
         }
@@ -357,8 +364,8 @@ namespace BMORPGClient
                     movePacket.moveType = PlayerMovePacket.MoveType.None;
                     break;
             };
-            movePacket.Send(SendMovePacketCallback);
-            
+            movePacket.stream = stream;
+            movePacket.Send(SendMovePacketCallback);            
         }
 
         void SendMovePacketCallback(Exception ex, object parameter)
@@ -375,8 +382,6 @@ namespace BMORPGClient
             packet.stream = stream;
             packet.Receive(ReceiveGameState);
         }
-
-        #region Action Buttons
 
         private void buttonAttack1(object sender, RoutedEventArgs e)
         {

@@ -22,19 +22,21 @@ using System.Collections.Generic;
 namespace BMORPG.NetworkPackets
 {
     [Serializable]
+    public struct MiniEquipment
+    {
+        public enum EquipType
+        {
+            Armor,
+            Weapon
+        }
+        public String name;
+        public bool equipped;
+        public EquipType type;
+    }
+
+    [Serializable]
     class StartGamePacket : NetworkPacket
     {
-        public struct MiniEquipment
-        {
-            public enum EquipType
-            {
-                Armor,
-                Weapon
-            }
-            public String name;
-            public bool equipped;
-            public EquipType type;
-        }
         [NonSerialized]
         public const String Identifier = "START_GAME";
 
@@ -48,6 +50,9 @@ namespace BMORPG.NetworkPackets
         public StartGamePacket()
         {
             PacketType = Identifier;
+            items = new List<string>();
+            equipments = new List<MiniEquipment>();
+            abilities = new List<string>();
         }
     }
 }

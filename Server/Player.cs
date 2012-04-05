@@ -246,7 +246,7 @@ namespace BMORPG_Server
 
             Console.WriteLine("Successfully logged in: " + username + "\tUID: " + userID);
 	        tot_max_health = 0;
-	        current_health = 0;
+	        current_health = 100;
 	        tot_attack = 0;
 	        tot_defense = 0;
 	        tot_accuracy = 0;
@@ -301,35 +301,44 @@ namespace BMORPG_Server
         private int tot_max_health;
 
         /// <summary>
+        /// Updates a Player's health (after a move has been made)
+        /// </summary>
+        /// <returns>The new health</returns>
+        public int UpdateHealth()
+        {
+            //iterate through the list of effects and see which ones affect the current health value.
+            foreach (Effect e in effects)
+            {
+                if (e.Type == EffectType.currentHealth)
+                    current_health += e.Magnitude;
+            }
+            //cap health to maximum health
+            if (current_health > MaxHealth)
+                current_health = tot_max_health;
+            //iterate through the list again and check for attacks.
+            foreach (Effect e in effects)
+            {
+                if (e.Type == EffectType.defaultAttack)
+                {
+                    // (FIXME) perform some type of calculation to determine amount of damage to health.
+                    // it's possible that this calculation should be done elsewhere. (JDF)
+                    current_health -= 0;
+                }
+            }
+            return current_health;
+        }
+
+        /// <summary>
         /// The character's current health.
         /// </summary>
-        /// <remarks>NOTE: This updates the current_health variable, so only call it when you're sure you want to.</remarks>
         public int CurrentHealth
         {
             get
             {
-                //iterate through the list of effects and see which ones affect the current health value.
-                foreach (Effect e in effects)
-                {
-                    if (e.Type == EffectType.currentHealth)
-                        current_health += e.Magnitude;
-                }
-                //cap health to maximum health
-                if (current_health > MaxHealth)
-                    current_health = tot_max_health;
-                //iterate through the list again and check for attacks.
-                foreach (Effect e in effects)
-                {
-                    if (e.Type == EffectType.defaultAttack)
-                    {
-                        // (FIXME) perform some type of calculation to determine amount of damage to health.
-                        // it's possible that this calculation should be done elsewhere. (JDF)
-                        current_health -= 0;
-                    }
-                }
                 return current_health;
             }
         }
+
         private int current_health;
 
         /// <summary>

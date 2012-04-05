@@ -67,48 +67,53 @@ namespace BMORPG_Server
             Console.WriteLine("Starting Game between " + player1.Username + " and " + player2.Username);
 
             if (!SendStartGamePackets())
-                return;
-
-
-            while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
             {
-                // Note: only call CurrentHealth once each turn so as not to deal damage twice. (JDF)
-                allDone.Reset();
-                Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
+                Console.WriteLine("Failed to send StartGamePackets to the clients");
+            }
+            else
+            {
 
-                // TODO: 
-                // after both commands rec, compute effect list based on the player and moveID
+                while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
+                {
+                    // Note: only call CurrentHealth once each turn so as not to deal damage twice. (JDF)
+                    allDone.Reset();
+                    Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
+
+                    // TODO: 
+                    // after both commands rec, compute effect list based on the player and moveID
                     // speed affects the order of populating the effect list
                     // user provided commands(attacks/items) should be last two items in list
 
-                NetworkPacket packet = new NetworkPacket();
-                
-                if (playerOneTurn)
-                {
-                    packet.stream = player1.netStream;
-                    packet.Receive(ReceivePacketCallback, player1);
+                    NetworkPacket packet = new NetworkPacket();
+
+                    if (playerOneTurn)
+                    {
+                        packet.stream = player1.netStream;
+                        packet.Receive(ReceivePacketCallback, player1);
+                    }
+                    else // player2's turn
+                    {
+                        packet.stream = player2.netStream;
+                        packet.Receive(ReceivePacketCallback, player2);
+                    }
+
+                    allDone.WaitOne();
+                    // After both PlayerMovePackets are received, calculate their healths
+                    // and send a StatePacket back to each player
+
+                    // age active effects for each player.
+
+
+                    player1.expireTurn();
+                    player2.expireTurn();
+
+                    playerOneTurn = !playerOneTurn; // change whose turn it is
+
                 }
-                else // player2's turn
-                {
-                    packet.stream = player2.netStream;
-                    packet.Receive(ReceivePacketCallback, player2);
-                }
-
-                allDone.WaitOne();
-                // After both PlayerMovePackets are received, calculate their healths
-                // and send a StatePacket back to each player
-
-                // age active effects for each player.
-
-
-                player1.expireTurn();
-                player2.expireTurn();
-
-                playerOneTurn = !playerOneTurn; // change whose turn it is
-
             }
 
             // For now, let's just quit
+            // TODO: Pass the stream to some other class so the connection doesn't get lost
             Console.WriteLine("Ending game between " + player1.Username + " and " + player2.Username);
             player1.netStream.Close();
             player2.netStream.Close();
@@ -124,6 +129,7 @@ namespace BMORPG_Server
 
             StartGamePacket packet = new StartGamePacket();
             packet.opponentUsername = player2.Username;
+            packet.myTurn = true;
             packet.stream = player1.netStream;
 
             if (!packet.Send(SendStartGamePacketsCallback, player1))
@@ -133,6 +139,7 @@ namespace BMORPG_Server
 
             packet = new StartGamePacket();
             packet.opponentUsername = player1.Username;
+            packet.myTurn = false;
             packet.stream = player2.netStream;
 
             if (!packet.Send(SendStartGamePacketsCallback, player2))
@@ -156,8 +163,6 @@ namespace BMORPG_Server
             }
             else
                 Console.WriteLine("Sent start game packet to " + player.Username);
-
-            //player.current_health = 0;    is this necessary?
         }
 
         /// <summary>
@@ -186,7 +191,8 @@ namespace BMORPG_Server
                 Console.WriteLine("Player ID: " + player.UserID);
                 Console.WriteLine("Move Type: " + ((PlayerMovePacket)packet).moveType);
 
-               //     opponent.receiveMove(movePacket.moveType, player);
+                // TODO: make sure it was a valid move (player wasn't somehow cheating)
+
                 int ID = movePacket.moveID;
                 switch (movePacket.moveType)
                 {
@@ -208,10 +214,24 @@ namespace BMORPG_Server
                         break;
 
                     case PlayerMovePacket.MoveType.Ability:
-
+                        Ability ability = Ability.masterList[ID];
+                        for (int i = 0; i < ability.Effects.Count; i++)
+                        {
+                            Effect effect = Effect.masterList[ability.Effects[i]];
+                            bool enemy = ability.Enemy[i];
+                            if (enemy)
+                            {
+                                //apply to opponent
+                            }
+                            else
+                            {
+                                //apply to me
+                            }
+                        }
                         break;
 
                     case PlayerMovePacket.MoveType.Equipment:
+                        // Change player equipment
                         break;
 
                     default:
@@ -220,7 +240,6 @@ namespace BMORPG_Server
 
                 }
 
-                // TODO: make sure it was a valid move (player wasn't somehow cheating)
                 // only allow to move on to the next turn if it was a valid move
                 if(validMove)   
                    allDone.Set();  //allow Start() thread to continue if it was a valid move

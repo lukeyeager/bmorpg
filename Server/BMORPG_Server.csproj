@@ -43,9 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\BmorpgClient\BmorpgClient\NetworkPackets\ShopBuySell.cs">
-      <Link>NetworkPackets\ShopBuySell.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\NetworkPackets\CreateAccountPacket.cs">
       <Link>NetworkPackets\CreateAccountPacket.cs</Link>
     </Compile>
