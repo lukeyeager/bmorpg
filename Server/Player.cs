@@ -150,7 +150,7 @@ namespace BMORPG_Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("\nFailed to read in attributes for Player " + username + " UID: " + userID 
+                Console.WriteLine("\nFailed to read in attributes for Player " + username + " UID: " + userID
                     + " from the database:\n");
                 Console.WriteLine(ex.ToString());
                 if (reader != null)
@@ -245,12 +245,12 @@ namespace BMORPG_Server
             }
 
             Console.WriteLine("Successfully logged in: " + username + "\tUID: " + userID);
-	        tot_max_health = 0;
-	        current_health = 100;
-	        tot_attack = 0;
-	        tot_defense = 0;
-	        tot_accuracy = 0;
-	        tot_evasion = 0;
+            tot_max_health = 0;
+            current_health = 0;
+            tot_attack = 0;
+            tot_defense = 0;
+            tot_accuracy = 0;
+            tot_evasion = 0;
             tot_speed = 0;
         }
 
@@ -301,44 +301,35 @@ namespace BMORPG_Server
         private int tot_max_health;
 
         /// <summary>
-        /// Updates a Player's health (after a move has been made)
-        /// </summary>
-        /// <returns>The new health</returns>
-        public int UpdateHealth()
-        {
-            //iterate through the list of effects and see which ones affect the current health value.
-            foreach (Effect e in effects)
-            {
-                if (e.Type == EffectType.currentHealth)
-                    current_health += e.Magnitude;
-            }
-            //cap health to maximum health
-            if (current_health > MaxHealth)
-                current_health = tot_max_health;
-            //iterate through the list again and check for attacks.
-            foreach (Effect e in effects)
-            {
-                if (e.Type == EffectType.defaultAttack)
-                {
-                    // (FIXME) perform some type of calculation to determine amount of damage to health.
-                    // it's possible that this calculation should be done elsewhere. (JDF)
-                    current_health -= 0;
-                }
-            }
-            return current_health;
-        }
-
-        /// <summary>
         /// The character's current health.
         /// </summary>
+        /// <remarks>NOTE: This updates the current_health variable, so only call it when you're sure you want to.</remarks>
         public int CurrentHealth
         {
             get
             {
+                //iterate through the list of effects and see which ones affect the current health value.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.currentHealth)
+                        current_health += e.Magnitude;
+                }
+                //cap health to maximum health
+                if (current_health > MaxHealth)
+                    current_health = tot_max_health;
+                //iterate through the list again and check for attacks.
+                foreach (Effect e in effects)
+                {
+                    if (e.Type == EffectType.defaultAttack)
+                    {
+                        // (FIXME) perform some type of calculation to determine amount of damage to health.
+                        // it's possible that this calculation should be done elsewhere. (JDF)
+                        current_health -= 0;
+                    }
+                }
                 return current_health;
             }
         }
-
         private int current_health;
 
         /// <summary>
@@ -442,5 +433,73 @@ namespace BMORPG_Server
         private int tot_speed;
 
         #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public bool hasItem(int item)
+        {
+            foreach (int it in items)
+            {
+                if (it == item)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public bool useItem(int item)
+        {
+            //remove from memory
+            if (!items.Remove(item))
+                return false;
+
+            //remove from the database
+            SqlDataReader reader = null;
+            SqlCommand command = new SqlCommand("SELECT ID\nFROM PlayerItems\nWHERE Player_ID=" + UserID
+                + " AND Item_ID=" + item, playerDBConnection);
+            command.CommandTimeout = 3;
+            try
+            {
+                lock (playerDBConnectionLock)
+                {
+                    reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        int ID = reader.GetInt32(0);
+                        reader.Close();
+                        command = new SqlCommand("DELETE FROM PlayerItems\nWHERE ID=" + ID, playerDBConnection);
+                        command.CommandTimeout = 3;
+                        int rowsAffected = command.ExecuteNonQuery();
+                        if (rowsAffected == 1)
+                            Console.WriteLine("Successfully deleted item: " + ID + " from the inventory of player: "
+                                + UserID);   //all's good
+                        else
+                            return false; ;   //uh oh....
+                    }
+                    else
+                    {
+                        reader.Close();
+                        Console.WriteLine("Player ID: " + UserID + " does not have an Item of id: " + item);
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nFailed to delete item: " + item + " from the inventory of player: "
+                    + UserID + " from the database:\n");
+                Console.WriteLine(ex.ToString());
+                if (reader != null)
+                    reader.Close();
+            }
+            return true;
+        }
     }
 }

@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using BMORPG.NetworkPackets;
 using System.Net.Sockets;
+using System.Data.SqlClient;
 
 /*To Do:
  * Get player objects from rest of  server
@@ -50,7 +51,6 @@ namespace BMORPG_Server
     {
         public Player player1, player2;
         bool playerOneTurn;
-        public ManualResetEvent allDone = new ManualResetEvent(false);
 
         public Game(Player p1, Player p2)
         {
@@ -67,56 +67,76 @@ namespace BMORPG_Server
             Console.WriteLine("Starting Game between " + player1.Username + " and " + player2.Username);
 
             if (!SendStartGamePackets())
-            {
-                Console.WriteLine("Failed to send StartGamePackets to the clients");
-            }
-            else
-            {
+                return;
 
-                while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
+            NetworkPacket packet = new NetworkPacket();
+
+            while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
+            {
+                // Note: only call CurrentHealth once each turn so as not to deal damage twice. (JDF)
+
+                Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
+
+                // TODO: 
+                // after both commands rec, compute effect list based on the player and moveID
+                // speed affects the order of populating the effect list
+                // user provided commands(attacks/items) should be last two items in list
+
+
+                if (playerOneTurn)
                 {
-                    // Note: only call CurrentHealth once each turn so as not to deal damage twice. (JDF)
-                    allDone.Reset();
-                    Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
-
-                    // TODO: 
-                    // after both commands rec, compute effect list based on the player and moveID
-                    // speed affects the order of populating the effect list
-                    // user provided commands(attacks/items) should be last two items in list
-
-                    NetworkPacket packet = new NetworkPacket();
-
-                    if (playerOneTurn)
-                    {
-                        packet.stream = player1.netStream;
-                        packet.Receive(ReceivePacketCallback, player1);
-                    }
-                    else // player2's turn
-                    {
-                        packet.stream = player2.netStream;
-                        packet.Receive(ReceivePacketCallback, player2);
-                    }
-
-                    allDone.WaitOne();
-                    // After both PlayerMovePackets are received, calculate their healths
-                    // and send a StatePacket back to each player
-
-                    // age active effects for each player.
-
-
-                    player1.expireTurn();
-                    player2.expireTurn();
-
-                    playerOneTurn = !playerOneTurn; // change whose turn it is
-
+                    packet.stream = player1.netStream;
+                    packet.Receive(ReceivePacketCallback);
                 }
+                else // player2's turn
+                {
+                    packet.stream = player2.netStream;
+                    packet.Receive(ReceivePacketCallback);
+                }
+
+                // After both PlayerMovePackets are received, calculate their healths
+                // and send a StatePacket back to each player
+
+                // age active effects for each player.
+
+
+                player1.expireTurn();
+                player2.expireTurn();
+
+                playerOneTurn = !playerOneTurn; // change whose turn it is
+
+                //why put the thread to sleep here? (JDF)
+                Thread.Sleep(Server.SleepTime());
             }
 
             // For now, let's just quit
-            // TODO: Pass the stream to some other class so the connection doesn't get lost
             Console.WriteLine("Ending game between " + player1.Username + " and " + player2.Username);
             player1.netStream.Close();
             player2.netStream.Close();
+        }
+
+        /// <summary>
+        /// Given a Player and the ID of an Item, this will remove an instance of the Item from the Player's inventory, both in memory and the database.
+        /// </summary>
+        /// <param name="p">The Player whose inventory the Item is being removed from.</param>
+        /// <param name="item">The ID number of the Item to be removed (as in the Items table in the db).</param>
+        /// <returns>Whether the removal of the Item from the Player's inventory was successful or not.</returns>
+        private bool usePlayerItem(Player p, int item)
+        {
+            if (!p.hasItem(item))
+            {
+                //means the player does not have this item
+                return false;
+            }
+            bool temp = p.useItem(item);
+            if (!temp)
+            {
+                //do something because removing the valid item failed.
+                Console.WriteLine("Removing an item from a Player's inventory failed!");
+                return temp;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -129,7 +149,6 @@ namespace BMORPG_Server
 
             StartGamePacket packet = new StartGamePacket();
             packet.opponentUsername = player2.Username;
-            packet.myTurn = true;
             packet.stream = player1.netStream;
 
             if (!packet.Send(SendStartGamePacketsCallback, player1))
@@ -139,7 +158,6 @@ namespace BMORPG_Server
 
             packet = new StartGamePacket();
             packet.opponentUsername = player1.Username;
-            packet.myTurn = false;
             packet.stream = player2.netStream;
 
             if (!packet.Send(SendStartGamePacketsCallback, player2))
@@ -163,6 +181,8 @@ namespace BMORPG_Server
             }
             else
                 Console.WriteLine("Sent start game packet to " + player.Username);
+
+            //player.current_health = 0;    is this necessary?
         }
 
         /// <summary>
@@ -180,74 +200,16 @@ namespace BMORPG_Server
                 return;
             }
 
-            Player player = (Player) obj;
-            Player opponent = playerOneTurn ? player2 : player1;
-            bool validMove = false;
-    
+
             if (packet is PlayerMovePacket)
             {
-                PlayerMovePacket movePacket = (PlayerMovePacket) packet;
-
-                Console.WriteLine("Player ID: " + player.UserID);
-                Console.WriteLine("Move Type: " + ((PlayerMovePacket)packet).moveType);
-
-                // TODO: make sure it was a valid move (player wasn't somehow cheating)
-
-                int ID = movePacket.moveID;
-                switch (movePacket.moveType)
-                {
-                    case PlayerMovePacket.MoveType.Item:
-                        Item item = Item.masterList[ID];
-                        for (int i = 0; i < item.Effects.Count; i++)
-                        {
-                            Effect tempE = Effect.masterList[item.Effects[i]];
-                            bool enemy = item.Enemy[i];
-                            if (enemy)
-                            {
-                                //apply to opponent
-                            }
-                            else
-                            {
-                                //apply to me
-                            }
-                        }
-                        break;
-
-                    case PlayerMovePacket.MoveType.Ability:
-                        Ability ability = Ability.masterList[ID];
-                        for (int i = 0; i < ability.Effects.Count; i++)
-                        {
-                            Effect effect = Effect.masterList[ability.Effects[i]];
-                            bool enemy = ability.Enemy[i];
-                            if (enemy)
-                            {
-                                //apply to opponent
-                            }
-                            else
-                            {
-                                //apply to me
-                            }
-                        }
-                        break;
-
-                    case PlayerMovePacket.MoveType.Equipment:
-                        // Change player equipment
-                        break;
-
-                    default:
-                        Console.WriteLine("No move type specified in PlayerMovePacket");
-                        break;
-
-                }
-
-                // only allow to move on to the next turn if it was a valid move
-                if(validMove)   
-                   allDone.Set();  //allow Start() thread to continue if it was a valid move
+                // TODO
+                /*
+                 * look up packet.moveID in the database
+                 * calculate the other player's new health based on that move
+                */
             }
-            else {
-                Console.WriteLine("Received invalid packet in game thread");
-            }
-        }       
+        }
 
         //private void calculateEffects has been deleted and replaced with attribute Properties in the Player class. (JDF)
 
