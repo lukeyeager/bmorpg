@@ -51,6 +51,7 @@ namespace BMORPG_Server
     {
         public Player player1, player2;
         bool playerOneTurn;
+        public ManualResetEvent allDone = new ManualResetEvent(false);
 
         public Game(Player p1, Player p2)
         {
@@ -77,6 +78,8 @@ namespace BMORPG_Server
 
                 Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
 
+                allDone.Reset();
+
                 // TODO: 
                 // after both commands rec, compute effect list based on the player and moveID
                 // speed affects the order of populating the effect list
@@ -94,6 +97,7 @@ namespace BMORPG_Server
                     packet.Receive(ReceivePacketCallback);
                 }
 
+                allDone.WaitOne();
                 // After both PlayerMovePackets are received, calculate their healths
                 // and send a StatePacket back to each player
 
@@ -200,18 +204,64 @@ namespace BMORPG_Server
                 return;
             }
 
+            Player player = (Player)obj;
+            Player opponent = playerOneTurn ? player2 : player1;
+            bool validMove = false;
 
             if (packet is PlayerMovePacket)
             {
-                // TODO
-                /*
-                 * look up packet.moveID in the database
-                 * calculate the other player's new health based on that move
-                */
+                PlayerMovePacket movePacket = (PlayerMovePacket)packet;
+
+                Console.WriteLine("Player ID: " + player.UserID);
+                Console.WriteLine("Move Type: " + ((PlayerMovePacket)packet).moveType);
+
+                //     opponent.receiveMove(movePacket.moveType, player);
+                int ID = movePacket.moveID;
+                switch (movePacket.moveType)
+                {
+                    case PlayerMovePacket.MoveType.Item:
+                        Item item = Item.masterList[ID];
+                        for (int i = 0; i < item.Effects.Count; i++)
+                        {
+                            Effect tempE = Effect.masterList[item.Effects[i]];
+                            bool enemy = item.Enemy[i];
+                            if (enemy)
+                            {
+                                //apply to opponent
+                            }
+                            else
+                            {
+                                //apply to me
+                            }
+                        }
+                        break;
+
+                    case PlayerMovePacket.MoveType.Ability:
+
+                        break;
+
+                    case PlayerMovePacket.MoveType.Equipment:
+                        break;
+
+                    default:
+                        Console.WriteLine("No move type specified in PlayerMovePacket");
+                        break;
+
+                }
+
+                // TODO: make sure it was a valid move (player wasn't somehow cheating)
+                // only allow to move on to the next turn if it was a valid move
+                if (validMove)
+                    allDone.Set();  //allow Start() thread to continue if it was a valid move
             }
+            else
+            {
+                Console.WriteLine("Received invalid packet in game thread");
+            }
+
+            //private void calculateEffects has been deleted and replaced with attribute Properties in the Player class. (JDF)
+
         }
-
-        //private void calculateEffects has been deleted and replaced with attribute Properties in the Player class. (JDF)
-
     }
+
 }
