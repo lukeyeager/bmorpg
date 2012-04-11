@@ -221,9 +221,9 @@ namespace BMORPG_Server
         /// <summary>
         /// Callback after receiving a PlayerMovePacket
         /// </summary>
-        /// <param name="exception"></param>
-        /// <param name="packet"></param>
-        /// <param name="obj"></param>
+        /// <param name="exception">Exception thrown if an error occurs.</param>
+        /// <param name="packet">NetworkPacet, should be a PlayerMovePacket.</param>
+        /// <param name="obj">A Player object which is the player who sent the move.</param>
         public void ReceivePacketCallback(Exception exception, NetworkPacket packet, object obj)
         {
             if (exception != null)
@@ -234,7 +234,6 @@ namespace BMORPG_Server
             }
 
             Player player = (Player)obj;
-            Player opponent = playerOneTurn ? player2 : player1;
             bool validMove = false;
 
             if (packet is PlayerMovePacket)
@@ -249,27 +248,33 @@ namespace BMORPG_Server
                 switch (movePacket.moveType)
                 {
                     case PlayerMovePacket.MoveType.Item:
-                        Item item = Item.masterList[ID];
-                        for (int i = 0; i < item.Effects.Count; i++)
-                        {
-                            Effect tempE = Effect.masterList[item.Effects[i]];
-                            bool enemy = item.Enemy[i];
-                            if (enemy)
-                            {
-                                //apply to opponent
-                            }
-                            else
-                            {
-                                //apply to me
-                            }
+
+                        if (player.UserID == player1.UserID){
+                            validMove = usePlayerItem(player1, movePacket.moveID, player2);
+                        }
+                        else{
+                            validMove = usePlayerItem(player2, movePacket.moveID, player1);
                         }
                         break;
 
                     case PlayerMovePacket.MoveType.Ability:
-
+                        
+                        if (player.UserID == player1.UserID){
+                            validMove = usePlayerAbility(player1, movePacket.moveID, player2);
+                        }
+                        else{
+                            validMove = usePlayerAbility(player2, movePacket.moveID, player1);
+                        }
                         break;
 
                     case PlayerMovePacket.MoveType.Equipment:
+                      
+                        if (player.UserID == player1.UserID){
+                            validMove = usePlayerEquipment(player1, movePacket.moveID, player2);
+                        }
+                        else{
+                            validMove = usePlayerEquipment(player2, movePacket.moveID, player1);
+                        }
                         break;
 
                     default:
