@@ -5,13 +5,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BmorpgClient", "RPGClient\B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2EF513DE-617E-4421-B58C-0D010C3661E0}"
 	ProjectSection(SolutionItems) = preProject
+		BmorpgClient.vsmdi = BmorpgClient.vsmdi
 		License.txt = License.txt
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BmorpgClientTests", "BmorpgClientTests\BmorpgClientTests.csproj", "{0AC45A72-8169-40E4-AD44-06BFF845B112}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
 		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = BmorpgClient.vsmdi
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +40,16 @@ Global
 		{8B1555C7-64B8-46FC-8590-BFCB14B428E7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{8B1555C7-64B8-46FC-8590-BFCB14B428E7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8B1555C7-64B8-46FC-8590-BFCB14B428E7}.Release|x86.ActiveCfg = Release|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0AC45A72-8169-40E4-AD44-06BFF845B112}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
