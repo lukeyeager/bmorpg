@@ -35,7 +35,7 @@ namespace BMORPG_Server
             try
             {
                 playerDBConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
-                    "Database=BMORPG;Connection Timeout=5;");
+                    "Database=BMORPG;Connection Timeout=1;");
                 playerDBConnection.Open();
             }
             catch (Exception ex)
@@ -97,6 +97,7 @@ namespace BMORPG_Server
         public List<Effect> addNextTurn;
         public List<int> items;
         public List<int> equipment;
+        public int equipped;
         public List<int> abilities;
 
         /// <summary>
@@ -115,6 +116,7 @@ namespace BMORPG_Server
             addNextTurn = new List<Effect>();
             items = new List<int>();
             equipment = new List<int>();
+            equipped = -1;  //dummy value
             abilities = new List<int>();
 
             //populate base stats using database
@@ -434,6 +436,8 @@ namespace BMORPG_Server
 
         #endregion
 
+        #region Methods called by the Game
+
         /// <summary>
         /// 
         /// </summary>
@@ -454,7 +458,7 @@ namespace BMORPG_Server
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public bool useItem(int item)
+        public bool useItem(int item, Player enemy)
         {
             //remove from memory
             if (!items.Remove(item))
@@ -481,7 +485,7 @@ namespace BMORPG_Server
                             Console.WriteLine("Successfully deleted item: " + ID + " from the inventory of player: "
                                 + UserID);   //all's good
                         else
-                            return false; ;   //uh oh....
+                            return false;   //uh oh....
                     }
                     else
                     {
@@ -499,7 +503,40 @@ namespace BMORPG_Server
                 if (reader != null)
                     reader.Close();
             }
+
+            //now that it's removed, add the appropriate Effects to the Players
+            Item usedItem = Item.masterList[item];
+            for (int i = 0; i < usedItem.Effects.Count; i++)
+            {
+                Effect temp = Effect.masterList[usedItem.Effects[i]];
+                if (usedItem.Enemy[i])
+                    ;//place Effect on the other player
+                else
+                    ;//place Effect on current player
+            }
             return true;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="equipment"></param>
+        /// <returns></returns>
+        public bool hasEquipment(int equipment)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="equipment"></param>
+        /// <returns></returns>
+        public bool useEquipment(int equipment, Player enemy)
+        {
+            return false;
+        }
+
+        #endregion
     }
 }

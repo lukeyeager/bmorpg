@@ -40,7 +40,7 @@ namespace BMORPG_Server
             try
             {
                 authenticatorDBConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
-                    "Database=BMORPG;Connection Timeout=5;");
+                    "Database=BMORPG;Connection Timeout=1;");
                 authenticatorDBConnection.Open();
             }
             catch (Exception ex)

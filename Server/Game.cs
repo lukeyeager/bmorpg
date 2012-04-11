@@ -119,20 +119,23 @@ namespace BMORPG_Server
             player2.netStream.Close();
         }
 
+        #region Methods for handling Players' moves
+
         /// <summary>
         /// Given a Player and the ID of an Item, this will remove an instance of the Item from the Player's inventory, both in memory and the database.
         /// </summary>
         /// <param name="p">The Player whose inventory the Item is being removed from.</param>
         /// <param name="item">The ID number of the Item to be removed (as in the Items table in the db).</param>
+        /// <param name="enemy">The enemy Player to place effects on by the Item.</param>
         /// <returns>Whether the removal of the Item from the Player's inventory was successful or not.</returns>
-        private bool usePlayerItem(Player p, int item)
+        private bool usePlayerItem(Player p, int item, Player enemy)
         {
             if (!p.hasItem(item))
             {
                 //means the player does not have this item
                 return false;
             }
-            bool temp = p.useItem(item);
+            bool temp = p.useItem(item, enemy);
             if (!temp)
             {
                 //do something because removing the valid item failed.
@@ -142,6 +145,32 @@ namespace BMORPG_Server
 
             return true;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="equipment"></param>
+        /// <param name="enemy"></param>
+        /// <returns></returns>
+        private bool usePlayerEquipment(Player p, int equipment, Player enemy)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="ability"></param>
+        /// <param name="enemy"></param>
+        /// <returns></returns>
+        private bool usePlayerAbility(Player p, int ability, Player enemy)
+        {
+            return false;
+        }
+
+        #endregion
 
         /// <summary>
         /// Lets each Player know the game has started, and sends all relevant data to each player

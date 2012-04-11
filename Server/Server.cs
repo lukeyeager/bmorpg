@@ -74,7 +74,7 @@ namespace BMORPG_Server
             try
             {
                 dbConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
-                    "Database=BMORPG;Connection Timeout=5;");
+                    "Database=BMORPG;Connection Timeout=1;");
                 dbConnection.Open();
             }
             catch (Exception ex)
@@ -85,7 +85,7 @@ namespace BMORPG_Server
             try
             {
                 dbConnectionSecondary = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
-                    "Database=BMORPG;Connection Timeout=5;");
+                    "Database=BMORPG;Connection Timeout=1;");
                 dbConnectionSecondary.Open();
             }
             catch (Exception ex)
