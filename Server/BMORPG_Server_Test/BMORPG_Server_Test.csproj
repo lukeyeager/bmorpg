@@ -57,6 +57,7 @@
     <Compile Include="GameTest.cs" />
     <Compile Include="ItemTest.cs" />
     <Compile Include="MatchMakerTest.cs" />
+    <Compile Include="NetworkPacketTest.cs" />
     <Compile Include="PlayerTest.cs" />
     <Compile Include="ProfileFetcherTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

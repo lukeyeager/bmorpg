@@ -134,11 +134,12 @@ namespace BMORPG_Server_Test
         {
             PrivateObject param0 = null; // TODO: Initialize to an appropriate value
             Game_Accessor target = new Game_Accessor(param0); // TODO: Initialize to an appropriate value
-            Player_Accessor p = null; // TODO: Initialize to an appropriate value
+            Player_Accessor p1 = null; // TODO: Initialize to an appropriate value
+            Player_Accessor p2 = null; // TODO: Initialize to an appropriate value
             int item = 0; // TODO: Initialize to an appropriate value
             bool expected = false; // TODO: Initialize to an appropriate value
             bool actual;
-            actual = target.usePlayerItem(p, item);
+            actual = target.usePlayerItem(p1, item, p2);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }

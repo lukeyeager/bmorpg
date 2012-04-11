@@ -81,7 +81,7 @@ namespace BMORPG.NetworkPackets
         /// Convert this object into a byte array
         /// </summary>
         /// <returns></returns>
-        private byte[] Serialize()
+        protected byte[] Serialize()
         {
             MemoryStream mem = new MemoryStream();
             formatter.Serialize(mem, PacketType);

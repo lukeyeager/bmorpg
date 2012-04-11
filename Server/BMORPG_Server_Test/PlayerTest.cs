@@ -130,10 +130,11 @@ namespace BMORPG_Server_Test
             string name = string.Empty; // TODO: Initialize to an appropriate value
             int id = 0; // TODO: Initialize to an appropriate value
             Player target = new Player(nStream, name, id); // TODO: Initialize to an appropriate value
+            Player enemy = new Player(nStream, name, id); // TODO: Initialize to an appropriate value
             int item = 0; // TODO: Initialize to an appropriate value
             bool expected = false; // TODO: Initialize to an appropriate value
             bool actual;
-            actual = target.useItem(item);
+            actual = target.useItem(item, enemy);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
