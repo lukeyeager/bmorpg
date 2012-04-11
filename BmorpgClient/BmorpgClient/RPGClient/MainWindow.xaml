@@ -10,38 +10,48 @@
         <TabControl Height="480" HorizontalAlignment="Left" Margin="0,-25,0,0" Name="tabControl1" VerticalAlignment="Bottom" Width="640" Visibility="Visible" ClipToBounds="False">
             <TabItem Header="Login" Name="tabLogin" Visibility="Collapsed">
                 <Grid Height="433" Name="grid1" Width="612">
-                    <Label Content="IpAddress" Height="26" HorizontalAlignment="Left" Margin="97,77,0,0" Name="labelIp" VerticalAlignment="Top" Width="76" />
-                    <TextBox Height="25" HorizontalAlignment="Left" Margin="179,77,0,0" Name="IPAddressBox" VerticalAlignment="Top" Width="109" Text="127.0.0.1" />
-                    <Button Content="Connect" Height="30" HorizontalAlignment="Left" Margin="304,70,0,0" Name="ConnectButton" VerticalAlignment="Top" Width="113" Click="ConnectButton_Click" />
-                    <CheckBox Content="Use Secure Connection?" Height="20" HorizontalAlignment="Left" Margin="433,77,0,0" Name="SecureBox" VerticalAlignment="Top" Width="152" />
-                    <TextBox Height="25" HorizontalAlignment="Left" Margin="97,110,0,0" Name="ConnectionStatusBox" VerticalAlignment="Top" Width="191" Text="Status: Not Connected" IsReadOnly="True" IsTabStop="False" IsEnabled="False" />
-                    <Button Content="Restart Server" Height="32" HorizontalAlignment="Left" Margin="304,106,0,0" Name="RestartButton" VerticalAlignment="Top" Width="113" />
-                    <CheckBox Content="SVN" Height="21" HorizontalAlignment="Left" Margin="433,114,0,0" Name="SvnCheckBox" VerticalAlignment="Top" Width="87" />
-                    <Label Content="Username" Height="25" HorizontalAlignment="Left" Margin="97,230,0,0" Name="labelUsername" VerticalAlignment="Top" Width="110" />
-                    <Label Content="Password" Height="24" HorizontalAlignment="Left" Margin="97,270,0,0" Name="labelPassword" VerticalAlignment="Top" Width="100" />
-                    <TextBox Height="23" HorizontalAlignment="Left" Margin="187,230,0,0" Name="UsernameBox" VerticalAlignment="Top" Width="151" />
-                    <PasswordBox Height="24" HorizontalAlignment="Left" Margin="187,270,0,0" Name="PasswordBox" VerticalAlignment="Top" Width="151" PasswordChar="*"/>
-                    <Button Content="Login" Height="31" HorizontalAlignment="Left" Margin="207,359,0,0" Name="LoginButton" VerticalAlignment="Top" Width="109" Click="LoginButton_Click" />
-                    <Label Content="No Account? Click here to create one" Height="35" HorizontalAlignment="Left" Margin="358,322,0,0" Name="labelNoAcct" VerticalAlignment="Top" Width="212" ClipToBounds="False" />
-                    <Button Content="New Account" Height="31" HorizontalAlignment="Left" Margin="402,359,0,0" Name="buttonNewAcct" VerticalAlignment="Top" Width="109" Click="buttonNewAcct_Click" />
-                    <TextBox Height="23" HorizontalAlignment="Left" Margin="187,315,0,0" Name="LoginStatusBox" VerticalAlignment="Top" Width="151" IsReadOnly="True" IsEnabled="False" />
+                    <Label Content="IpAddress" Height="26" HorizontalAlignment="Left" Margin="68,83,0,0" Name="labelIp" VerticalAlignment="Top" Width="76" />
+                    <TextBox Height="25" HorizontalAlignment="Left" Margin="150,83,0,0" Name="IPAddressBox" VerticalAlignment="Top" Width="109" Text="127.0.0.1" />
+                    <Button Content="Connect" Height="30" HorizontalAlignment="Left" Margin="275,76,0,0" Name="ConnectButton" VerticalAlignment="Top" Width="113" Click="ConnectButton_Click" />
+                    <CheckBox Content="Use Secure Connection?" Height="20" HorizontalAlignment="Left" Margin="408,86,0,0" Name="SecureBox" VerticalAlignment="Top" Width="152" />
+                    <TextBox Height="25" HorizontalAlignment="Left" Margin="68,116,0,0" Name="ConnectionStatusBox" VerticalAlignment="Top" Width="191" Text="Status: Not Connected" IsReadOnly="True" IsTabStop="False" IsEnabled="False" />
+                    <Button Content="Restart Server" Height="32" HorizontalAlignment="Left" Margin="275,112,0,0" Name="RestartButton" VerticalAlignment="Top" Width="113" />
+                    <CheckBox Content="SVN" Height="21" HorizontalAlignment="Left" Margin="408,112,0,0" Name="SvnCheckBox" VerticalAlignment="Top" Width="87" />
+                    <Label Content="Username" Height="25" HorizontalAlignment="Left" Margin="68,234,0,0" Name="labelUsername" VerticalAlignment="Top" Width="110" />
+                    <Label Content="Password" Height="24" HorizontalAlignment="Left" Margin="68,274,0,0" Name="labelPassword" VerticalAlignment="Top" Width="100" />
+                    <TextBox Height="23" HorizontalAlignment="Left" Margin="158,234,0,0" Name="UsernameBox" VerticalAlignment="Top" Width="151" />
+                    <PasswordBox Height="24" HorizontalAlignment="Left" Margin="158,274,0,0" Name="PasswordBox" VerticalAlignment="Top" Width="151" PasswordChar="*"/>
+                    <Button Content="Login" Height="31" HorizontalAlignment="Left" Margin="178,363,0,0" Name="LoginButton" VerticalAlignment="Top" Width="109" Click="LoginButton_Click" />
+                    <Label Content="No Account? Click here to create one" Height="35" HorizontalAlignment="Left" Margin="329,326,0,0" Name="labelNoAcct" VerticalAlignment="Top" Width="212" ClipToBounds="False" />
+                    <Button Content="New Account" Height="31" HorizontalAlignment="Left" Margin="373,363,0,0" Name="buttonNewAcct" VerticalAlignment="Top" Width="109" Click="buttonNewAcct_Click" />
+                    <TextBox Height="23" HorizontalAlignment="Left" Margin="158,319,0,0" Name="LoginStatusBox" VerticalAlignment="Top" Width="151" IsReadOnly="True" IsEnabled="False" />
                 </Grid>
             </TabItem>
             <TabItem Header="Account" Name="tabCreateAcct" Visibility="Collapsed">
                 <Grid>
-                    <Label Content="Choose a username" Height="31" HorizontalAlignment="Left" Margin="82,51,0,0" Name="labelUser" VerticalAlignment="Top" Width="147" />
-                    <Label Content="Choose a password" Height="30" HorizontalAlignment="Left" Margin="82,98,0,0" Name="labelPass" VerticalAlignment="Top" Width="142" />
-                    <Label Content="Choose a class" Height="25" HorizontalAlignment="Left" Margin="82,143,0,0" Name="labelWhatClass" VerticalAlignment="Top" Width="112" />
-                    <TextBox Height="22" HorizontalAlignment="Left" Margin="235,53,0,0" Name="textBoxPickUsername" VerticalAlignment="Top" Width="171" />
-                    <PasswordBox Height="23" HorizontalAlignment="Left" Margin="235,100,0,0" Name="textBoxPickPassword" VerticalAlignment="Top" Width="171" PasswordChar="*"/>
-                    <ComboBox Height="26" HorizontalAlignment="Left" Margin="235,143,0,0" Name="comboBoxClassPick" VerticalAlignment="Top" Width="191" IsReadOnly="True">
+                    <Label Content="Choose a username" Height="31" HorizontalAlignment="Left" Margin="30,60,0,0" Name="labelUser" VerticalAlignment="Top" Width="147" />
+                    <Label Content="Choose a password" Height="30" HorizontalAlignment="Left" Margin="30,98,0,0" Name="labelPass" VerticalAlignment="Top" Width="142" />
+                    <Label Content="Choose a class" Height="25" HorizontalAlignment="Left" Margin="30,142,0,0" Name="labelWhatClass" VerticalAlignment="Top" Width="112" />
+                    <TextBox Height="22" HorizontalAlignment="Left" Margin="184,60,0,0" Name="textBoxPickUsername" VerticalAlignment="Top" Width="171" />
+                    <PasswordBox Height="23" HorizontalAlignment="Left" Margin="184,100,0,0" Name="textBoxPickPassword" VerticalAlignment="Top" Width="171" PasswordChar="*"/>
+                    <ComboBox Height="26" HorizontalAlignment="Left" Margin="184,141,0,0" Name="comboBoxClassPick" VerticalAlignment="Top" Width="171" IsReadOnly="True">
                         <ComboBoxItem Content="Soldier" />
                         <ComboBoxItem Content="Adept" />
                         <ComboBoxItem Content="Engineer" />
                     </ComboBox>
-                    <Button Content="Create" Height="51" HorizontalAlignment="Left" Margin="247,211,0,0" Name="buttonCreateAccount" VerticalAlignment="Top" Width="159" Click="buttonCreateAccount_Click" />
-                    <TextBox Height="40" HorizontalAlignment="Left" Margin="218,283,0,0" Name="textBoxCreateStatus" VerticalAlignment="Top" Width="222" IsReadOnly="True" Visibility="Visible" Text="Status" IsEnabled="False" />
-                    <Button Content="Go Back" Height="29" HorizontalAlignment="Left" Margin="34,393,0,0" Name="buttonGoBack" VerticalAlignment="Top" Width="102" Click="buttonGoBack_Click" />
+                    <Button Content="Create" Height="33" HorizontalAlignment="Left" Margin="479,409,0,0" Name="buttonCreateAccount" VerticalAlignment="Top" Width="92" Click="buttonCreateAccount_Click" />
+                    <TextBox Height="40" HorizontalAlignment="Left" Margin="193,409,0,0" Name="textBoxCreateStatus" VerticalAlignment="Top" Width="222" IsReadOnly="True" Visibility="Visible" Text="Status" IsEnabled="False" />
+                    <Button Content="Go Back" Height="29" HorizontalAlignment="Left" Margin="21,420,0,0" Name="buttonGoBack" VerticalAlignment="Top" Width="102" Click="buttonGoBack_Click" />
+                    <GroupBox Header="Choose your Avatar" Height="227" HorizontalAlignment="Left" Margin="21,176,0,0" Name="groupBoxAvatar" VerticalAlignment="Top" Width="571">
+                        <Grid Height="205" Width="552">
+                            <RadioButton Content="Avatar 1" Height="16" HorizontalAlignment="Left" Margin="60,171,0,0" Name="radioButton1" VerticalAlignment="Top" />
+                            <RadioButton Content="Avatar 2" Height="16" HorizontalAlignment="Left" Margin="233,171,0,0" Name="radioButton2" VerticalAlignment="Top" />
+                            <RadioButton Content="Avatar 3" Height="16" HorizontalAlignment="Left" Margin="426,171,0,0" Name="radioButton3" VerticalAlignment="Top" />
+                            <Image Height="116" HorizontalAlignment="Left" Margin="30,20,0,0" Name="image2" Stretch="Fill" VerticalAlignment="Top" Width="141" Source="/BMORPG_Client;component/Char.jpg" />
+                            <Image Height="116" HorizontalAlignment="Left" Margin="204,20,0,0" Name="image3" Stretch="Fill" VerticalAlignment="Top" Width="141" Source="/BMORPG_Client;component/Char.jpg" />
+                            <Image Height="116" HorizontalAlignment="Left" Margin="397,20,0,0" Name="image4" Stretch="Fill" VerticalAlignment="Top" Width="141" Source="/BMORPG_Client;component/Char.jpg" />
+                        </Grid>
+                    </GroupBox>
                 </Grid>
             </TabItem>
             <TabItem Header="Battle" Name="tabBattle" Visibility="Collapsed">
@@ -110,6 +120,24 @@
                     <Label Height="57" HorizontalAlignment="Left" Margin="46,396,0,0" Name="labelLastKnownStatus" VerticalAlignment="Top" Width="347" />
                 </Grid>
     </TabItem>
+            <TabItem Header="Lobby" Name="tabLobby" Visibility="Collapsed">
+                <Grid>
+                    <Label Content="My Stats" Height="28" Name="label1" Width="105" Margin="255,96,270,344" />
+                    <Button Content="Ready to Play!" Height="44" HorizontalAlignment="Left" Margin="442,382,0,0" Name="buttonStartGame" VerticalAlignment="Top" Width="134" Click="buttonStartGame_Click" />
+                    <Label Content="My Items" Height="26" HorizontalAlignment="Left" Margin="78,85,0,0" Name="label2" VerticalAlignment="Top" Width="92" FontStretch="Normal" />
+                    <Label Content="Health:" Height="26" HorizontalAlignment="Left" Margin="254,130,0,0" Name="label3" VerticalAlignment="Top" Width="82" />
+                    <Label Content="Experience:" Height="30" HorizontalAlignment="Left" Margin="254,162,0,0" Name="label4" VerticalAlignment="Top" Width="76" />
+                    <ComboBox Height="23" HorizontalAlignment="Left" Margin="43,117,0,0" Name="comboBoxItems" VerticalAlignment="Top" Width="153" />
+                    <ComboBox Height="23" HorizontalAlignment="Left" Margin="43,198,0,0" Name="comboBoxArmor" VerticalAlignment="Top" Width="153" />
+                    <Label Content="My Armor" Height="25" HorizontalAlignment="Left" Margin="78,167,0,0" Name="label5" VerticalAlignment="Top" Width="92" FontStretch="Normal" />
+                    <Label Content="My Weapons" Height="31" HorizontalAlignment="Left" Margin="78,251,0,0" Name="label6" VerticalAlignment="Top" Width="92" FontStretch="Normal" />
+                    <ComboBox Height="25" HorizontalAlignment="Left" Margin="43,288,0,0" Name="comboBoxWeapons" VerticalAlignment="Top" Width="153" />
+                    <Image Height="122" HorizontalAlignment="Left" Margin="426,130,0,0" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="161" AllowDrop="False" Source="/BMORPG_Client;component/Char.jpg" />
+                    <Label Content="My Avatar" Height="28" HorizontalAlignment="Left" Margin="473,96,0,0" Name="label7" VerticalAlignment="Top" Width="68" />
+                    <Label Content="100" Height="25" HorizontalAlignment="Left" Margin="314,131,0,0" Name="labelStatHealth" VerticalAlignment="Top" Width="46" />
+                    <Label Content="0" Height="27" HorizontalAlignment="Left" Margin="324,162,0,0" Name="labelStatExp" VerticalAlignment="Top" Width="49" />
+                </Grid>
+            </TabItem>
     </TabControl>
         <Menu Height="22" VerticalAlignment="Top" Visibility="Visible" HorizontalAlignment="Stretch">
             <MenuItem Header="File" Height="22" Width="71">
@@ -121,5 +149,6 @@
                 <MenuItem Header="How To Play"/>
             </MenuItem>
         </Menu>
+        
     </Grid>
 </Window>

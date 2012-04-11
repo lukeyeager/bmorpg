@@ -210,18 +210,7 @@ namespace BMORPGClient
 
                 if (statusPacket.success)
                 {
-                    // TODO: Less intrusive message
-                    //MessageBox.Show("Login successful");
-
-                    NetworkPacket receivePacket = new NetworkPacket();
-                    receivePacket.stream = stream;
-
-                    if (!receivePacket.Receive(ReceiveGameStart))
-                    {
-                        MessageBox.Show("Could not start receiving gamestart packet.");
-                        stream.Close();
-                        stream = null;
-                    }
+                    tabControl1.SelectedIndex = 3;
                 }
                 else
                     MessageBox.Show("ERROR from login: " + statusPacket.errorMessage);
@@ -283,7 +272,17 @@ namespace BMORPGClient
             newAcct.stream = stream;
 
             newAcct.Send(SendCreateAccountPacketCallback);
-            tabControl1.SelectedIndex = 2;
+            tabControl1.SelectedIndex = 3;
+
+            NetworkPacket receivePacket = new NetworkPacket();
+            receivePacket.stream = stream;
+
+            if (!receivePacket.Receive(ReceiveGameStart))
+            {
+                MessageBox.Show("Could not start receiving gamestart packet.");
+                stream.Close();
+                stream = null;
+            }
         }
 
         void SendCreateAccountPacketCallback(Exception ex, object parameter)
@@ -409,5 +408,22 @@ namespace BMORPGClient
         }
 
         #endregion
+
+        private void buttonStartGame_Click(object sender, RoutedEventArgs e)
+        {
+            NetworkPacket receivePacket = new NetworkPacket();
+            receivePacket.stream = stream;
+
+            if (!receivePacket.Receive(ReceiveGameStart))
+            {
+                MessageBox.Show("Could not start receiving gamestart packet.");
+                stream.Close();
+                stream = null;
+            }
+            else 
+            {
+                tabControl1.SelectedIndex = 2;
+            }
+        }
     }
 }
