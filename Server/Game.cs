@@ -71,20 +71,17 @@ namespace BMORPG_Server
                 return;
 
             NetworkPacket packet = new NetworkPacket();
-
-            while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
+            
+ //           while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
+            while ((player1.simpleHealth > 0) && (player2.simpleHealth > 0))    // fight to the death
             {
                 // Note: only call CurrentHealth once each turn so as not to deal damage twice. (JDF)
+                // TODO
+                // send state packet to clients
 
                 Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
 
                 allDone.Reset();
-
-                // TODO: 
-                // after both commands rec, compute effect list based on the player and moveID
-                // speed affects the order of populating the effect list
-                // user provided commands(attacks/items) should be last two items in list
-
 
                 if (playerOneTurn)
                 {
@@ -108,9 +105,6 @@ namespace BMORPG_Server
                 player2.expireTurn();
 
                 playerOneTurn = !playerOneTurn; // change whose turn it is
-
-                //why put the thread to sleep here? (JDF)
-                Thread.Sleep(Server.SleepTime());
             }
 
             // For now, let's just quit
@@ -266,48 +260,82 @@ namespace BMORPG_Server
 
                 //     opponent.receiveMove(movePacket.moveType, player);
                 int ID = movePacket.moveID;
+               
+         // ------------------------------
+         // used for simpleHealth calculations
+
+                Random rnd = new Random();  //used for simple health calculations
+                                            //subtract a random number from opponent's health
+
+                int randomAttack = rnd.Next(10, 30); //between the interval [10, 30]
+                int randomDefense = rnd.Next(15, 25);
+
+                // if "special" is clicked, it might hit with high damage
+                // but can possible miss entirely
+                int randomSpecial = (rnd.Next(4) == 1) ? rnd.Next(40, 50) : 0;
+                
+        // ------------------------------
+
                 switch (movePacket.moveType)
                 {
-                    case PlayerMovePacket.MoveType.Item:
+                    case PlayerMovePacket.MoveType.Item:    // "defend" clicked on client
 
                         if (player.UserID == player1.UserID){
                             validMove = usePlayerItem(player1, movePacket.moveID, player2);
+                            player1.simpleHealth += randomDefense;
                         }
                         else{
                             validMove = usePlayerItem(player2, movePacket.moveID, player1);
+                            player2.simpleHealth += randomDefense;
                         }
                         break;
 
-                    case PlayerMovePacket.MoveType.Ability:
+                    case PlayerMovePacket.MoveType.Ability:    // "attack1" clicked on client
                         
                         if (player.UserID == player1.UserID){
                             validMove = usePlayerAbility(player1, movePacket.moveID, player2);
+                            player2.simpleHealth -= randomAttack;
                         }
                         else{
                             validMove = usePlayerAbility(player2, movePacket.moveID, player1);
+                            player1.simpleHealth -= randomAttack;
                         }
                         break;
 
-                    case PlayerMovePacket.MoveType.Equipment:
+                    case PlayerMovePacket.MoveType.Equipment:    // "attack2" clicked on client
                       
                         if (player.UserID == player1.UserID){
                             validMove = usePlayerEquipment(player1, movePacket.moveID, player2);
+                            player2.simpleHealth -= randomAttack;
                         }
                         else{
                             validMove = usePlayerEquipment(player2, movePacket.moveID, player1);
+                            player1.simpleHealth -= randomAttack;
                         }
                         break;
 
-                    default:
+                    case PlayerMovePacket.MoveType.None:
+
+                        if (player.UserID == player1.UserID)
+                        {
+                            validMove = usePlayerEquipment(player1, movePacket.moveID, player2);
+                            player2.simpleHealth -= randomSpecial;
+                        }
+                        else
+                        {
+                            validMove = usePlayerEquipment(player2, movePacket.moveID, player1);
+                            player1.simpleHealth -= randomSpecial;
+                        }
+                        break;
+
+                    default:    // "special" clicked on client
                         Console.WriteLine("No move type specified in PlayerMovePacket");
                         break;
 
                 }
 
-                // TODO: make sure it was a valid move (player wasn't somehow cheating)
-                // only allow to move on to the next turn if it was a valid move
-                if (validMove)
-                    allDone.Set();  //allow Start() thread to continue if it was a valid move
+                allDone.Set();  //allow Start() thread to continue if it was a valid move
+
             }
             else
             {

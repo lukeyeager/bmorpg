@@ -98,6 +98,7 @@ namespace BMORPG_Server
         public List<int> equipments;
         public int equipped;
         public List<int> abilities;
+        public int simpleHealth;   // used for simple attacks, subtract a random number until < 0
 
         /// <summary>
         /// Constructor for the Player class.
@@ -117,6 +118,7 @@ namespace BMORPG_Server
             equipments = new List<int>();
             equipped = -1;  //dummy value
             abilities = new List<int>();
+            simpleHealth = 100;
 
             //populate base stats using database
 
