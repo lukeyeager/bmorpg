@@ -44,7 +44,7 @@ namespace BMORPG_Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to open authenticator database connection: " + ex.Message);
+                Console.WriteLine("Failed to open authenticator database connection");
                 authenticatorDBConnection = null;
             }
 
@@ -58,10 +58,9 @@ namespace BMORPG_Server
                     packet.stream = incoming;
 
                     packet.Receive(ReceivePacketCallback);
-                    continue;
                 }
 
-                //Thread.Sleep(Server.SleepTime());
+                Thread.Sleep(Server.SleepTime());
             }
         }
 

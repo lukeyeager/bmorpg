@@ -86,8 +86,8 @@ namespace BMORPG_Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("\nFailed to read in Items from the database:\n");
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine("\nFailed to read in Items from the database");
+                //Console.WriteLine(ex.ToString());
                 if (reader != null)
                     reader.Close();
             }

@@ -173,7 +173,6 @@ namespace BMORPGClient
                     stream = null;
                 }
             }
-            tabControl1.SelectedIndex = 2;
         }
 
         private void SendLoginCallback(Exception exception, object parameter)
@@ -272,17 +271,6 @@ namespace BMORPGClient
             newAcct.stream = stream;
 
             newAcct.Send(SendCreateAccountPacketCallback);
-            tabControl1.SelectedIndex = 3;
-
-            NetworkPacket receivePacket = new NetworkPacket();
-            receivePacket.stream = stream;
-
-            if (!receivePacket.Receive(ReceiveGameStart))
-            {
-                MessageBox.Show("Could not start receiving gamestart packet.");
-                stream.Close();
-                stream = null;
-            }
         }
 
         void SendCreateAccountPacketCallback(Exception ex, object parameter)
@@ -295,7 +283,9 @@ namespace BMORPGClient
                 return;
             }
 
-            LoginStatusPacket packet = new LoginStatusPacket();
+            MessageBox.Show("Sent CreateAccountPacket!");
+
+            NetworkPacket packet = new NetworkPacket();
             packet.stream = stream;
             packet.Receive(ReceiveLoginStatus);
         }
