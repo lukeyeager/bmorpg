@@ -32,7 +32,7 @@ namespace BMORPG_Server
         public const string ServerVersion = "1.0";
 
         //Lock dbConnectionLock before using dbConnection in order to avoid multi-threaded problems.
-        //Note: it may be impractical to have one universal connection to the database.  Consider having a collection of them? (JDF)
+        public const string dbConnectionString = "UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;Database=BMORPG;Connection Timeout=1;";
         public static SqlConnection dbConnection = null;
         public static object dbConnectionLock = new Object();
         public static SqlConnection dbConnectionSecondary = null;
@@ -73,8 +73,7 @@ namespace BMORPG_Server
             // Make database connection
             try
             {
-                dbConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
-                    "Database=BMORPG;Connection Timeout=1;");
+                dbConnection = new SqlConnection(dbConnectionString);
                 dbConnection.Open();
             }
             catch (Exception ex)
@@ -84,8 +83,7 @@ namespace BMORPG_Server
             }
             try
             {
-                dbConnectionSecondary = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
-                    "Database=BMORPG;Connection Timeout=1;");
+                dbConnectionSecondary = new SqlConnection(dbConnectionString);
                 dbConnectionSecondary.Open();
             }
             catch (Exception ex)

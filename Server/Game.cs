@@ -135,12 +135,11 @@ namespace BMORPG_Server
                 //means the player does not have this item
                 return false;
             }
-            bool temp = p.useItem(item, enemy);
-            if (!temp)
+            if (!p.useItem(item, enemy))
             {
                 //do something because removing the valid item failed.
-                Console.WriteLine("Removing an item from a Player's inventory failed!");
-                return temp;
+                Console.WriteLine("Removing an Item from a Player's inventory failed!");
+                return false;
             }
 
             return true;
@@ -155,7 +154,18 @@ namespace BMORPG_Server
         /// <returns></returns>
         private bool usePlayerEquipment(Player p, int equipment, Player enemy)
         {
-            return false;
+            if (!p.hasEquipment(equipment))
+            {
+                //means the player does not have this equipment
+                return false;
+            }
+            if (!p.useEquipment(equipment, enemy))
+            {
+                //do something because removing the valid item failed.
+                Console.WriteLine("Equipping something from a Player's inventory failed!");
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -167,7 +177,18 @@ namespace BMORPG_Server
         /// <returns></returns>
         private bool usePlayerAbility(Player p, int ability, Player enemy)
         {
-            return false;
+            if (!p.hasAbility(ability))
+            {
+                //means the player does not have this equipment
+                return false;
+            }
+            if (!p.useAbility(ability, enemy))
+            {
+                //do something because removing the valid item failed.
+                Console.WriteLine("Using a Player's Ability failed!");
+                return false;
+            }
+            return true;
         }
 
         #endregion

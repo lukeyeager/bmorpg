@@ -28,21 +28,20 @@ namespace BMORPG_Server
     /// </summary>
     class Player
     {
-        private static SqlConnection playerDBConnection = null;
-        private static object playerDBConnectionLock = new Object();
+        private SqlConnection playerDBConnection;// = null;
+        //private object playerDBConnectionLock;// = new Object();
         public static void instantiateDBConnection()
         {
-            try
-            {
-                playerDBConnection = new SqlConnection("UID=records;PWD=aBCfta13;Addr=(local)\\BMORPG;Trusted_Connection=sspi;" +
-                    "Database=BMORPG;Connection Timeout=1;");
-                playerDBConnection.Open();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Failed to open Player constructor database connection: " + ex.Message);
-                playerDBConnection = null;
-            }
+            //try
+            //{
+            //    playerDBConnection = new SqlConnection(Server.dbConnectionString);
+            //    playerDBConnection.Open();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("Failed to open Player constructor database connection: " + ex.Message);
+            //    playerDBConnection = null;
+            //}
         }
 
         /// <summary>
@@ -96,7 +95,7 @@ namespace BMORPG_Server
         public List<Effect> effects;
         public List<Effect> addNextTurn;
         public List<int> items;
-        public List<int> equipment;
+        public List<int> equipments;
         public int equipped;
         public List<int> abilities;
 
@@ -115,11 +114,13 @@ namespace BMORPG_Server
             effects = new List<Effect>();
             addNextTurn = new List<Effect>();
             items = new List<int>();
-            equipment = new List<int>();
+            equipments = new List<int>();
             equipped = -1;  //dummy value
             abilities = new List<int>();
 
             //populate base stats using database
+
+            openDBConnection();
 
             SqlDataReader reader = null;
             SqlCommand command = new SqlCommand("SELECT Experience, Lvl, MaxHealth, Attack, Defense, Accuracy, Evasion, Speed\nFROM Player\nWHERE PID="
@@ -127,28 +128,25 @@ namespace BMORPG_Server
             command.CommandTimeout = 3;
             try
             {
-                lock (playerDBConnectionLock)
+                reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        experience = reader.GetInt32(0);
-                        level = reader.GetInt32(1);
-                        base_max_health = reader.GetInt32(2);
-                        base_attack = reader.GetInt32(3);
-                        base_defense = reader.GetInt32(4);
-                        base_accuracy = reader.GetInt32(5);
-                        base_evasion = reader.GetInt32(6);
-                        base_speed = reader.GetInt32(7);
-                        Console.WriteLine("Read in stats from database for: " + username);
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nFailed to read in attributes for Player " + username + " UID: " + userID
-                            + " from the database:\n\nRecords for this Player do not exist in the database");
-                    }
-                    reader.Close();
+                    experience = reader.GetInt32(0);
+                    level = reader.GetInt32(1);
+                    base_max_health = reader.GetInt32(2);
+                    base_attack = reader.GetInt32(3);
+                    base_defense = reader.GetInt32(4);
+                    base_accuracy = reader.GetInt32(5);
+                    base_evasion = reader.GetInt32(6);
+                    base_speed = reader.GetInt32(7);
+                    Console.WriteLine("Read in stats from database for: " + username);
                 }
+                else
+                {
+                    Console.WriteLine("\nFailed to read in attributes for Player " + username + " UID: " + userID
+                        + " from the database:\n\nRecords for this Player do not exist in the database");
+                }
+                reader.Close();
             }
             catch (Exception ex)
             {
@@ -167,16 +165,13 @@ namespace BMORPG_Server
             command.CommandTimeout = 3;
             try
             {
-                lock (playerDBConnectionLock)
+                reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        int item_ID = reader.GetInt32(0);
-                        items.Add(item_ID);
-                    }
-                    reader.Close();
+                    int item_ID = reader.GetInt32(0);
+                    items.Add(item_ID);
                 }
+                reader.Close();
                 Console.WriteLine("Read in items from database for: " + username);
             }
             catch (Exception ex)
@@ -196,16 +191,13 @@ namespace BMORPG_Server
             command.CommandTimeout = 3;
             try
             {
-                lock (playerDBConnectionLock)
+                reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        int equipment_ID = reader.GetInt32(0);
-                        equipment.Add(equipment_ID);
-                    }
-                    reader.Close();
+                    int equipment_ID = reader.GetInt32(0);
+                    equipments.Add(equipment_ID);
                 }
+                reader.Close();
                 Console.WriteLine("Read in equipment from database for: " + username);
             }
             catch (Exception ex)
@@ -225,16 +217,13 @@ namespace BMORPG_Server
             command.CommandTimeout = 3;
             try
             {
-                lock (playerDBConnectionLock)
+                reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        int ability_ID = reader.GetInt32(0);
-                        abilities.Add(ability_ID);
-                    }
-                    reader.Close();
+                    int ability_ID = reader.GetInt32(0);
+                    abilities.Add(ability_ID);
                 }
+                reader.Close();
                 Console.WriteLine("Read in abilities from database for: " + username);
             }
             catch (Exception ex)
@@ -245,6 +234,8 @@ namespace BMORPG_Server
                 if (reader != null)
                     reader.Close();
             }
+
+            closeDBConnection();
 
             Console.WriteLine("Successfully logged in: " + username + "\tUID: " + userID);
             tot_max_health = 0;
@@ -465,34 +456,34 @@ namespace BMORPG_Server
                 return false;
 
             //remove from the database
+
+            openDBConnection();
+
             SqlDataReader reader = null;
             SqlCommand command = new SqlCommand("SELECT ID\nFROM PlayerItems\nWHERE Player_ID=" + UserID
                 + " AND Item_ID=" + item, playerDBConnection);
             command.CommandTimeout = 3;
             try
             {
-                lock (playerDBConnectionLock)
+                reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        int ID = reader.GetInt32(0);
-                        reader.Close();
-                        command = new SqlCommand("DELETE FROM PlayerItems\nWHERE ID=" + ID, playerDBConnection);
-                        command.CommandTimeout = 3;
-                        int rowsAffected = command.ExecuteNonQuery();
-                        if (rowsAffected == 1)
-                            Console.WriteLine("Successfully deleted item: " + ID + " from the inventory of player: "
-                                + UserID);   //all's good
-                        else
-                            return false;   //uh oh....
-                    }
+                    int ID = reader.GetInt32(0);
+                    reader.Close();
+                    command = new SqlCommand("DELETE FROM PlayerItems\nWHERE ID=" + ID, playerDBConnection);
+                    command.CommandTimeout = 3;
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected == 1)
+                        Console.WriteLine("Successfully deleted item: " + ID + " from the inventory of player: "
+                            + UserID);   //all's good
                     else
-                    {
-                        reader.Close();
-                        Console.WriteLine("Player ID: " + UserID + " does not have an Item of id: " + item);
-                        return false;
-                    }
+                        return false;   //uh oh....
+                }
+                else
+                {
+                    reader.Close();
+                    Console.WriteLine("Player ID: " + UserID + " does not have an Item of id: " + item);
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -504,15 +495,17 @@ namespace BMORPG_Server
                     reader.Close();
             }
 
+            closeDBConnection();
+
             //now that it's removed, add the appropriate Effects to the Players
             Item usedItem = Item.masterList[item];
             for (int i = 0; i < usedItem.Effects.Count; i++)
             {
                 Effect temp = Effect.masterList[usedItem.Effects[i]];
                 if (usedItem.Enemy[i])
-                    ;//place Effect on the other player
+                    enemy.effects.Add(temp);
                 else
-                    ;//place Effect on current player
+                    effects.Add(temp);
             }
             return true;
         }
@@ -524,6 +517,11 @@ namespace BMORPG_Server
         /// <returns></returns>
         public bool hasEquipment(int equipment)
         {
+            foreach (int e in equipments)
+            {
+                if (e == equipment)
+                    return true;
+            }
             return false;
         }
 
@@ -534,9 +532,95 @@ namespace BMORPG_Server
         /// <returns></returns>
         public bool useEquipment(int equipment, Player enemy)
         {
+            //check if the Player has the given Equipment
+            if (!hasEquipment(equipment))
+                return false;
+            //remove Effects of current Equipment
+            Equipment remove = Equipment.masterList[equipped];
+            for (int i = 0; i < remove.Effects.Count; i++)
+            {
+                Effect removeTemp = Effect.masterList[remove.Effects[i]];
+                if (remove.Enemy[i])
+                    enemy.effects.Remove(removeTemp);
+                else
+                    effects.Remove(removeTemp);
+            }
+            //add Effects of new Equipment
+            Equipment usedEquipment = Equipment.masterList[equipment];
+            for (int i = 0; i < usedEquipment.Effects.Count; i++)
+            {
+                Effect temp = Effect.masterList[usedEquipment.Effects[i]];
+                if (usedEquipment.Enemy[i])
+                    enemy.effects.Add(temp);
+                else
+                    effects.Add(temp);
+            }
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ability"></param>
+        /// <returns></returns>
+        public bool hasAbility(int ability)
+        {
+            foreach (int e in abilities)
+            {
+                if (e == ability)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ability"></param>
+        /// <param name="enemy"></param>
+        /// <returns></returns>
+        public bool useAbility(int ability, Player enemy)
+        {
+            //check if the Player has the given Ability
+            if (!hasAbility(ability))
+                return false;
+            //add the Effects of the Ability to the appropriate Players
+            Ability usedAbility = Ability.masterList[ability];
+            for (int i = 0; i < usedAbility.Effects.Count; i++)
+            {
+                Effect temp = Effect.masterList[usedAbility.Effects[i]];
+                if (usedAbility.Enemy[i])
+                    enemy.effects.Add(temp);
+                else
+                    effects.Add(temp);
+            }
+            return true;
+        }
+
         #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void openDBConnection()
+        {
+            if (playerDBConnection == null)
+            {
+                playerDBConnection = new SqlConnection(Server.dbConnectionString);
+            }
+            else
+            {
+                playerDBConnection.Open();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void closeDBConnection()
+        {
+            if (playerDBConnection != null)
+                playerDBConnection.Close();
+        }
     }
 }
