@@ -56,7 +56,7 @@
             </TabItem>
             <TabItem Header="Battle" Name="tabBattle" Visibility="Collapsed">
                      <Grid>
-                <Button Content="Attack 1" HorizontalAlignment="Right" Height="40" Margin="0,0,40,166" VerticalAlignment="Bottom" Width="140" Foreground="Black" ToolTip="Attack: 20hp">
+                <Button Name="Attack1Button" Content="Attack 1" HorizontalAlignment="Right" Height="40" Margin="0,0,40,166" VerticalAlignment="Bottom" Width="140" Foreground="Black" ToolTip="Attack: 20hp" Click="Attack1Button_Click">
                     <Button.Effect>
                         <DropShadowEffect/>
                     </Button.Effect>
@@ -69,7 +69,7 @@
                         </LinearGradientBrush>
                     </Button.Background>
                 </Button>
-                <Button Content="Attack 2" HorizontalAlignment="Right" Height="40" Margin="0,0,40,122" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+                <Button Name="Attack2Button" Content="Attack 2" HorizontalAlignment="Right" Height="40" Margin="0,0,40,122" VerticalAlignment="Bottom" Width="140" Foreground="Black" Click="Attack2Button_Click">
                     <Button.Effect>
                         <DropShadowEffect/>
                     </Button.Effect>
@@ -82,7 +82,7 @@
                         </LinearGradientBrush>
                     </Button.Background>
                 </Button>
-                <Button Content="Defend" HorizontalAlignment="Right" Height="40" Margin="0,0,40,79" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+                <Button Name="DefendButton" Content="Defend" HorizontalAlignment="Right" Height="40" Margin="0,0,40,79" VerticalAlignment="Bottom" Width="140" Foreground="Black" Click="DefendButton_Click">
                     <Button.Effect>
                         <DropShadowEffect/>
                     </Button.Effect>
@@ -95,7 +95,7 @@
                         </LinearGradientBrush>
                     </Button.Background>
                 </Button>
-                <Button Content="Special" HorizontalAlignment="Right" Height="40" Margin="0,0,40,35" VerticalAlignment="Bottom" Width="140" Foreground="Black">
+                <Button Name="SpecialButton" Content="Special" HorizontalAlignment="Right" Height="40" Margin="0,0,40,35" VerticalAlignment="Bottom" Width="140" Foreground="Black" Click="SpecialButton_Click">
                     <Button.Effect>
                         <DropShadowEffect/>
                     </Button.Effect>

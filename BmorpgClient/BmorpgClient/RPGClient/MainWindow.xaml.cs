@@ -415,5 +415,46 @@ namespace BMORPGClient
                 tabControl1.SelectedIndex = 2;
             }
         }
+
+        private void Attack1Button_Click(object sender, RoutedEventArgs e)
+        {
+            PlayerMovePacket packet = new PlayerMovePacket();
+            packet.moveType = PlayerMovePacket.MoveType.Ability;
+            packet.stream = stream;
+
+            packet.Send(SendMoveCallback);
+        }
+
+        private void Attack2Button_Click(object sender, RoutedEventArgs e)
+        {
+            PlayerMovePacket packet = new PlayerMovePacket();
+            packet.moveType = PlayerMovePacket.MoveType.Equipment;
+            packet.stream = stream;
+
+            packet.Send(SendMoveCallback);
+        }
+
+        private void DefendButton_Click(object sender, RoutedEventArgs e)
+        {
+            PlayerMovePacket packet = new PlayerMovePacket();
+            packet.moveType = PlayerMovePacket.MoveType.Item;
+            packet.stream = stream;
+
+            packet.Send(SendMoveCallback);
+        }
+
+        private void SpecialButton_Click(object sender, RoutedEventArgs e)
+        {
+            PlayerMovePacket packet = new PlayerMovePacket();
+            packet.moveType = PlayerMovePacket.MoveType.None;
+            packet.stream = stream;
+
+            packet.Send(SendMoveCallback);
+        }
+
+        private void SendMoveCallback(Exception exception, object parameter)
+        {
+            // Empty
+        }
     }
 }
