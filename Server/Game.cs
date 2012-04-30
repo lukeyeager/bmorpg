@@ -71,6 +71,7 @@ namespace BMORPG_Server
                 return;
 
             NetworkPacket packet = new NetworkPacket();
+            Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
             
  //           while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
             while ((player1.simpleHealth > 0) && (player2.simpleHealth > 0))    // fight to the death
@@ -79,20 +80,29 @@ namespace BMORPG_Server
                 // TODO
                 // send state packet to clients
 
-                Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
+                Console.WriteLine("Player 1 health: " + player1.simpleHealth + "   Player 2 health: " + player2.simpleHealth);
 
                 allDone.Reset();
 
-                if (playerOneTurn)
-                {
-                    packet.stream = player1.netStream;
-                    packet.Receive(ReceivePacketCallback);
-                }
-                else // player2's turn
-                {
-                    packet.stream = player2.netStream;
-                    packet.Receive(ReceivePacketCallback);
-                }
+                // ONE TURN AT A TIME
+                //if (playerOneTurn)
+                //{
+                //    packet.stream = player1.netStream;
+                //    packet.Receive(ReceivePacketCallback);
+                //}
+                //else // player2's turn
+                //{
+                //    packet.stream = player2.netStream;
+                //    packet.Receive(ReceivePacketCallback);
+                //}
+
+                // allow anyone to move at any time
+                packet.stream = player1.netStream;
+                packet.Receive(ReceivePacketCallback);
+                
+                // player2's turn        
+                packet.stream = player2.netStream;
+                packet.Receive(ReceivePacketCallback);                
 
                 allDone.WaitOne();
                 // After both PlayerMovePackets are received, calculate their healths
@@ -279,14 +289,15 @@ namespace BMORPG_Server
                 switch (movePacket.moveType)
                 {
                     case PlayerMovePacket.MoveType.Item:    // "defend" clicked on client
-
                         if (player.UserID == player1.UserID){
                             validMove = usePlayerItem(player1, movePacket.moveID, player2);
                             player1.simpleHealth += randomDefense;
+                            Console.WriteLine("Player 1 chooses to defend");
                         }
                         else{
                             validMove = usePlayerItem(player2, movePacket.moveID, player1);
                             player2.simpleHealth += randomDefense;
+                            Console.WriteLine("Player 2 chooses to defend");
                         }
                         break;
 
@@ -295,10 +306,12 @@ namespace BMORPG_Server
                         if (player.UserID == player1.UserID){
                             validMove = usePlayerAbility(player1, movePacket.moveID, player2);
                             player2.simpleHealth -= randomAttack;
+                            Console.WriteLine("Player 1 chooses to attack");
                         }
                         else{
                             validMove = usePlayerAbility(player2, movePacket.moveID, player1);
                             player1.simpleHealth -= randomAttack;
+                            Console.WriteLine("Player 2 chooses to attack");
                         }
                         break;
 
@@ -307,10 +320,12 @@ namespace BMORPG_Server
                         if (player.UserID == player1.UserID){
                             validMove = usePlayerEquipment(player1, movePacket.moveID, player2);
                             player2.simpleHealth -= randomAttack;
+                            Console.WriteLine("Player 1 chooses to attack");
                         }
                         else{
                             validMove = usePlayerEquipment(player2, movePacket.moveID, player1);
                             player1.simpleHealth -= randomAttack;
+                            Console.WriteLine("Player 2 chooses to attack");
                         }
                         break;
 
@@ -320,11 +335,13 @@ namespace BMORPG_Server
                         {
                             validMove = usePlayerEquipment(player1, movePacket.moveID, player2);
                             player2.simpleHealth -= randomSpecial;
+                            Console.WriteLine("Player 1 chooses to use a special attack");
                         }
                         else
                         {
                             validMove = usePlayerEquipment(player2, movePacket.moveID, player1);
                             player1.simpleHealth -= randomSpecial;
+                            Console.WriteLine("Player 2 chooses to use a special attack");
                         }
                         break;
 
