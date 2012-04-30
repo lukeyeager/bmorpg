@@ -150,7 +150,7 @@ namespace BMORPGClient
             }
             else
             {
-                MessageBox.Show("Received unknown packet.");
+                MessageBox.Show("Received unknown packet, expecting WelcomePacket");
             }
         }
 
@@ -331,7 +331,7 @@ namespace BMORPGClient
                 }
                 else
                 {
-                    MessageBox.Show("Received unknown packet type");
+                    MessageBox.Show("Received unknown packet type: " + packet.PacketType + ", expecting StartGamePacket");
                 }
             }
         }

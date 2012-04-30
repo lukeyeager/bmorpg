@@ -70,7 +70,6 @@ namespace BMORPG_Server
             if (!SendStartGamePackets())
                 return;
 
-            NetworkPacket packet = new NetworkPacket();
             Console.WriteLine("Playing game between " + player1.Username + " and " + player2.Username);
             
  //           while ((player1.CurrentHealth > 0) && (player2.CurrentHealth > 0))    // fight to the death
@@ -83,6 +82,7 @@ namespace BMORPG_Server
                 Console.WriteLine("Player 1 health: " + player1.simpleHealth + "   Player 2 health: " + player2.simpleHealth);
 
                 allDone.Reset();
+                NetworkPacket packet = new NetworkPacket();
 
                 // ONE TURN AT A TIME
                 //if (playerOneTurn)

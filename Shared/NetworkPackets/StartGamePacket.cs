@@ -43,16 +43,9 @@ namespace BMORPG.NetworkPackets
         public String opponentUsername = "";
         public bool myTurn = false;
 
-        public List<String> items;
-        public List<MiniEquipment> equipments;
-        public List<String> abilities;
-
         public StartGamePacket()
         {
             PacketType = Identifier;
-            items = new List<string>();
-            equipments = new List<MiniEquipment>();
-            abilities = new List<string>();
         }
     }
 }
